@@ -21,7 +21,7 @@ namespace TrabajoIGU
     {
         private Sesion sesion;
         private Mesa mesaSeleccionada;
-        private Dictionary<Shape, Mesa> mapaMesas = new Dictionary<Shape, Mesa>();
+        private Dictionary<UIElement, Mesa> mapaMesas = new Dictionary<UIElement, Mesa>();
 
         public MainWindow()
         {
@@ -40,76 +40,117 @@ namespace TrabajoIGU
 
             foreach (var mesa in sesion.Mesas)
             {
-                // Creamos un círculo por cada mesa
-                Ellipse figura = new Ellipse
+                // Imagen según el estado de la mesa
+                Image imgMesa = new Image
                 {
-                    Width = 60,
-                    Height = 60,
-                    Stroke = Brushes.Black,
-                    StrokeThickness = 2,
-                    Fill = GetColorPorEstado(mesa.Estado),
-                    Cursor = Cursors.Hand
+                    Width = 80,
+                    Height = 80,
+                    Source = new BitmapImage(new Uri(GetRutaImagenPorEstado(mesa.Estado), UriKind.Relative)),
+                    Cursor = Cursors.Hand,
+                    Tag = mesa // para acceder fácilmente luego
                 };
 
-                // Guardamos su posición
-                Canvas.SetLeft(figura, x);
-                Canvas.SetTop(figura, y);
+                // Asignamos posición
+                Canvas.SetLeft(imgMesa, x);
+                Canvas.SetTop(imgMesa, y);
 
-                // Asociamos evento clic
-                figura.MouseLeftButtonDown += Mesa_Click;
+                // Evento clic para seleccionar
+                imgMesa.MouseLeftButtonDown += Mesa_LeftClick;
+                imgMesa.MouseRightButtonDown += Mesa_RightClick;
 
-                // Mostramos su número encima
-                var label = new TextBlock
+                // Añadimos al Canvas
+                canvasSala.Children.Add(imgMesa);
+                mapaMesas.Add(imgMesa, mesa);
+
+                // Etiqueta con el número de mesa
+                TextBlock label = new TextBlock
                 {
                     Text = mesa.Id.ToString(),
                     FontWeight = FontWeights.Bold,
-                    FontSize = 16,
-                    Foreground = Brushes.Black
+                    FontSize = 14,
+                    Foreground = Brushes.White,
+                    Background = Brushes.Black,
+                    TextAlignment = TextAlignment.Center,
+                    Width = 20,
+                    Opacity = 0.6,
+                    IsHitTestVisible = false
                 };
-
-                Canvas.SetLeft(label, x + 20);
-                Canvas.SetTop(label, y + 18);
-
-                // Añadimos al Canvas y al diccionario
-                canvasSala.Children.Add(figura);
+                Canvas.SetLeft(label, x + 30);
+                Canvas.SetTop(label, y + 60);
                 canvasSala.Children.Add(label);
-                mapaMesas.Add(figura, mesa);
 
-                // Mover posición para la siguiente mesa
-                x += 100;
+                // Cambiar posición para la siguiente mesa
+                x += 120;
                 if (x > 400)
                 {
                     x = 50;
-                    y += 100;
+                    y += 120;
                 }
             }
         }
 
-        private Brush GetColorPorEstado(EstadoMesa estado)
+        private string GetRutaImagenPorEstado(EstadoMesa estado)
         {
             switch (estado)
             {
                 case EstadoMesa.Libre:
-                    return Brushes.LightGreen;
+                    return "Imagenes/mesaLibre.png";
                 case EstadoMesa.Reservada:
-                    return Brushes.Gold;
+                    return "Imagenes/mesaReservada.png";
                 case EstadoMesa.OcupadaSinComanda:
-                    return Brushes.Orange;
+                    return "Imagenes/mesaOcupada.png";
                 case EstadoMesa.OcupadaConComanda:
-                    return Brushes.Tomato;
+                    return "Imagenes/mesaComanda.png";
                 default:
-                    return Brushes.LightGray;
+                    return "Imagenes/mesaLibre.png";
             }
         }
 
-        private void Mesa_Click(object sender, MouseButtonEventArgs e)
+        private void Mesa_LeftClick(object sender, MouseButtonEventArgs e)
         {
-            var figura = sender as Shape;
-            if (figura != null && mapaMesas.ContainsKey(figura))
+            var elemento = sender as UIElement;
+            if (elemento == null) return;
+
+            if (mapaMesas.TryGetValue(elemento, out var mesa))
             {
-                mesaSeleccionada = mapaMesas[figura];
+                mesaSeleccionada = mesa;
                 MostrarDatosMesa();
             }
+        }
+
+        private void Mesa_RightClick(object sender, MouseButtonEventArgs e)
+        {
+            var elemento = sender as UIElement;
+            if (elemento == null) return;
+
+            if (!mapaMesas.TryGetValue(elemento, out var mesa))
+                return;
+
+            // Crear menú contextual dinámicamente
+            ContextMenu menu = new ContextMenu();
+
+            // Crear una opción principal “Cambiar estado”
+            MenuItem itemCambiar = new MenuItem { Header = "Cambiar estado..." };
+
+            // Añadir subopciones según el estado actual
+            foreach (var nuevoEstado in ObtenerEstadosPosibles(mesa.Estado))
+            {
+                MenuItem subItem = new MenuItem { Header = nuevoEstado.ToString() };
+                subItem.Click += (s, ev) =>
+                {
+                    mesa.Estado = nuevoEstado;
+                    DibujarMesas();
+                    MostrarDatosMesa();
+                };
+                itemCambiar.Items.Add(subItem);
+            }
+
+            menu.Items.Add(itemCambiar);
+
+            // Mostrar el menú contextual justo donde se hizo clic
+            menu.IsOpen = true;
+
+            e.Handled = true;
         }
 
         private void MostrarDatosMesa()
@@ -120,6 +161,35 @@ namespace TrabajoIGU
             txtCapacidad.Text = mesaSeleccionada.CapacidadMaxima.ToString();
             txtEstado.Text = mesaSeleccionada.Estado.ToString();
             txtComensales.Text = mesaSeleccionada.CapacidadActual.ToString();
+        }
+
+        private List<EstadoMesa> ObtenerEstadosPosibles(EstadoMesa estadoActual)
+        {
+            var lista = new List<EstadoMesa>();
+
+            switch (estadoActual)
+            {
+                case EstadoMesa.Libre:
+                    lista.Add(EstadoMesa.Reservada);
+                    lista.Add(EstadoMesa.OcupadaSinComanda);
+                    break;
+
+                case EstadoMesa.Reservada:
+                    lista.Add(EstadoMesa.Libre);
+                    lista.Add(EstadoMesa.OcupadaSinComanda);
+                    break;
+
+                case EstadoMesa.OcupadaSinComanda:
+                    lista.Add(EstadoMesa.Libre);
+                    lista.Add(EstadoMesa.OcupadaConComanda);
+                    break;
+
+                case EstadoMesa.OcupadaConComanda:
+                    lista.Add(EstadoMesa.Libre);
+                    break;
+            }
+
+            return lista;
         }
 
         private void BtnReiniciar_Click(object sender, RoutedEventArgs e)

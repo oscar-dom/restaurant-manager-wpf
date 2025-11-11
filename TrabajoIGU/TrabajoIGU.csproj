@@ -99,6 +99,14 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Imagenes\sueloRestaurante.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Imagenes\mesaLibre.png" />
+    <Resource Include="Imagenes\mesaReservada.png" />
+    <Resource Include="Imagenes\mesaOcupada.png" />
+    <Resource Include="Imagenes\mesaComanda.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
