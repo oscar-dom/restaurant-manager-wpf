@@ -38,8 +38,8 @@ namespace TrabajoIGU
             canvasSala.Children.Clear();
             mapaMesas.Clear();
 
-            double espacioX = 120;
-            double espacioY = 120;
+            double espacioX = 160;
+            double espacioY = 130;
             double inicioX = 50;
             double inicioY = 50;
 
@@ -70,7 +70,7 @@ namespace TrabajoIGU
                         Canvas.SetLeft(celdaVacia, x);
                         Canvas.SetTop(celdaVacia, y);
 
-                        // Click derecho para añadir mesa
+                        celdaVacia.MouseLeftButtonDown += CeldaVacia_LeftClick;
                         celdaVacia.MouseRightButtonDown += CeldaVacia_RightClick;
 
                         canvasSala.Children.Add(celdaVacia);
@@ -171,19 +171,24 @@ namespace TrabajoIGU
             int activas = sesion.Disposicion.Cast<Mesa>().Count(m => m != null);
             txtResumenRestaurante.Text = $"Mesas activas: {activas} / {Sesion.Filas * Sesion.Columnas}";
 
-            if (mesaSeleccionada == null) return;
-            txtIdMesa.Text = mesaSeleccionada.Id.ToString();
-            txtCapacidad.Text = mesaSeleccionada.CapacidadMaxima.ToString();
-            txtEstado.Text = mesaSeleccionada.Estado.ToString();
-            txtComensales.Text = mesaSeleccionada.CapacidadActual.ToString();
+            if (mesaSeleccionada != null) {
+                txtIdMesa.Text = mesaSeleccionada.Id.ToString();
+                txtCapacidad.Text = mesaSeleccionada.CapacidadMaxima.ToString();
+                txtEstado.Text = mesaSeleccionada.Estado.ToString();
+                txtComensales.Text = mesaSeleccionada.CapacidadActual.ToString();
+            } else
+            {
+                LimpiarPanel();
+            }
+            
         }
 
         private void LimpiarPanel()
         {
-            txtIdMesa.Text = "";
-            txtCapacidad.Text = "";
-            txtEstado.Text = "";
-            txtComensales.Text = "";
+            txtIdMesa.Text = "Ninguna mesa seleccionada";
+            txtCapacidad.Text = "Ninguna mesa seleccionada";
+            txtEstado.Text = "Ninguna mesa seleccionada";
+            txtComensales.Text = "Ninguna mesa seleccionada";
         }
 
         private string GetRutaImagenPorEstado(EstadoMesa estado)
@@ -221,6 +226,7 @@ namespace TrabajoIGU
 
         private void Mesa_RightClick(object sender, MouseButtonEventArgs e)
         {
+            Mesa_LeftClick(sender,e);
             var borde = sender as Border;
             if (borde == null) return;
 
@@ -241,7 +247,6 @@ namespace TrabajoIGU
                 {
                     mesa.Estado = nuevoEstado;
                     DibujarMesas();
-                    MostrarDatosMesa();
                 };
                 itemCambiar.Items.Add(subItem);
             }
@@ -259,7 +264,7 @@ namespace TrabajoIGU
                         {
                             sesion.Disposicion[f, c] = null;
                             DibujarMesas();
-                            MostrarDatosMesa();
+                            LimpiarPanel();
                             return;
                         }
                     }
@@ -284,7 +289,11 @@ namespace TrabajoIGU
             MenuItem itemAdd = new MenuItem { Header = "Añadir mesa" };
             itemAdd.Click += (s, ev) =>
             {
-                var input = new InputMesaWindow(numeroCelda);
+                var input = new InputMesaWindow(numeroCelda)
+                {
+                    Owner = this,
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner
+                };
                 if (input.ShowDialog() == true)
                 {
                     int fila = (numeroCelda - 1) / Sesion.Columnas;
@@ -292,6 +301,9 @@ namespace TrabajoIGU
 
                     Mesa nueva = new Mesa(numeroCelda, input.CapacidadMaxima);
                     sesion.Disposicion[fila, col] = nueva;
+
+                    mesaSeleccionada = nueva;
+
                     DibujarMesas();
                 }
             };
@@ -301,6 +313,14 @@ namespace TrabajoIGU
             menu.IsOpen = true;
 
             e.Handled = true;
+        }
+
+        private void CeldaVacia_LeftClick(object sender, MouseButtonEventArgs e)
+        {
+            // Deselecciona cualquier mesa y limpia el panel
+            mesaSeleccionada = null;
+            LimpiarPanel();
+            ActualizarSeleccionVisual();
         }
 
         private void BtnReiniciar_Click(object sender, RoutedEventArgs e)

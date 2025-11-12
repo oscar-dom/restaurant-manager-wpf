@@ -77,6 +77,13 @@ namespace TrabajoIGU.Data
             sesion.Mesas[3].Estado = EstadoMesa.Reservada;         // Mesa 4
             sesion.Mesas[4].Estado = EstadoMesa.Libre;             // Mesa 5
 
+            // ===== COMENSALES ACTUALES =====
+            sesion.Mesas[0].CapacidadActual = 2; // igual que los platos pedidos
+            sesion.Mesas[1].CapacidadActual = 3;
+            sesion.Mesas[2].CapacidadActual = 2; // último grupo atendido
+            sesion.Mesas[3].CapacidadActual = 0; // reservada, sin clientes aún
+            sesion.Mesas[4].CapacidadActual = 0; // libre
+
             // ===== ASIGNAR MESAS A LA MATRIZ =====
             int index = 0;
             for (int f = 0; f < Sesion.Filas; f++)

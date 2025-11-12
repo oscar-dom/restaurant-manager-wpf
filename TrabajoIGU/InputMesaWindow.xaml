@@ -10,11 +10,11 @@
         ResizeMode="NoResize">
     <Grid>
         <StackPanel Margin="20">
-            <TextBlock Text="Capacidad máxima (mínimo 2):" Margin="0 0 0 5"/>
-            <TextBox x:Name="txtCapacidad" Margin="0 0 0 10" />
+            <TextBlock Text="Capacidad máxima (2-8):" Margin="0 0 0 5"/>
+            <TextBox x:Name="txtCapacidad" Margin="0 10 0 10" />
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Aceptar" Width="80" Margin="0 0 5 0" Click="Aceptar_Click"/>
+            <StackPanel Orientation="Horizontal" Margin="0 10 0 0" HorizontalAlignment="Center">
+                <Button Content="Aceptar" Width="80" Margin="0 0 10 0" Click="Aceptar_Click"/>
                 <Button Content="Cancelar" Width="80" Click="Cancelar_Click"/>
             </StackPanel>
         </StackPanel>
