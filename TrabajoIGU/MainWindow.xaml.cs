@@ -171,16 +171,29 @@ namespace TrabajoIGU
             int activas = sesion.Disposicion.Cast<Mesa>().Count(m => m != null);
             txtResumenRestaurante.Text = $"Mesas activas: {activas} / {Sesion.Filas * Sesion.Columnas}";
 
-            if (mesaSeleccionada != null) {
-                txtIdMesa.Text = mesaSeleccionada.Id.ToString();
-                txtCapacidad.Text = mesaSeleccionada.CapacidadMaxima.ToString();
-                txtEstado.Text = mesaSeleccionada.Estado.ToString();
-                txtComensales.Text = mesaSeleccionada.CapacidadActual.ToString();
-            } else
+            int personasActuales = sesion.Disposicion.Cast<Mesa>().Where(m => m != null).Sum(m => m.CapacidadActual);
+            int aforoMaximo = sesion.Disposicion.Cast<Mesa>().Where(m => m != null).Sum(m => m.CapacidadMaxima); txtAforoRestaurante.Text = $"Aforo: {personasActuales} / {aforoMaximo}";
+
+            if (mesaSeleccionada == null)
             {
                 LimpiarPanel();
+                return;
             }
-            
+
+            txtIdMesa.Text = mesaSeleccionada.Id.ToString();
+            txtCapacidad.Text = mesaSeleccionada.CapacidadMaxima.ToString();
+            txtEstado.Text = mesaSeleccionada.Estado.ToString();
+            txtComensales.Text = mesaSeleccionada.CapacidadActual.ToString();
+
+            if (mesaSeleccionada.Estado == EstadoMesa.OcupadaConComanda)
+            {
+                int totalPlatos = sesion.TotalPlatosPorMesa(mesaSeleccionada.Id);
+                txtPlatos.Text = totalPlatos.ToString();
+            }
+            else
+            {
+                txtPlatos.Text = "0";
+            }
         }
 
         private void LimpiarPanel()
@@ -189,6 +202,7 @@ namespace TrabajoIGU
             txtCapacidad.Text = "Ninguna mesa seleccionada";
             txtEstado.Text = "Ninguna mesa seleccionada";
             txtComensales.Text = "Ninguna mesa seleccionada";
+            txtPlatos.Text = "Ninguna mesa seleccionada";
         }
 
         private string GetRutaImagenPorEstado(EstadoMesa estado)
@@ -252,6 +266,26 @@ namespace TrabajoIGU
             }
 
             menu.Items.Add(itemCambiar);
+
+            if (mesa.Estado == EstadoMesa.Reservada || mesa.Estado == EstadoMesa.OcupadaSinComanda || mesa.Estado == EstadoMesa.OcupadaConComanda)
+            {
+                MenuItem itemEditar = new MenuItem { Header = "Editar nº comensales actuales" };
+                itemEditar.Click += (s, ev) =>
+                {
+                    var input = new InputComensalesWindow(mesa.CapacidadActual, mesa.CapacidadMaxima)
+                    {
+                        Owner = this,
+                        WindowStartupLocation = WindowStartupLocation.CenterOwner
+                    };
+
+                    if (input.ShowDialog() == true)
+                    {
+                        mesa.CapacidadActual = input.NumComensales;
+                        MostrarDatosMesa();
+                    }
+                };
+                menu.Items.Add(itemEditar);
+            }
 
             MenuItem itemEliminar = new MenuItem { Header = "Eliminar mesa" };
             itemEliminar.Click += (s, ev) =>
