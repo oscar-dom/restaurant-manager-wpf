@@ -46,42 +46,15 @@
             <TextBlock Text="Comensales actuales:" FontWeight="Bold"/>
             <TextBlock x:Name="txtComensales" Margin="0 0 0 20"/>
 
-            <Separator Margin="0 20 0 20" />
-
-            <TextBlock Text="Gestión del restaurante" FontSize="18" FontWeight="Bold" Margin="0 0 0 10"/>
-
-            <TextBlock Text="Mesas activas:" FontWeight="Bold"/>
-            <TextBlock x:Name="txtMesasActivas" Margin="0 0 0 10"/>
-
-            <StackPanel>
-                <Button Content="Añadir mesa"
-                        Margin="0 0 0 30"
-                        Click="BtnAbrirVentanaCrear_Click"
-                        Background="#FF3C7EFF"
-                        Foreground="White"
-                        Padding="10"
-                        FontWeight="Bold"
-                        BorderThickness="0"
-                        Cursor="Hand"/>
-
-                <Button Content="Eliminar mesa"
-                        Margin="0 0 0 30"
-                        Click="BtnAbrirVentanaEliminar_Click"
-                        Background="#FFD9534F"
-                        Foreground="White"
-                        Padding="10"
-                        FontWeight="Bold"
-                        BorderThickness="0"
-                        Cursor="Hand"/>
-                <Button Content="Iniciar/Reiniciar Sesión"
-                        Click="BtnReiniciar_Click"
-                        Background="#FF3C7EFF"
-                        Foreground="White"
-                        Padding="10"
-                        FontWeight="Bold"
-                        BorderThickness="0"
-                        Cursor="Hand"/>
-            </StackPanel>
+            <Button Content="Iniciar/Reiniciar Sesión"
+                    Click="BtnReiniciar_Click"
+                    Background="#FF3C7EFF"
+                    Foreground="White"
+                    Padding="10"
+                    FontWeight="Bold"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    />
         </StackPanel>
     </Grid>
 </Window>

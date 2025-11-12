@@ -77,20 +77,6 @@ namespace TrabajoIGU.Data
             sesion.Mesas[3].Estado = EstadoMesa.Reservada;         // Mesa 4
             sesion.Mesas[4].Estado = EstadoMesa.Libre;             // Mesa 5
 
-            // ===== ASIGNAR MESAS A LA MATRIZ =====
-            int index = 0;
-            for (int f = 0; f < Sesion.Filas; f++)
-            {
-                for (int c = 0; c < Sesion.Columnas; c++)
-                {
-                    if (index < sesion.Mesas.Count)
-                    {
-                        sesion.Disposicion[f, c] = sesion.Mesas[index];
-                        index++;
-                    }
-                }
-            }
-
             return sesion;
         }
     }

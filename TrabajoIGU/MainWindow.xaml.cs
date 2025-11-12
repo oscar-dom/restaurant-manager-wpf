@@ -35,71 +35,58 @@ namespace TrabajoIGU
             canvasSala.Children.Clear();
             mapaMesas.Clear();
 
-            double espacioX = 120;
-            double espacioY = 120;
-            double inicioX = 50;
-            double inicioY = 50;
+            double x = 50;
+            double y = 50;
 
-            for (int fila = 0; fila < Sesion.Filas; fila++)
+            foreach (var mesa in sesion.Mesas)
             {
-                for (int col = 0; col < Sesion.Columnas; col++)
+                // Imagen según el estado de la mesa
+                Image imgMesa = new Image
                 {
-                    Mesa mesa = sesion.Disposicion[fila, col];
-                    if (mesa == null) continue; // hueco vacío
+                    Width = 80,
+                    Height = 80,
+                    Source = new BitmapImage(new Uri(GetRutaImagenPorEstado(mesa.Estado), UriKind.Relative)),
+                    Cursor = Cursors.Hand,
+                    Tag = mesa // para acceder fácilmente luego
+                };
 
-                    double x = inicioX + col * espacioX;
-                    double y = inicioY + fila * espacioY;
+                // Asignamos posición
+                Canvas.SetLeft(imgMesa, x);
+                Canvas.SetTop(imgMesa, y);
 
-                    // Imagen según el estado de la mesa
-                    Image imgMesa = new Image
-                    {
-                        Width = 80,
-                        Height = 80,
-                        Source = new BitmapImage(new Uri(GetRutaImagenPorEstado(mesa.Estado), UriKind.Relative)),
-                        Cursor = Cursors.Hand,
-                        Tag = mesa // para acceder fácilmente luego
-                    };
+                // Evento clic para seleccionar
+                imgMesa.MouseLeftButtonDown += Mesa_LeftClick;
+                imgMesa.MouseRightButtonDown += Mesa_RightClick;
 
-                    // Creamos el borde que contendrá la imagen
-                    Border borde = new Border
-                    {
-                        BorderThickness = new Thickness(3),
-                        BorderBrush = Brushes.Black,
-                        Child = imgMesa,
-                    };
+                // Añadimos al Canvas
+                canvasSala.Children.Add(imgMesa);
+                mapaMesas.Add(imgMesa, mesa);
 
-                    // Posicionamos el borde (no la imagen)
-                    Canvas.SetLeft(borde, x);
-                    Canvas.SetTop(borde, y);
+                // Etiqueta con el número de mesa
+                TextBlock label = new TextBlock
+                {
+                    Text = mesa.Id.ToString(),
+                    FontWeight = FontWeights.Bold,
+                    FontSize = 14,
+                    Foreground = Brushes.White,
+                    Background = Brushes.Black,
+                    TextAlignment = TextAlignment.Center,
+                    Width = 20,
+                    Opacity = 0.6,
+                    IsHitTestVisible = false
+                };
+                Canvas.SetLeft(label, x + 30);
+                Canvas.SetTop(label, y + 60);
+                canvasSala.Children.Add(label);
 
-                    // Evento clic para seleccionar
-                    borde.MouseLeftButtonDown += Mesa_LeftClick;
-                    borde.MouseRightButtonDown += Mesa_RightClick;
-
-                    // Añadimos al Canvas
-                    canvasSala.Children.Add(borde);
-                    mapaMesas.Add(borde, mesa); // el diccionario guarda el borde como clave
-
-                    // Etiqueta con el número de mesa
-                    TextBlock label = new TextBlock
-                    {
-                        Text = mesa.Id.ToString(),
-                        FontWeight = FontWeights.Bold,
-                        FontSize = 14,
-                        Foreground = Brushes.White,
-                        Background = Brushes.Black,
-                        TextAlignment = TextAlignment.Center,
-                        Width = 20,
-                        Opacity = 0.6,
-                        IsHitTestVisible = false
-                    };
-                    Canvas.SetLeft(label, x + 33);
-                    Canvas.SetTop(label, y + 60);
-                    canvasSala.Children.Add(label);
+                // Cambiar posición para la siguiente mesa
+                x += 120;
+                if (x > 400)
+                {
+                    x = 50;
+                    y += 120;
                 }
             }
-            ActualizarSeleccionVisual();
-            ActualizarInfoRestaurante();
         }
 
         private string GetRutaImagenPorEstado(EstadoMesa estado)
@@ -121,49 +108,31 @@ namespace TrabajoIGU
 
         private void Mesa_LeftClick(object sender, MouseButtonEventArgs e)
         {
-            var borde = sender as Border;
-            if (borde == null) return;
+            var elemento = sender as UIElement;
+            if (elemento == null) return;
 
-            if (mapaMesas.TryGetValue(borde, out var mesa))
+            if (mapaMesas.TryGetValue(elemento, out var mesa))
             {
                 mesaSeleccionada = mesa;
                 MostrarDatosMesa();
-                ActualizarSeleccionVisual();
             }
         }
-
-        private void ActualizarSeleccionVisual()
-        {
-            foreach (var kvp in mapaMesas)
-            {
-                var borde = kvp.Key as Border;
-                if (borde == null) continue;
-
-                if (mesaSeleccionada != null && kvp.Value.Id == mesaSeleccionada.Id)
-                {
-                    borde.BorderBrush = Brushes.Red;
-                }
-                else
-                {
-                    borde.BorderBrush = Brushes.Black;
-                }
-            }
-        }
-
 
         private void Mesa_RightClick(object sender, MouseButtonEventArgs e)
         {
-            var borde = sender as Border;
-            if (borde == null) return;
+            var elemento = sender as UIElement;
+            if (elemento == null) return;
 
-            if (!mapaMesas.TryGetValue(borde, out var mesa))
+            if (!mapaMesas.TryGetValue(elemento, out var mesa))
                 return;
 
-            // Crear menú contextual
+            // Crear menú contextual dinámicamente
             ContextMenu menu = new ContextMenu();
 
+            // Crear una opción principal “Cambiar estado”
             MenuItem itemCambiar = new MenuItem { Header = "Cambiar estado..." };
 
+            // Añadir subopciones según el estado actual
             foreach (var nuevoEstado in ObtenerEstadosPosibles(mesa.Estado))
             {
                 MenuItem subItem = new MenuItem { Header = nuevoEstado.ToString() };
@@ -178,9 +147,7 @@ namespace TrabajoIGU
 
             menu.Items.Add(itemCambiar);
 
-            // Posición cerca del puntero
-            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint;
-            menu.HorizontalOffset = 10;
+            // Mostrar el menú contextual justo donde se hizo clic
             menu.IsOpen = true;
 
             e.Handled = true;
@@ -230,7 +197,6 @@ namespace TrabajoIGU
             sesion.ReiniciarSesion();
             DibujarMesas();
             LimpiarPanel();
-            ActualizarInfoRestaurante();
         }
 
         private void LimpiarPanel()
@@ -248,36 +214,7 @@ namespace TrabajoIGU
             {
                 mesaSeleccionada = null;
                 LimpiarPanel();
-                ActualizarSeleccionVisual();
             }
         }
-
-        private void ActualizarInfoRestaurante()
-        {
-            int activas = sesion.Mesas.Count;
-            txtMesasActivas.Text = activas.ToString();
-        }
-
-        private void BtnAbrirVentanaCrear_Click(object sender, RoutedEventArgs e)
-        {
-            var ventana = new VentanaCrearMesa(sesion);
-            ventana.Owner = this;
-            ventana.Show(); // no modal
-        }
-
-        private void BtnAbrirVentanaEliminar_Click(object sender, RoutedEventArgs e)
-        {
-            var ventana = new VentanaEliminarMesa(sesion);
-            ventana.Owner = this;
-            ventana.Show(); // no modal
-        }
-
-        public void RefrescarRestaurante()
-        {
-            DibujarMesas();
-            ActualizarInfoRestaurante();
-        }
-
-
     }
 }
