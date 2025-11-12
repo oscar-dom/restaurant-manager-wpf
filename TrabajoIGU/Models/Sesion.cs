@@ -8,12 +8,17 @@ namespace TrabajoIGU.Models
 {
     public class Sesion
     {
+        public const int Filas = 4;
+        public const int Columnas = 3;
+        public Mesa[,] Disposicion { get; set; }  // matriz 4x3
+
         public List<Mesa> Mesas { get; set; }
         public List<Plato> Menu { get; set; }
         public List<Comanda> ComandasHistoricas { get; set; }
 
         public Sesion()
         {
+            Disposicion = new Mesa[Filas, Columnas];
             Mesas = new List<Mesa>();
             Menu = new List<Plato>();
             ComandasHistoricas = new List<Comanda>();
@@ -21,12 +26,10 @@ namespace TrabajoIGU.Models
 
         public void IniciarSesion()
         {
-            foreach (var mesa in Mesas)
-            {
-                mesa.Estado = EstadoMesa.Libre;
-                mesa.CapacidadActual = 0;
-            }
-            ComandasHistoricas.Clear();
+            Disposicion = new Mesa[Filas, Columnas];
+            Mesas = new List<Mesa>();
+            Menu = new List<Plato>();
+            ComandasHistoricas = new List<Comanda>();
         }
 
         public void ReiniciarSesion()

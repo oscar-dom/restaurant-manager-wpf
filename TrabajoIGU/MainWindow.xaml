@@ -32,9 +32,13 @@
 
         <!-- ======== PANEL LATERAL ======== -->
         <StackPanel Grid.Column="1" Margin="20" Background="#FFF9F9F9">
-            <TextBlock Text="Detalles de Mesa" FontSize="18" FontWeight="Bold" Margin="0 0 0 10"/>
+            <TextBlock Text="Información del Restaurante" FontSize="18" FontWeight="Bold" Margin="0 0 0 10"/>
 
-            <TextBlock Text="ID:" FontWeight="Bold"/>
+            <TextBlock x:Name="txtResumenRestaurante" Text="Mesas activas: 0" Margin="0 0 0 20"/>
+
+            <TextBlock Text="Información de la mesa" FontSize="18" FontWeight="Bold" Margin="0 0 0 10"/>
+
+            <TextBlock Text="ID Mesa:" FontWeight="Bold"/>
             <TextBlock x:Name="txtIdMesa" Margin="0 0 0 10"/>
 
             <TextBlock Text="Capacidad:" FontWeight="Bold"/>
@@ -54,7 +58,8 @@
                     FontWeight="Bold"
                     BorderThickness="0"
                     Cursor="Hand"
-                    />
+                    HorizontalAlignment="Stretch"
+                    Margin="0 200 0 0"/>
         </StackPanel>
     </Grid>
 </Window>

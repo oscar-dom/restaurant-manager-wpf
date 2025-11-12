@@ -19,7 +19,6 @@ namespace TrabajoIGU
             base.OnStartup(e);
 
             var sesion = SeedData.CrearSesionDePrueba();
-            MessageBox.Show($"Sesión creada con {sesion.Mesas.Count} mesas y {sesion.Menu.Count} platos.");
         }
     }
 }
