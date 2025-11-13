@@ -259,7 +259,18 @@ namespace TrabajoIGU
                 MenuItem subItem = new MenuItem { Header = nuevoEstado.ToString() };
                 subItem.Click += (s, ev) =>
                 {
+                    if (nuevoEstado == EstadoMesa.OcupadaConComanda && mesa.CapacidadActual == 0)
+                    {
+                        MessageBox.Show(
+                            "No puedes abrir una comanda sin comensales.\nPor favor, edita el número de comensales antes de continuar.",
+                            "Advertencia",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+                        return;
+                    }
                     mesa.Estado = nuevoEstado;
+                    if (mesa.Estado == EstadoMesa.Libre)
+                        mesa.CapacidadActual = 0;
                     DibujarMesas();
                 };
                 itemCambiar.Items.Add(subItem);
@@ -272,7 +283,7 @@ namespace TrabajoIGU
                 MenuItem itemEditar = new MenuItem { Header = "Editar nº comensales actuales" };
                 itemEditar.Click += (s, ev) =>
                 {
-                    var input = new InputComensalesWindow(mesa.CapacidadActual, mesa.CapacidadMaxima)
+                    var input = new InputComensalesWindow(mesa.CapacidadActual, mesa.CapacidadMaxima, mesa.Estado)
                     {
                         Owner = this,
                         WindowStartupLocation = WindowStartupLocation.CenterOwner
@@ -281,7 +292,9 @@ namespace TrabajoIGU
                     if (input.ShowDialog() == true)
                     {
                         mesa.CapacidadActual = input.NumComensales;
-                        MostrarDatosMesa();
+                        if (mesa.Estado == EstadoMesa.OcupadaConComanda && mesa.CapacidadActual == 0)
+                            mesa.Estado = EstadoMesa.Libre;
+                        DibujarMesas();
                     }
                 };
                 menu.Items.Add(itemEditar);

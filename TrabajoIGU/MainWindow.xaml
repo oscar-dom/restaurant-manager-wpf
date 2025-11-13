@@ -20,15 +20,15 @@
         <Grid Grid.Column="0">
             <!-- Imagen de fondo -->
             <Image Source="Imagenes/sueloRestaurante.jpg"
-           Stretch="UniformToFill"
-           Opacity="0.9"
-           Panel.ZIndex="0"/>
+                   Stretch="UniformToFill"
+                   Opacity="0.9"
+                   Panel.ZIndex="0"/>
 
             <!-- Canvas encima -->
             <Canvas x:Name="canvasSala"
-            Background="Transparent"
-            MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
-            Panel.ZIndex="1"/>
+                    Background="Transparent"
+                    MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
+                    Panel.ZIndex="1"/>
         </Grid>
 
         <!-- ======== PANEL LATERAL ======== -->

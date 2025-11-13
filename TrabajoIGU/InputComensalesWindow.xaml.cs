@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using TrabajoIGU.Models;
 
 namespace TrabajoIGU
 {
@@ -20,16 +21,18 @@ namespace TrabajoIGU
     public partial class InputComensalesWindow : Window
     {
         private int capacidadMaxima;
+        private EstadoMesa estadoMesa;
 
         // Valor seleccionado por el usuario (propiedad pública para que MainWindow lo lea)
         public int NumComensales { get; private set; }
 
         // Constructor que espera valor actual y capacidad máxima (coincide con la llamada desde MainWindow)
-        public InputComensalesWindow(int valorActual, int maxima)
+        public InputComensalesWindow(int valorActual, int maxima, EstadoMesa estado)
         {
             InitializeComponent();
 
             capacidadMaxima = maxima;
+            estadoMesa = estado;
 
             // Configura el control IntegerUpDown (numComensales viene del XAML)
             numComensales.Minimum = 0;
@@ -43,8 +46,22 @@ namespace TrabajoIGU
 
             if (valor < 0 || valor > capacidadMaxima)
             {
-                MessageBox.Show($"El número de comensales debe estar entre 0 y {capacidadMaxima}.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"El número de comensales debe estar entre 0 y {capacidadMaxima}.",
+                                "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
+            }
+
+            // 🔹 Si la mesa estaba ocupada con comanda y se pone a 0 → advertencia
+            if (estadoMesa == EstadoMesa.OcupadaConComanda && valor == 0)
+            {
+                var respuesta = MessageBox.Show(
+                    "Todos los comensales abandonarán la mesa. Como consecuencia se cambiará el estado a Libre.\n\n¿Deseas continuar?",
+                    "Advertencia",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (respuesta == MessageBoxResult.No)
+                    return; // el usuario cancela la acción
             }
 
             NumComensales = valor;
