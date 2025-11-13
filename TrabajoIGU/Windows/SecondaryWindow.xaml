@@ -6,29 +6,22 @@
         xmlns:local="clr-namespace:TrabajoIGU.Windows"
         mc:Ignorable="d"
         Title="Vista de Restaurante" Height="500" Width="700"
-        WindowStartupLocation="CenterOwner">
-    
+        WindowStartupLocation="CenterOwner"
+        MouseLeftButtonDown="dgMesas_MouseLeftButtonDown">
+
     <Window.Resources>
-
         <Style TargetType="DataGridRow">
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="Background" Value="Transparent"/>
-
             <Style.Triggers>
-
-                <!-- Seleccionada SIEMPRE (con foco o sin foco) -->
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#1E90FF"/>
-                    <!-- Azul visible -->
+                <!-- Sobrevolada con ratón -->
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#79A5FF"/>
                     <Setter Property="Foreground" Value="White"/>
                 </Trigger>
-
             </Style.Triggers>
         </Style>
-
     </Window.Resources>
 
-    <Grid Margin="10">
+    <Grid Margin="10" >
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
@@ -39,6 +32,7 @@
             <DataGrid x:Name="dgMesas"
                       AutoGenerateColumns="False"
                       SelectionMode="Single"
+                      MouseLeftButtonDown="dgMesas_MouseLeftButtonDown"
                       SelectionChanged="dgMesas_SelectionChanged"
                       IsReadOnly="True"
                       CanUserAddRows="False"
@@ -48,6 +42,13 @@
                       RowHeaderWidth="0"
                       GridLinesVisibility="Horizontal"
                       Margin="5">
+
+                <DataGrid.Resources>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#B0B0B0"/>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="White"/>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White"/>
+                </DataGrid.Resources>
+                
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="*"/>
                     <DataGridTextColumn Header="Capacidad" Binding="{Binding CapacidadMaxima}" Width="*"/>
@@ -61,7 +62,7 @@
         <GroupBox Header="Platos de la Comanda" Grid.Row="1">
             <Grid>
                 <TextBlock x:Name="txtSinComanda"
-                           Text="No se ha seleccionado ninguna mesa con comanda"
+                           Text="No se ha seleccionado una mesa con comanda"
                            Foreground="Gray"
                            FontStyle="Italic"
                            FontSize="14"
@@ -79,6 +80,13 @@
                           RowHeaderWidth="0"
                           GridLinesVisibility="Horizontal"
                           Margin="5">
+
+                    <DataGrid.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#B0B0B0"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="White"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White"/>
+                    </DataGrid.Resources>
+                    
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Categoría" Binding="{Binding Categoria}" Width="*"/>
                         <DataGridTextColumn Header="Plato" Binding="{Binding Nombre}" Width="*"/>

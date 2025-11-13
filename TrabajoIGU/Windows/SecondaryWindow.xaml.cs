@@ -40,8 +40,13 @@ namespace TrabajoIGU.Windows
             if (mesaSeleccionada != null)
             {
                 dgMesas.SelectedItem = listaMesas.FirstOrDefault(m => m.Id == mesaSeleccionada.Id);
-                dgMesas.UpdateLayout();
+                dgMesas.UpdateLayout(); 
                 dgMesas.Focus();
+            }
+            else
+            {
+                dgMesas.SelectedItem = null;
+                dgMesas.UpdateLayout();
             }
 
             // Actualizar la tabla de platos
@@ -88,6 +93,22 @@ namespace TrabajoIGU.Windows
             {
                 ActualizarPlatos(mesa);
                 MesaSeleccionadaDesdeSecundaria?.Invoke(mesa);
+            }
+        }
+        private void dgMesas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // Comprobamos si el click NO fue sobre una fila
+            var row = ItemsControl.ContainerFromElement(dgMesas, e.OriginalSource as DependencyObject) as DataGridRow;
+
+            if (row == null)
+            {
+                dgMesas.SelectedItem = null;
+
+                dgPlatos.ItemsSource = null;
+                txtSinComanda.Visibility = Visibility.Visible;
+                dgPlatos.Visibility = Visibility.Hidden;
+
+                MesaSeleccionadaDesdeSecundaria?.Invoke(null);
             }
         }
     }

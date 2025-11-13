@@ -197,6 +197,7 @@ namespace TrabajoIGU
             {
                 txtPlatos.Text = "0";
             }
+            secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
         }
 
         private void LimpiarPanel()
@@ -245,13 +246,13 @@ namespace TrabajoIGU
                 mesaSeleccionada = mesa;
                 MostrarDatosMesa();
                 ActualizarSeleccionVisual();
-                secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
             }
         }
 
         private void Mesa_RightClick(object sender, MouseButtonEventArgs e)
         {
-            Mesa_LeftClick(sender,e);
+            Mesa_LeftClick(sender, e);
+
             var borde = sender as Border;
             if (borde == null) return;
 
@@ -286,7 +287,6 @@ namespace TrabajoIGU
                 };
                 itemCambiar.Items.Add(subItem);
             }
-
             menu.Items.Add(itemCambiar);
 
             if (mesa.Estado == EstadoMesa.Reservada || mesa.Estado == EstadoMesa.OcupadaSinComanda || mesa.Estado == EstadoMesa.OcupadaConComanda)
@@ -334,6 +334,7 @@ namespace TrabajoIGU
             menu.IsOpen = true;
 
             e.Handled = true;
+
         }
 
         private void CeldaVacia_RightClick(object sender, MouseButtonEventArgs e)
@@ -379,6 +380,7 @@ namespace TrabajoIGU
             mesaSeleccionada = null;
             LimpiarPanel();
             ActualizarSeleccionVisual();
+            secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
         }
 
         private void BtnReiniciar_Click(object sender, RoutedEventArgs e)
@@ -396,6 +398,7 @@ namespace TrabajoIGU
                 mesaSeleccionada = null;
                 LimpiarPanel();
                 ActualizarSeleccionVisual();
+                secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
             }
         }
 
@@ -456,11 +459,6 @@ namespace TrabajoIGU
             return lista;
         }
         #endregion
-
-
-
-
-
 
     }
 }
