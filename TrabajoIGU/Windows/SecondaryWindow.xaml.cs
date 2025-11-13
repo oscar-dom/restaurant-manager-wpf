@@ -40,6 +40,8 @@ namespace TrabajoIGU.Windows
             if (mesaSeleccionada != null)
             {
                 dgMesas.SelectedItem = listaMesas.FirstOrDefault(m => m.Id == mesaSeleccionada.Id);
+                dgMesas.UpdateLayout();
+                dgMesas.Focus();
             }
 
             // Actualizar la tabla de platos

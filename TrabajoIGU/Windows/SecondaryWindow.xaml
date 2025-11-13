@@ -7,6 +7,26 @@
         mc:Ignorable="d"
         Title="Vista de Restaurante" Height="500" Width="700"
         WindowStartupLocation="CenterOwner">
+    
+    <Window.Resources>
+
+        <Style TargetType="DataGridRow">
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Background" Value="Transparent"/>
+
+            <Style.Triggers>
+
+                <!-- Seleccionada SIEMPRE (con foco o sin foco) -->
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#1E90FF"/>
+                    <!-- Azul visible -->
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+
+            </Style.Triggers>
+        </Style>
+
+    </Window.Resources>
 
     <Grid Margin="10">
         <Grid.RowDefinitions>

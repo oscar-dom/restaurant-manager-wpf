@@ -166,7 +166,6 @@ namespace TrabajoIGU
                     borde.BorderBrush = Brushes.Black;
                 }
             }
-            secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
         }
 
         private void MostrarDatosMesa()
@@ -198,8 +197,6 @@ namespace TrabajoIGU
             {
                 txtPlatos.Text = "0";
             }
-
-            secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
         }
 
         private void LimpiarPanel()
@@ -248,6 +245,7 @@ namespace TrabajoIGU
                 mesaSeleccionada = mesa;
                 MostrarDatosMesa();
                 ActualizarSeleccionVisual();
+                secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
             }
         }
 
