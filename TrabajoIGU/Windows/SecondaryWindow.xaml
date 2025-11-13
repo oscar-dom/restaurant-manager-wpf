@@ -1,0 +1,69 @@
+﻿<Window x:Class="TrabajoIGU.Windows.SecondaryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TrabajoIGU.Windows"
+        mc:Ignorable="d"
+        Title="Vista de Restaurante" Height="500" Width="700"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 🟦 Tabla de MESAS -->
+        <GroupBox Header="Listado de Mesas" Margin="0 0 0 10">
+            <DataGrid x:Name="dgMesas"
+                      AutoGenerateColumns="False"
+                      SelectionMode="Single"
+                      SelectionChanged="dgMesas_SelectionChanged"
+                      IsReadOnly="True"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      HeadersVisibility="Column"
+                      RowHeaderWidth="0"
+                      GridLinesVisibility="Horizontal"
+                      Margin="5">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="*"/>
+                    <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="*"/>
+                    <DataGridTextColumn Header="Comensales" Binding="{Binding CapacidadActual}" Width="1*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </GroupBox>
+
+        <!-- 🟩 Tabla de PLATOS -->
+        <GroupBox Header="Platos de la Comanda" Grid.Row="1">
+            <Grid>
+                <TextBlock x:Name="txtSinComanda"
+                           Text="La mesa aún no ha ordenado comanda"
+                           Foreground="Gray"
+                           FontStyle="Italic"
+                           FontSize="14"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Visibility="Collapsed"/>
+                
+                <DataGrid x:Name="dgPlatos"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          HeadersVisibility="Column"
+                          RowHeaderWidth="0"
+                          GridLinesVisibility="Horizontal"
+                          Margin="5">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Categoría" Binding="{Binding Categoria}" Width="*"/>
+                        <DataGridTextColumn Header="Plato" Binding="{Binding Nombre}" Width="*"/>
+                        <DataGridTextColumn Header="Descripción" Binding="{Binding Descripcion}" Width="*"/>
+                        <DataGridTextColumn Header="Unidades" Binding="{Binding Cantidad}" Width="*"/>
+                    </DataGrid.Columns> 
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</Window>

@@ -47,6 +47,11 @@ namespace TrabajoIGU.Models
             }
         }
 
+        public Comanda ObtenerComandaActual(int idMesa)
+        {
+            return ComandasHistoricas.LastOrDefault(c => c.IdMesa == idMesa);
+        }
+
         public int TotalPlatosPorMesa(int idMesa)
         {
             return ComandasHistoricas

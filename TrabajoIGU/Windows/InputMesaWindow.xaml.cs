@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace TrabajoIGU
+namespace TrabajoIGU.Windows
 {
     public partial class InputMesaWindow : Window
     {

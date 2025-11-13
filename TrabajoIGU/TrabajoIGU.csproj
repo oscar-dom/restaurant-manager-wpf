@@ -70,11 +70,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="InputComensalesWindow.xaml">
+    <Compile Include="Windows\SecondaryWindow.xaml.cs">
+      <DependentUpon>SecondaryWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Windows\InputComensalesWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="InputMesaWindow.xaml">
+    <Page Include="Windows\InputMesaWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -87,16 +90,20 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Data\SeedData.cs" />
-    <Compile Include="InputComensalesWindow.xaml.cs">
+    <Compile Include="Windows\InputComensalesWindow.xaml.cs">
       <DependentUpon>InputComensalesWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="InputMesaWindow.xaml.cs">
+    <Compile Include="Windows\InputMesaWindow.xaml.cs">
       <DependentUpon>InputMesaWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Windows\SecondaryWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Comanda.cs" />

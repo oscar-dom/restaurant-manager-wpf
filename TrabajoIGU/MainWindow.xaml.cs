@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using TrabajoIGU.Data;
 using TrabajoIGU.Models;
+using TrabajoIGU.Windows;
 
 namespace TrabajoIGU
 {
@@ -23,6 +24,7 @@ namespace TrabajoIGU
         private Sesion sesion;
         private Mesa mesaSeleccionada;
         private Dictionary<UIElement, Mesa> mapaMesas = new Dictionary<UIElement, Mesa>();
+        private SecondaryWindow secondaryWindow;
 
         public MainWindow()
         {
@@ -187,13 +189,16 @@ namespace TrabajoIGU
 
             if (mesaSeleccionada.Estado == EstadoMesa.OcupadaConComanda)
             {
-                int totalPlatos = sesion.TotalPlatosPorMesa(mesaSeleccionada.Id);
+                var comandaActual = sesion.ObtenerComandaActual(mesaSeleccionada.Id);
+                int totalPlatos = comandaActual?.TotalPlatos() ?? 0;
                 txtPlatos.Text = totalPlatos.ToString();
             }
             else
             {
                 txtPlatos.Text = "0";
             }
+
+            secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
         }
 
         private void LimpiarPanel()
@@ -220,6 +225,13 @@ namespace TrabajoIGU
                 default:
                     return "Imagenes/mesaLibre.png";
             }
+        }
+
+        private void MesaSeleccionadaDesdeSecundaria(Mesa mesa)
+        {
+            mesaSeleccionada = mesa;
+            MostrarDatosMesa();
+            ActualizarSeleccionVisual();
         }
         #endregion
 
@@ -386,6 +398,31 @@ namespace TrabajoIGU
                 LimpiarPanel();
                 ActualizarSeleccionVisual();
             }
+        }
+
+        private void BtnVistaRestaurante_Click(object sender, RoutedEventArgs e)
+        {
+            // Si ya está abierta, la traemos al frente
+            if (secondaryWindow != null && secondaryWindow.IsVisible)
+            {
+                secondaryWindow.Activate();
+                return;
+            }
+
+            // Crear nueva instancia
+            secondaryWindow = new SecondaryWindow(sesion)
+            {
+                Owner = this
+            };
+
+            // Suscripción a evento de selección desde la ventana secundaria
+            secondaryWindow.MesaSeleccionadaDesdeSecundaria += MesaSeleccionadaDesdeSecundaria;
+
+            // Mostrar ventana no modal
+            secondaryWindow.Show();
+
+            // Actualizar su vista inicial
+            secondaryWindow.ActualizarVista(sesion, mesaSeleccionada);
         }
         #endregion
 

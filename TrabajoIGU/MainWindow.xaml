@@ -38,6 +38,29 @@
             <TextBlock x:Name="txtResumenRestaurante" Text="Mesas activas: 0" Margin="0 0 0 10"/>
             <TextBlock x:Name="txtAforoRestaurante" Text="Aforo: 0/96" Margin="0 0 0 20"/>
 
+            <Button x:Name="btnVistaRestaurante"
+                    Content="Vista del Restaurante"
+                    Background="#FF3C7EFF"
+                    Foreground="White"
+                    Margin="0 0 0 10"
+                    Padding="10"
+                    FontWeight="Bold"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    HorizontalAlignment="Stretch"
+                    Click="BtnVistaRestaurante_Click"/>
+
+            <Button Content="Iniciar/Reiniciar Sesión"
+                    Click="BtnReiniciar_Click"
+                    Background="#FF3C7EFF"
+                    Foreground="White"
+                    Padding="10"
+                    FontWeight="Bold"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    HorizontalAlignment="Stretch"
+                    Margin="0 0 0 20"/>
+            
             <TextBlock Text="Información de la mesa" FontSize="18" FontWeight="Bold" Margin="0 0 0 10"/>
 
             <TextBlock Text="ID Mesa:" FontWeight="Bold"/>
@@ -54,17 +77,7 @@
 
             <TextBlock Text="Platos en comanda:" FontWeight="Bold"/>
             <TextBlock x:Name="txtPlatos" Margin="0 0 0 10"/>
-            
-            <Button Content="Iniciar/Reiniciar Sesión"
-                    Click="BtnReiniciar_Click"
-                    Background="#FF3C7EFF"
-                    Foreground="White"
-                    Padding="10"
-                    FontWeight="Bold"
-                    BorderThickness="0"
-                    Cursor="Hand"
-                    HorizontalAlignment="Stretch"
-                    Margin="0 150 0 0"/>
+
         </StackPanel>
     </Grid>
 </Window>

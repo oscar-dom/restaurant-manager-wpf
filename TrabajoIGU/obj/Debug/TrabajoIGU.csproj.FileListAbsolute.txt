@@ -14,8 +14,6 @@ C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\TrabajoIGU.csproj.
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\TrabajoIGU.exe
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\TrabajoIGU.pdb
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\TrabajoIGU.exe.config
-C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\InputMesaWindow.g.cs
-C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\InputMesaWindow.baml
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\bin\Debug\Xceed.Wpf.AvalonDock.dll
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\bin\Debug\Xceed.Wpf.AvalonDock.Themes.Aero.dll
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\bin\Debug\Xceed.Wpf.AvalonDock.Themes.Metro.dll
@@ -34,6 +32,10 @@ C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\bin\Debug\ro\Xceed.Wpf.Avalo
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\bin\Debug\ru\Xceed.Wpf.AvalonDock.resources.dll
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\bin\Debug\sv\Xceed.Wpf.AvalonDock.resources.dll
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\bin\Debug\zh-Hans\Xceed.Wpf.AvalonDock.resources.dll
-C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\InputComensalesWindow.g.cs
-C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\InputComensalesWindow.baml
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\TrabajoIGU.csproj.Up2Date
+C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\InputComensalesWindow.g.cs
+C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\InputMesaWindow.g.cs
+C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\InputComensalesWindow.baml
+C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\InputMesaWindow.baml
+C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\SecondaryWindow.g.cs
+C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\SecondaryWindow.baml

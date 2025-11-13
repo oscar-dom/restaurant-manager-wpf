@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using TrabajoIGU.Models;
 
-namespace TrabajoIGU
+namespace TrabajoIGU.Windows
 {
     /// <summary>
     /// Lógica de interacción para InputComensalesWindow.xaml
