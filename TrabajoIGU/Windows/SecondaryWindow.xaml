@@ -23,14 +23,16 @@
                       IsReadOnly="True"
                       CanUserAddRows="False"
                       CanUserDeleteRows="False"
+                      CanUserResizeColumns="False"
                       HeadersVisibility="Column"
                       RowHeaderWidth="0"
                       GridLinesVisibility="Horizontal"
                       Margin="5">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="*"/>
+                    <DataGridTextColumn Header="Capacidad" Binding="{Binding CapacidadMaxima}" Width="*"/>
                     <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="*"/>
-                    <DataGridTextColumn Header="Comensales" Binding="{Binding CapacidadActual}" Width="1*"/>
+                    <DataGridTextColumn Header="Comensales" Binding="{Binding CapacidadActual}" Width="*"/>
                 </DataGrid.Columns>
             </DataGrid>
         </GroupBox>
@@ -39,7 +41,7 @@
         <GroupBox Header="Platos de la Comanda" Grid.Row="1">
             <Grid>
                 <TextBlock x:Name="txtSinComanda"
-                           Text="La mesa aún no ha ordenado comanda"
+                           Text="No se ha seleccionado ninguna mesa con comanda"
                            Foreground="Gray"
                            FontStyle="Italic"
                            FontSize="14"
@@ -52,6 +54,7 @@
                           IsReadOnly="True"
                           CanUserAddRows="False"
                           CanUserDeleteRows="False"
+                          CanUserResizeColumns="False"
                           HeadersVisibility="Column"
                           RowHeaderWidth="0"
                           GridLinesVisibility="Horizontal"
@@ -59,8 +62,8 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Categoría" Binding="{Binding Categoria}" Width="*"/>
                         <DataGridTextColumn Header="Plato" Binding="{Binding Nombre}" Width="*"/>
-                        <DataGridTextColumn Header="Descripción" Binding="{Binding Descripcion}" Width="*"/>
-                        <DataGridTextColumn Header="Unidades" Binding="{Binding Cantidad}" Width="*"/>
+                        <DataGridTextColumn Header="Descripción" Binding="{Binding Descripcion}" Width="2*"/>
+                        <DataGridTextColumn Header="Unidades" Binding="{Binding Cantidad}" Width=".5*"/>
                     </DataGrid.Columns> 
                 </DataGrid>
             </Grid>

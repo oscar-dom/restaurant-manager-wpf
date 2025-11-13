@@ -51,23 +51,33 @@ namespace TrabajoIGU.Windows
             if (mesa == null || mesa.Estado != EstadoMesa.OcupadaConComanda)
             {
                 dgPlatos.ItemsSource = null;
+                dgPlatos.Visibility = Visibility.Collapsed;
+                txtSinComanda.Visibility = Visibility.Visible;
                 return;
             }
 
             var comandaActual = sesion.ObtenerComandaActual(mesa.Id);
+
             if (comandaActual == null)
             {
                 dgPlatos.ItemsSource = null;
+                dgPlatos.Visibility = Visibility.Collapsed;
+                txtSinComanda.Visibility = Visibility.Visible;
                 return;
             }
 
             var datos = comandaActual.Platos.Select(p => new
             {
+                Categoria = p.Key.Categoria.ToString(),
                 Nombre = p.Key.Nombre,
+                Descripcion = p.Key.Descripcion,
                 Cantidad = p.Value
             }).ToList();
 
             dgPlatos.ItemsSource = datos;
+
+            dgPlatos.Visibility = Visibility.Visible;
+            txtSinComanda.Visibility = Visibility.Collapsed;
         }
 
         private void dgMesas_SelectionChanged(object sender, SelectionChangedEventArgs e)

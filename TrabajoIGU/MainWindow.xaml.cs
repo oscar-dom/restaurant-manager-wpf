@@ -166,6 +166,7 @@ namespace TrabajoIGU
                     borde.BorderBrush = Brushes.Black;
                 }
             }
+            secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
         }
 
         private void MostrarDatosMesa()

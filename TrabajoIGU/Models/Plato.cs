@@ -17,11 +17,13 @@ namespace TrabajoIGU.Models
     {
         public string Nombre { get; set; }
         public CategoriaPlato Categoria { get; set; }
+        public string Descripcion { get; set; }   // 🔹 NUEVA PROPIEDAD
 
-        public Plato(string nombre, CategoriaPlato categoria)
+        public Plato(string nombre, CategoriaPlato categoria, string descripcion = "")
         {
             Nombre = nombre;
             Categoria = categoria;
+            Descripcion = descripcion;
         }
 
         public override string ToString()

@@ -27,19 +27,19 @@ namespace TrabajoIGU.Data
             sesion.Menu = new List<Plato>
             {
                 // Primeros
-                new Plato("Ensalada mixta", CategoriaPlato.Primero),
-                new Plato("Sopa de verduras", CategoriaPlato.Primero),
-                new Plato("Gazpacho andaluz", CategoriaPlato.Primero),
+                new Plato("Ensalada mixta", CategoriaPlato.Primero, "Lechuga fresca, tomate y cebolla"),
+                new Plato("Sopa de verduras", CategoriaPlato.Primero, "Caldo suave con verduras de temporada"),
+                new Plato("Gazpacho andaluz", CategoriaPlato.Primero, "Tomate, pepino, ajo y aceite de oliva"),
 
                 // Segundos
-                new Plato("Pollo al horno", CategoriaPlato.Segundo),
-                new Plato("Merluza a la plancha", CategoriaPlato.Segundo),
-                new Plato("Filete con patatas", CategoriaPlato.Segundo),
+                new Plato("Pollo al horno", CategoriaPlato.Segundo, "Pollo marinado asado lentamente"),
+                new Plato("Merluza a la plancha", CategoriaPlato.Segundo, "Filete de merluza con aceite y limón"),
+                new Plato("Filete con patatas", CategoriaPlato.Segundo, "Carne de ternera acompañada de patatas fritas"),
 
                 // Postres
-                new Plato("Tarta de queso", CategoriaPlato.Postre),
-                new Plato("Fruta del tiempo", CategoriaPlato.Postre),
-                new Plato("Flan casero", CategoriaPlato.Postre)
+                new Plato("Tarta de queso", CategoriaPlato.Postre, "Tarta casera cremosa al horno"),
+                new Plato("Fruta del tiempo", CategoriaPlato.Postre, "Selección fresca de frutas de temporada"),
+                new Plato("Flan casero", CategoriaPlato.Postre, "Flan tradicional con caramelo")
             };
 
             // ===== COMANDAS =====
