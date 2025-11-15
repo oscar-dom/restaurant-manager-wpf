@@ -25,12 +25,15 @@ namespace TrabajoIGU
         private Mesa mesaSeleccionada;
         private Dictionary<UIElement, Mesa> mapaMesas = new Dictionary<UIElement, Mesa>();
         private SecondaryWindow secondaryWindow;
+        private bool inicializandoMenu = true;
 
         public MainWindow()
         {
             InitializeComponent();
             sesion = SeedData.CrearSesionDePrueba();
             DibujarMesas();
+            Loaded += MainWindow_Loaded;
+
         }
 
         //INTERFAZ
@@ -426,6 +429,28 @@ namespace TrabajoIGU
             // Actualizar su vista inicial
             secondaryWindow.ActualizarVista(sesion, mesaSeleccionada);
         }
+
+        private void BtnGestionMenu_Click(object sender, RoutedEventArgs e)
+        {
+            gridRestaurante.Visibility = Visibility.Collapsed;
+            gridGestionMenu.Visibility = Visibility.Visible;
+
+            AplicarFiltrosMenu();
+        }
+
+        private void BtnVolverGestionMenu_Click(object sender, RoutedEventArgs e)
+        {
+            gridGestionMenu.Visibility = Visibility.Collapsed;
+            gridRestaurante.Visibility = Visibility.Visible;
+        }
+
+        private void BtnAgregarPlatoMenu_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Aquí abriremos la ventana para añadir un nuevo plato.",
+                            "Pendiente de implementar",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+        }
         #endregion
 
         //AUXULIARES
@@ -457,6 +482,56 @@ namespace TrabajoIGU
             }
 
             return lista;
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            inicializandoMenu = false;
+            AplicarFiltrosMenu();
+        }
+        private void FiltroMenu_Changed(object sender, EventArgs e)
+        {
+            if (inicializandoMenu)
+                return;
+
+            AplicarFiltrosMenu();
+        }
+
+        private void BtnLimpiarFiltrosMenu_Click(object sender, RoutedEventArgs e)
+        {
+            txtBuscarMenu.Text = "";
+            cbCategoriaMenu.SelectedIndex = 0;
+        }
+        private void AplicarFiltrosMenu()
+        {
+            if (sesion?.Menu == null)
+                return;
+
+            var lista = sesion.Menu.ToList();
+
+            // Texto
+            string texto = txtBuscarMenu.Text.Trim().ToLower();
+            if (!string.IsNullOrEmpty(texto))
+            {
+                lista = lista.Where(p =>
+                       p.Nombre.ToLower().Contains(texto) ||
+                       (p.Descripcion ?? "").ToLower().Contains(texto)
+                ).ToList();
+            }
+
+            // Categoría
+            var item = cbCategoriaMenu.SelectedItem as ComboBoxItem;
+            string categoria = item?.Content?.ToString();
+
+            if (!string.IsNullOrEmpty(categoria) && categoria != "Todas")
+            {
+                if (Enum.TryParse<CategoriaPlato>(categoria, out var cat))
+                {
+                    lista = lista.Where(p => p.Categoria == cat).ToList();
+                }
+            }
+
+            lvPlatosMenu.ItemsSource = lista;
         }
         #endregion
 
