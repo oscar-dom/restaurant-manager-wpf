@@ -467,6 +467,51 @@ namespace TrabajoIGU
             txtBuscarMenu.Text = "";
             cbCategoriaMenu.SelectedIndex = 0;
         }
+
+        private void LvPlatosMenu_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var platoSeleccionado = lvPlatosMenu.SelectedItem as Plato;
+            if (platoSeleccionado == null)
+                return;
+
+            var ventana = new Windows.EditarPlatoWindow(platoSeleccionado)
+            {
+                Owner = this,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner
+            };
+
+            if (ventana.ShowDialog() == true)
+            {
+                if (ventana.Eliminado)
+                {
+                    sesion.Menu.Remove(platoSeleccionado);
+                }
+                else if (ventana.PlatoModificado != null)
+                {
+                    platoSeleccionado.Nombre = ventana.PlatoModificado.Nombre;
+                    platoSeleccionado.Categoria = ventana.PlatoModificado.Categoria;
+                    platoSeleccionado.Descripcion = ventana.PlatoModificado.Descripcion;
+                }
+
+                AplicarFiltrosMenu();
+            }
+        }
+
+        private void LvPlatosMenu_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // Comprobar si el click fue sobre un ListBoxItem
+            var item = ItemsControl.ContainerFromElement(lvPlatosMenu, e.OriginalSource as DependencyObject)
+                       as ListBoxItem;
+
+            // Si NO fue sobre una tarjeta → deseleccionar
+            if (item == null)
+            {
+                lvPlatosMenu.SelectedItem = null;
+                return;
+            }
+
+            // Si sí fue sobre una tarjeta → selección normal
+        }
         #endregion
 
         //AUXULIARES

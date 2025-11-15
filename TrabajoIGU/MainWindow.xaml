@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:TrabajoIGU"
         mc:Ignorable="d"
         Title="Gestión Restaurante" Height="600" Width="900" WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize">
-    <Grid Cursor="">
+        ResizeMode="NoResize"
+        MouseLeftButtonDown="LvPlatosMenu_MouseLeftButtonDown">
+    <Grid>
         <Grid x:Name="gridRestaurante">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*" />
@@ -94,7 +95,7 @@
         </Grid>
 
         <!-- MENU -->
-        <Grid x:Name="gridGestionMenu" Visibility="Collapsed" Margin="15">
+        <Grid x:Name="gridGestionMenu" Visibility="Collapsed" Margin="15" >
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -155,7 +156,8 @@
                 <!-- FILTROS EN EXPANDER -->
                 <Expander Grid.Column="0"
                   Header="🔎"
-                  Margin="0 10 20 0"
+                  Margin="0 25 20 0"
+                  VerticalAlignment="Top"
                   ExpandDirection="Right">
 
                     <StackPanel Margin="20 0 0 0"
@@ -192,56 +194,103 @@
 
                 <!-- LISTADO DE PLATOS A LA DERECHA -->
                 <ScrollViewer Grid.Column="1"
-                      VerticalScrollBarVisibility="Auto">
+                              VerticalScrollBarVisibility="Auto">
 
-                    <ItemsControl x:Name="lvPlatosMenu">
-                        <ItemsControl.ItemsPanel>
+                    <ListBox x:Name="lvPlatosMenu"
+                             BorderThickness="0"
+                             Background="Transparent"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             SelectionMode="Single"
+                             MouseDoubleClick="LvPlatosMenu_MouseDoubleClick"
+                             MouseLeftButtonDown="LvPlatosMenu_MouseLeftButtonDown">
+
+                        <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel Orientation="Horizontal"
-                                   ItemWidth="Auto"
-                                   ItemHeight="Auto"
-                                   Margin="50 0 0 0"/>
+                                           ItemWidth="Auto"
+                                           ItemHeight="Auto"
+                                           Margin="50 0 0 0"/>
                             </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
+                        </ListBox.ItemsPanel>
 
-                        <ItemsControl.ItemTemplate>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <!-- quitamos padding y fondo por defecto -->
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="0"/>
+                                <Setter Property="Background" Value="Transparent"/>
+
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <!-- Marco exterior redondeado que se colorea al seleccionar -->
+                                            <Border x:Name="outerBorder"
+                                                    CornerRadius="12"
+                                                    BorderThickness="2"
+                                                    BorderBrush="Transparent"
+                                                    Background="Transparent"
+                                                    Margin="5">
+                                                <ContentPresenter />
+                                            </Border>
+
+                                            <ControlTemplate.Triggers>
+                                                <!-- SELECCIONADO -->
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="outerBorder" Property="BorderBrush" Value="#3C7EFF"/>
+                                                    <Setter TargetName="outerBorder" Property="Background" Value="#E7F0FF"/>
+                                                </Trigger>
+
+                                                <!-- HOVER (ratón encima) -->
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="outerBorder" Property="BorderBrush" Value="#8AAEFF"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        
+                        <ListBox.ItemTemplate>
                             <DataTemplate>
+
                                 <Border BorderThickness="1"
-                                BorderBrush="#C9C9C9"
-                                CornerRadius="10"
-                                Margin="20"
-                                Padding="10"
-                                Background="White"
-                                Width="190">
+                                        BorderBrush="#C9C9C9"
+                                        CornerRadius="10"
+                                        Margin="20"
+                                        Padding="10"
+                                        Background="White"
+                                        Width="190">
 
                                     <Border.Effect>
                                         <DropShadowEffect Color="Black"
-                                                  BlurRadius="8"
-                                                  Opacity="0.15"/>
+                                                          BlurRadius="8"
+                                                          Opacity="0.15"/>
                                     </Border.Effect>
 
                                     <StackPanel>
                                         <TextBlock Text="{Binding Nombre}"
-                                           FontSize="16"
-                                           FontWeight="Bold"
-                                           TextWrapping="Wrap"/>
+                                                   FontSize="16"
+                                                   FontWeight="Bold"
+                                                   TextWrapping="Wrap"/>
 
                                         <TextBlock Text="{Binding Categoria}"
-                                           Margin="0 4 0 0"
-                                           Foreground="#3C7EFF"
-                                           FontWeight="SemiBold"/>
+                                                   Margin="0 4 0 0"
+                                                   Foreground="#3C7EFF"
+                                                   FontWeight="SemiBold"/>
 
                                         <TextBlock Text="{Binding Descripcion}"
-                                           Margin="0 6 0 0"
-                                           TextWrapping="Wrap"
-                                           Foreground="Gray"/>
+                                                   Margin="0 6 0 0"
+                                                   TextWrapping="Wrap"
+                                                   Foreground="Gray"/>
                                     </StackPanel>
 
                                 </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
 
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+
+                    </ListBox>
                 </ScrollViewer>
 
             </Grid>
