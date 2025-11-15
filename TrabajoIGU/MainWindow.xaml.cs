@@ -446,10 +446,26 @@ namespace TrabajoIGU
 
         private void BtnAgregarPlatoMenu_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Aquí abriremos la ventana para añadir un nuevo plato.",
-                            "Pendiente de implementar",
-                            MessageBoxButton.OK,
-                            MessageBoxImage.Information);
+            var ventana = new Windows.NuevoPlatoWindow()
+            {
+                Owner = this,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner
+            };
+
+            if (ventana.ShowDialog() == true)
+            {
+                // Añadir el plato a la sesión
+                sesion.Menu.Add(ventana.PlatoCreado);
+
+                // Refrescar lista
+                AplicarFiltrosMenu();
+            }
+        }
+
+        private void BtnLimpiarFiltrosMenu_Click(object sender, RoutedEventArgs e)
+        {
+            txtBuscarMenu.Text = "";
+            cbCategoriaMenu.SelectedIndex = 0;
         }
         #endregion
 
@@ -489,6 +505,7 @@ namespace TrabajoIGU
             inicializandoMenu = false;
             AplicarFiltrosMenu();
         }
+
         private void FiltroMenu_Changed(object sender, EventArgs e)
         {
             if (inicializandoMenu)
@@ -497,11 +514,6 @@ namespace TrabajoIGU
             AplicarFiltrosMenu();
         }
 
-        private void BtnLimpiarFiltrosMenu_Click(object sender, RoutedEventArgs e)
-        {
-            txtBuscarMenu.Text = "";
-            cbCategoriaMenu.SelectedIndex = 0;
-        }
         private void AplicarFiltrosMenu()
         {
             if (sesion?.Menu == null)

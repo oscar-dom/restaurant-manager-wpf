@@ -1,0 +1,78 @@
+﻿<Window x:Class="TrabajoIGU.Windows.NuevoPlatoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TrabajoIGU.Windows"
+        mc:Ignorable="d"
+        Title="Añadir nuevo plato"
+        Width="400" Height="420"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="#FAFAFA"
+        WindowStyle="ToolWindow">
+
+    <Grid Margin="20">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- TÍTULO -->
+        <TextBlock Text="Nuevo Plato"
+                   FontSize="22"
+                   FontWeight="Bold"
+                   Margin="0 0 0 15"/>
+
+        <!-- NOMBRE -->
+        <StackPanel Grid.Row="1" Margin="0 0 0 10">
+            <TextBlock Text="Nombre:" FontWeight="SemiBold"/>
+            <TextBox x:Name="txtNombre" Margin="0 3 0 0"/>
+        </StackPanel>
+
+        <!-- CATEGORÍA -->
+        <StackPanel Grid.Row="2" Margin="0 0 0 10">
+            <TextBlock Text="Categoría:" FontWeight="SemiBold"/>
+            <ComboBox x:Name="cbCategoria" Margin="0 3 0 0">
+                <ComboBoxItem Content="Primero"/>
+                <ComboBoxItem Content="Segundo"/>
+                <ComboBoxItem Content="Postre"/>
+            </ComboBox>
+        </StackPanel>
+
+        <!-- DESCRIPCIÓN -->
+        <StackPanel Grid.Row="3">
+            <TextBlock Text="Descripción:" FontWeight="SemiBold"/>
+            <TextBox x:Name="txtDescripcion"
+                     Margin="0 3 0 0"
+                     AcceptsReturn="True"
+                     Height="120"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <!-- BOTONES -->
+        <StackPanel Grid.Row="4"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0 15 0 0">
+
+            <Button Content="Cancelar"
+                    Width="90"
+                    Margin="0 0 10 0"
+                    Click="BtnCancelar_Click"/>
+
+            <Button Content="Guardar"
+                    Width="90"
+                    Background="#3C7EFF"
+                    Foreground="White"
+                    BorderThickness="0"
+                    FontWeight="Bold"
+                    Click="BtnGuardar_Click"/>
+        </StackPanel>
+
+    </Grid>
+</Window>

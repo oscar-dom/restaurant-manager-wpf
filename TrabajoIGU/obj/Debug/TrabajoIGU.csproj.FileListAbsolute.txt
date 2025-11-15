@@ -39,5 +39,5 @@ C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\InputComen
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\InputMesaWindow.baml
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\SecondaryWindow.g.cs
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\SecondaryWindow.baml
-C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\GestionMenuWindow.g.cs
-C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\GestionMenuWindow.baml
+C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\NuevoPlatoWindow.g.cs
+C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\NuevoPlatoWindow.baml

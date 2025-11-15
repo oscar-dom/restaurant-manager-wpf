@@ -70,16 +70,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Windows\GestionMenuWindow.xaml.cs">
-      <DependentUpon>GestionMenuWindow.xaml</DependentUpon>
+    <Compile Include="Windows\NuevoPlatoWindow.xaml.cs">
+      <DependentUpon>NuevoPlatoWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\SecondaryWindow.xaml.cs">
       <DependentUpon>SecondaryWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="Windows\GestionMenuWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Windows\InputComensalesWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -107,6 +103,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Windows\NuevoPlatoWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\SecondaryWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
