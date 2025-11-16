@@ -320,7 +320,35 @@ namespace TrabajoIGU
                                 return;
                             }
                         }
-                        mesa.Estado = EstadoMesa.OcupadaConComanda;
+                    }
+                    if (nuevoEstado== EstadoMesa.OcupadaConComanda)
+                    {
+                        var win = new GestionComandaWindow(sesion, mesa)
+                        {
+                            Owner = this,
+                            WindowStartupLocation = WindowStartupLocation.CenterOwner
+                        };
+
+                        win.ShowDialog();
+
+                        var comanda = sesion.ObtenerComandaActual(mesa.Id);
+
+                        if (comanda == null || comanda.Platos.Count == 0)
+                        {
+                            // Caso: comanda vacía → NO se considera comanda válida
+                            mesa.Estado = EstadoMesa.OcupadaSinComanda;
+
+                            // si se creó una comanda vacía, eliminarla
+                            if (comanda != null)
+                                sesion.ComandasHistoricas.Remove(comanda);
+                        }
+                        else
+                        {
+                            // Tiene platos → mantener estado correcta o aplicarselo
+                            if (mesa.Estado == EstadoMesa.OcupadaSinComanda)
+                                mesa.Estado = EstadoMesa.OcupadaConComanda;
+                        }
+
                         DibujarMesas();
                         return;
                     }
@@ -366,12 +394,26 @@ namespace TrabajoIGU
                         WindowStartupLocation = WindowStartupLocation.CenterOwner
                     };
 
-                    if (mesa.Estado == EstadoMesa.OcupadaSinComanda)
-                    {
-                        mesa.Estado = EstadoMesa.OcupadaConComanda;
-                        DibujarMesas();
-                    }
                     win.ShowDialog();
+
+                    var comanda = sesion.ObtenerComandaActual(mesa.Id);
+
+                    if (comanda == null || comanda.Platos.Count == 0)
+                    {
+                        // Caso: comanda vacía → NO se considera comanda válida
+                        mesa.Estado = EstadoMesa.OcupadaSinComanda;
+
+                        // si se creó una comanda vacía, eliminarla
+                        if (comanda != null)
+                            sesion.ComandasHistoricas.Remove(comanda);
+                    }
+                    else
+                    {
+                        // Tiene platos → mantener estado correcta o aplicarselo
+                        if (mesa.Estado == EstadoMesa.OcupadaSinComanda)
+                            mesa.Estado = EstadoMesa.OcupadaConComanda;
+                    }
+
                     DibujarMesas();
                 };
 
