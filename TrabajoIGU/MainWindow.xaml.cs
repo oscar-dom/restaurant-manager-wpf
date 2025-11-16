@@ -298,11 +298,30 @@ namespace TrabajoIGU
                 {
                     if (nuevoEstado == EstadoMesa.OcupadaConComanda && mesa.CapacidadActual == 0)
                     {
-                        MessageBox.Show(
+                        while (mesa.CapacidadActual < 1)
+                        {
+                            MessageBox.Show(
                             "No puedes abrir una comanda sin comensales.\nPor favor, edita el número de comensales antes de continuar.",
                             "Advertencia",
                             MessageBoxButton.OK,
                             MessageBoxImage.Warning);
+
+                            var input = new InputComensalesWindow(mesa.CapacidadActual, mesa.CapacidadMaxima, mesa.Estado)
+                            {
+                                Owner = this,
+                                WindowStartupLocation = WindowStartupLocation.CenterOwner
+                            };
+
+                            if (input.ShowDialog() == true)
+                            {
+                                mesa.CapacidadActual = input.NumComensales;
+                            } else
+                            {
+                                return;
+                            }
+                        }
+                        mesa.Estado = EstadoMesa.OcupadaConComanda;
+                        DibujarMesas();
                         return;
                     }
                     mesa.Estado = nuevoEstado;
@@ -334,6 +353,29 @@ namespace TrabajoIGU
                     }
                 };
                 menu.Items.Add(itemEditar);
+            }
+
+            if (mesa.Estado == EstadoMesa.OcupadaSinComanda || mesa.Estado == EstadoMesa.OcupadaConComanda)
+            {
+                MenuItem itemComanda = new MenuItem { Header = "Editar comanda" };
+                itemComanda.Click += (s, ev) =>
+                {
+                    var win = new GestionComandaWindow(sesion, mesa)
+                    {
+                        Owner = this,
+                        WindowStartupLocation = WindowStartupLocation.CenterOwner
+                    };
+
+                    if (mesa.Estado == EstadoMesa.OcupadaSinComanda)
+                    {
+                        mesa.Estado = EstadoMesa.OcupadaConComanda;
+                        DibujarMesas();
+                    }
+                    win.ShowDialog();
+                    DibujarMesas();
+                };
+
+                menu.Items.Add(itemComanda);
             }
 
             MenuItem itemEliminar = new MenuItem { Header = "Eliminar mesa" };

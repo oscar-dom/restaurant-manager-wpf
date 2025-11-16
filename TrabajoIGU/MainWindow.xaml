@@ -5,14 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TrabajoIGU"
         mc:Ignorable="d"
-        Title="Gestión Restaurante" Height="600" Width="900" WindowStartupLocation="CenterScreen"
+        Title="Gestión Restaurante" MinHeight="650" MinWidth="900" Height="650" Width="900" WindowStartupLocation="CenterScreen"
         MouseLeftButtonDown="LvPlatosMenu_MouseLeftButtonDown">
     <Grid>
         <Grid x:Name="gridRestaurante">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*" />
                 <!-- Sala -->
-                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="1.5*" />
                 <!-- Panel lateral -->
             </Grid.ColumnDefinitions>
 
@@ -115,17 +115,16 @@
 
 
             <!-- ===================================================== -->
-            <!--  FILA 1 — BOTÓN AÑADIR PLATO                           -->
+            <!--  FILA 1 — BOTÓN AÑADIR PLATO Y VOLVER                 -->
             <!-- ===================================================== -->
-            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0 10 0 0">
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0 10 0 10" HorizontalAlignment="Center">
                 <Button Content="Volver"
                         Grid.Row="1"
                         BorderThickness="0"
                         FontWeight="Bold"
                         Padding="6"
                         Width="150"
-                        HorizontalAlignment="Left"
-                        Margin="275 0 0 15"
+                        Margin="0 0 10 0"
                         Click="BtnVolverGestionMenu_Click"/>
 
                 <Button Content="＋ Añadir plato"
@@ -137,8 +136,6 @@
                         FontWeight="Bold"
                         Padding="6"
                         Width="150"
-                        HorizontalAlignment="Left"
-                        Margin="10 0 0 15"
                         Click="BtnAgregarPlatoMenu_Click"/>
             </StackPanel>
 
@@ -155,26 +152,25 @@
 
                 <!-- FILTROS EN EXPANDER -->
                 <Expander Grid.Column="0"
-                  Header="🔎"
-                  Margin="0 25 20 0"
-                  VerticalAlignment="Top"
-                  ExpandDirection="Right">
+                          Header="🔎"
+                          Margin="0 15 25 0"
+                          VerticalAlignment="Top"
+                          ExpandDirection="Right">  
 
-                    <StackPanel Margin="20 0 0 0"
-                        Width="200">
+                    <StackPanel Margin="20 0 0 0" Width="Auto">
 
                         <TextBlock Text="Buscador por filtros" Margin="0 0 0 10" FontWeight="SemiBold" FontSize="14"/>
 
                         <TextBlock Text="Texto:" FontWeight="SemiBold"/>
                         <TextBox x:Name="txtBuscarMenu"
-                         Margin="0 3 0 10"
-                         TextChanged="FiltroMenu_Changed"/>
+                                 Margin="0 3 0 10"
+                                 TextChanged="FiltroMenu_Changed"/>
 
                         <TextBlock Text="Categoría:" FontWeight="SemiBold"/>
                         <ComboBox x:Name="cbCategoriaMenu"
-                          SelectedIndex="0"
-                          Margin="0 3 0 10"
-                          SelectionChanged="FiltroMenu_Changed">
+                                  SelectedIndex="0"
+                                  Margin="0 3 0 10"
+                                  SelectionChanged="FiltroMenu_Changed">
                             <ComboBoxItem Content="Todas"/>
                             <ComboBoxItem Content="Primero"/>
                             <ComboBoxItem Content="Segundo"/>
@@ -182,12 +178,12 @@
                         </ComboBox>
 
                         <Button Content="Limpiar filtros"
-                        Width="120"
-                        Padding="5"
-                        Margin="10"
-                        Background="#DDDDDD"
-                        BorderThickness="0"
-                        Click="BtnLimpiarFiltrosMenu_Click"/>
+                                Width="120"
+                                Padding="5"
+                                Margin="10"
+                                Background="#DDDDDD"
+                                BorderThickness="0"
+                                Click="BtnLimpiarFiltrosMenu_Click"/>   
                     </StackPanel>
                 </Expander>
 
@@ -200,16 +196,14 @@
                              BorderThickness="0"
                              Background="Transparent"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             HorizontalAlignment="Center"
                              SelectionMode="Single"
                              MouseDoubleClick="LvPlatosMenu_MouseDoubleClick"
                              MouseLeftButtonDown="LvPlatosMenu_MouseLeftButtonDown">
 
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal"
-                                           ItemWidth="Auto"
-                                           ItemHeight="Auto"
-                                           Margin="50 0 0 0"/>
+                                <WrapPanel Orientation="Horizontal"/>
                             </ItemsPanelTemplate>
                         </ListBox.ItemsPanel>
 
@@ -217,7 +211,7 @@
                             <Style TargetType="ListBoxItem">
                                 <!-- quitamos padding y fondo por defecto -->
                                 <Setter Property="Padding" Value="0"/>
-                                <Setter Property="Margin" Value="0"/>
+                                <Setter Property="Margin" Value="10"/>
                                 <Setter Property="Background" Value="Transparent"/>
 
                                 <Setter Property="Template">
@@ -228,8 +222,7 @@
                                                     CornerRadius="12"
                                                     BorderThickness="2"
                                                     BorderBrush="Transparent"
-                                                    Background="Transparent"
-                                                    Margin="5">
+                                                    Background="Transparent">
                                                 <ContentPresenter />
                                             </Border>
 
@@ -257,10 +250,9 @@
                                 <Border BorderThickness="1"
                                         BorderBrush="#C9C9C9"
                                         CornerRadius="10"
-                                        Margin="20"
                                         Padding="10"
                                         Background="White"
-                                        Width="190">
+                                        Width="180">
 
                                     <Border.Effect>
                                         <DropShadowEffect Color="Black"
@@ -296,7 +288,6 @@
             </Grid>
 
         </Grid>
-
 
     </Grid>
     

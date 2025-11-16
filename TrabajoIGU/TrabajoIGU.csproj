@@ -73,6 +73,9 @@
     <Compile Include="Windows\EditarPlatoWindow.xaml.cs">
       <DependentUpon>EditarPlatoWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\GestionComandaWindow.xaml.cs">
+      <DependentUpon>GestionComandaWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\NuevoPlatoWindow.xaml.cs">
       <DependentUpon>NuevoPlatoWindow.xaml</DependentUpon>
     </Compile>
@@ -80,6 +83,10 @@
       <DependentUpon>SecondaryWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Windows\EditarPlatoWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\GestionComandaWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

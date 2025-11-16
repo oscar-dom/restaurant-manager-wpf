@@ -35,6 +35,31 @@ namespace TrabajoIGU.Models
             return total;
         }
 
+        public class PlatoCantidad
+        {
+            public Plato Plato { get; set; }
+            public int Cantidad { get; set; }
+
+            public PlatoCantidad(Plato plato, int cantidad)
+            {
+                Plato = plato;
+                Cantidad = cantidad;
+            }
+        }
+
+
+        public void RestarPlato(Plato plato, int cantidad = 1)
+        {
+            if (!Platos.ContainsKey(plato))
+                return;
+
+            Platos[plato] -= cantidad;
+
+            if (Platos[plato] <= 0)
+                Platos.Remove(plato);
+        }
+
+
         public override string ToString()
         {
             return $"Comanda Mesa {IdMesa} - {Platos.Count} platos";

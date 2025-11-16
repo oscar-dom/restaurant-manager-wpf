@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TrabajoIGU.Windows"
         mc:Ignorable="d"
-        Title="Vista de Restaurante" Height="500" Width="700"
+        Title="Vista de Restaurante" Height="500" Width="700" MinHeight="500" MinWidth="700"
         WindowStartupLocation="CenterOwner"
         MouseLeftButtonDown="dgMesas_MouseLeftButtonDown">
 

@@ -1,0 +1,337 @@
+﻿<Window x:Class="TrabajoIGU.Windows.GestionComandaWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TrabajoIGU.Windows"
+        mc:Ignorable="d"
+        Title="Gestión de Comanda"
+        Width="950" Height="600"
+        MinWidth="950" MinHeight="600"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid Margin="15">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Título -->
+            <RowDefinition Height="Auto"/>
+            <!-- Guía -->
+            <RowDefinition Height="Auto"/>
+            <!-- Botones -->
+            <RowDefinition Height="*"/>
+            <!-- Expander + Menú + Comanda -->
+        </Grid.RowDefinitions>
+
+        <!-- ===================================================== -->
+        <!--  FILA 0 — TÍTULO CENTRADO                             -->
+        <!-- ===================================================== -->
+
+        <TextBlock Text="Gestión de Comanda"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   TextAlignment="Center"
+                   HorizontalAlignment="Center"
+                   Margin="0 0 0 10"/>
+
+        <!-- ===================================================== -->
+        <!--  FILA 1 — BOTONES GUARDAR / CANCELAR                  -->
+        <!-- ===================================================== -->
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="0 10 0 10">
+
+            <Button Content="Cancelar"
+                    Width="150"
+                    Margin="0 0 10 0"
+                    Padding="8"
+                    Background="#DDDDDD"
+                    BorderThickness="0"
+                    FontWeight="Bold"
+                    Click="BtnCancelar_Click"/>
+
+            <Button Content="Guardar cambios"
+                    Width="170"
+                    Padding="8"
+                    Background="#3C7EFF"
+                    Foreground="White"
+                    BorderThickness="0"
+                    FontWeight="Bold"
+                    Click="BtnGuardar_Click"/>
+            
+        </StackPanel>
+
+        <!-- ===================================================== -->
+        <!--  FILA 3 — EXPANDER + LISTA MENÚ + LISTA COMANDA       -->
+        <!-- ===================================================== -->
+
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <!-- Expander -->
+                <ColumnDefinition Width="*"/>
+                <!-- Menú -->
+                <ColumnDefinition Width="190"/>
+                <!-- Comanda -->
+            </Grid.ColumnDefinitions>
+
+            <!-- ======== EXPANDER FILTROS ======== -->
+           
+            <Expander Grid.Column="0"
+                  Header="🔎"
+                  ExpandDirection="Right"
+                  VerticalAlignment="Top"
+                  Margin="0 15 20 0">
+                <StackPanel Margin="20 0 20 0" Width="200">
+
+                    <TextBlock Text="Filtro por nombre" FontWeight="SemiBold"/>
+                    <TextBox x:Name="txtBuscar"
+                         Margin="0 3 0 10"
+                         TextChanged="Filtro_Changed"/>
+
+                    <TextBlock Text="Categoría" FontWeight="SemiBold"/>
+                    <ComboBox x:Name="cbCategoria"
+                          SelectedIndex="0"
+                          Margin="0 3 0 10"
+                          SelectionChanged="Filtro_Changed">
+                        <ComboBoxItem Content="Todas"/>
+                        <ComboBoxItem Content="Primero"/>
+                        <ComboBoxItem Content="Segundo"/>
+                        <ComboBoxItem Content="Postre"/>
+                    </ComboBox>
+
+                    <Button Content="Limpiar filtros"
+                        Width="120"
+                        Padding="5"
+                        Background="#DDDDDD"
+                        BorderThickness="0"
+                        Click="BtnLimpiarFiltros_Click"
+                        Margin="10"/>
+                </StackPanel>
+            </Expander>
+
+            <!-- ======== LISTA DE PLATOS (MENÚ) ======== -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Text="Menú"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           TextAlignment="Center"
+                           HorizontalAlignment="Left"
+                           Margin="15 5 0 5"/>
+
+                <ScrollViewer Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto">
+
+                    <ListBox x:Name="lvMenu"
+                             BorderThickness="0"
+                             Background="Transparent"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             SelectionMode="Single"
+                             MouseDoubleClick="LvMenu_MouseDoubleClick">
+
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="10"/>
+                                <Setter Property="Background" Value="Transparent"/>
+
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border x:Name="outerBorder"
+                                                    CornerRadius="12"
+                                                    BorderThickness="2"
+                                                    BorderBrush="Transparent"
+                                                    Background="Transparent">
+                                                <ContentPresenter />
+                                            </Border>
+
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="outerBorder" Property="BorderBrush" Value="#3C7EFF"/>
+                                                    <Setter TargetName="outerBorder" Property="Background" Value="#E7F0FF"/>
+                                                </Trigger>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="outerBorder" Property="BorderBrush" Value="#8AAEFF"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderThickness="1"
+                                        BorderBrush="#C9C9C9"
+                                        CornerRadius="10"
+                                        Padding="10"
+                                        Background="White"
+                                        Width="180">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Nombre}"
+                                               FontWeight="Bold"
+                                               TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding Categoria}"
+                                               Foreground="#3C7EFF"
+                                               FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Descripcion}"
+                                               Foreground="Gray"
+                                               TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+
+                    </ListBox>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- LISTA DE PLATOS EN LA COMANDA -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                       Text="Comanda"
+                       FontSize="14"
+                       FontWeight="Bold"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Left"
+                       Margin="15 5 0 5"/>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+
+                    <ListBox x:Name="lvComanda"
+                         BorderThickness="0"
+                         Background="Transparent"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         SelectionMode="Single">
+
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="7"/>
+                                <Setter Property="Background" Value="Transparent"/>
+
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border x:Name="outerBorder"
+                                                CornerRadius="12"
+                                                BorderThickness="2"
+                                                BorderBrush="Transparent"
+                                                Background="Transparent">
+                                                <ContentPresenter />
+                                            </Border>
+
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="outerBorder" Property="BorderBrush" Value="#3C7EFF"/>
+                                                    <Setter TargetName="outerBorder" Property="Background" Value="#E7F0FF"/>
+                                                </Trigger>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="outerBorder" Property="BorderBrush" Value="#8AAEFF"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+
+                                <Border BorderThickness="1"
+                                    BorderBrush="#C9C9C9"
+                                    CornerRadius="10"
+                                    Padding="10"
+                                    Background="White"
+                                    Width="150"
+                                    Height="Auto">
+
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- NOMBRE DEL PLATO -->
+                                        <TextBlock Text="{Binding Key.Nombre}"
+                                               FontWeight="Bold"
+                                               FontSize="14"
+                                               TextWrapping="Wrap"
+                                               HorizontalAlignment="Center"
+                                               TextAlignment="Center"
+                                               Margin="0 0 0 10"/>
+
+                                        <!-- BOTONES Y CANTIDAD -->
+                                        <StackPanel Grid.Row="1"
+                                                Orientation="Horizontal"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center">
+
+                                            <Button Content="➖​"
+                                                Width="28"
+                                                Height="28"
+                                                FontWeight="Bold"
+                                                Margin="0 0 5 5"
+                                                Tag="{Binding Key}"
+                                                Click="BtnMenos_Click"/>
+
+                                            <TextBlock Text="{Binding Value}"
+                                                   FontSize="16"
+                                                   FontWeight="Bold"
+                                                   VerticalAlignment="Center"
+                                                   Margin="5 0 5 5"/>
+
+                                            <Button Content="➕​"
+                                                Width="28"
+                                                Height="28"
+                                                FontWeight="Bold"
+                                                Margin="5 0 0 5"
+                                                Tag="{Binding Key}"
+                                                Click="BtnMas_Click"/>
+
+                                        </StackPanel>
+
+                                    </Grid>
+
+                                </Border>
+
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+
+                    </ListBox>
+
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+
+    </Grid>
+
+
+</Window>

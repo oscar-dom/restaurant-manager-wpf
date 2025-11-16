@@ -15,9 +15,7 @@ using TrabajoIGU.Models;
 
 namespace TrabajoIGU.Windows
 {
-    /// <summary>
-    /// Lógica de interacción para InputComensalesWindow.xaml
-    /// </summary>
+
     public partial class InputComensalesWindow : Window
     {
         private int capacidadMaxima;
@@ -70,6 +68,12 @@ namespace TrabajoIGU.Windows
 
         private void Cancelar_Click(object sender, RoutedEventArgs e)
         {
+            DialogResult = false;
+        }
+
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            if (DialogResult == true) return;
             DialogResult = false;
         }
     }
