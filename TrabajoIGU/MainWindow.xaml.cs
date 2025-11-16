@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,31 +41,49 @@ namespace TrabajoIGU
         #region Actualización de interfaz
         private void DibujarMesas()
         {
+            if (canvasSala.ActualWidth == 0 || canvasSala.ActualHeight == 0)
+                return;
+
             canvasSala.Children.Clear();
             mapaMesas.Clear();
 
-            double espacioX = 160;
-            double espacioY = 130;
-            double inicioX = 50;
-            double inicioY = 50;
+            // Tamaño de la rejilla (4 filas × 3 columnas)
+            int filas = Sesion.Filas;
+            int columnas = Sesion.Columnas;
 
-            for (int fila = 0; fila < Sesion.Filas; fila++)
+            // Margen porcentual
+            double margenX = canvasSala.ActualWidth * 0.05;
+            double margenY = canvasSala.ActualHeight * 0.05;
+
+            // Tamaño útil
+            double espacioUtilX = canvasSala.ActualWidth - (2 * margenX);
+            double espacioUtilY = canvasSala.ActualHeight - (2 * margenY);
+
+            // Tamaño de cada celda
+            double celdaAncho = espacioUtilX / columnas;
+            double celdaAlto = espacioUtilY / filas;
+
+            // Tamaño de la mesa dentro de la celda (75% del tamaño)
+            double mesaSize = Math.Min(celdaAncho, celdaAlto) * 0.75;
+
+            for (int fila = 0; fila < filas; fila++)
             {
-                for (int col = 0; col < Sesion.Columnas; col++)
+                for (int col = 0; col < columnas; col++)
                 {
                     Mesa mesa = sesion.Disposicion[fila, col];
-                    double x = inicioX + col * espacioX;
-                    double y = inicioY + fila * espacioY;
+
+                    // Posición superior izquierda de la celda
+                    double x = margenX + col * celdaAncho + (celdaAncho - mesaSize) / 2;
+                    double y = margenY + fila * celdaAlto + (celdaAlto - mesaSize) / 2;
 
                     if (mesa == null)
                     {
-                        // Dibuja marco transparente con número de celda
-                        int numeroCelda = fila * Sesion.Columnas + col + 1;
+                        int numeroCelda = fila * columnas + col + 1;
 
                         Border celdaVacia = new Border
                         {
-                            Width = 80,
-                            Height = 80,
+                            Width = mesaSize,
+                            Height = mesaSize,
                             BorderBrush = new SolidColorBrush(Color.FromArgb(120, 0, 0, 0)),
                             BorderThickness = new Thickness(2),
                             Background = new SolidColorBrush(Color.FromArgb(60, 255, 255, 255)),
@@ -80,77 +99,80 @@ namespace TrabajoIGU
 
                         canvasSala.Children.Add(celdaVacia);
 
-                        // Etiqueta con el número de celda
+
                         TextBlock lbl = new TextBlock
                         {
                             Text = numeroCelda.ToString(),
-                            FontSize = 14,
+                            FontSize = mesaSize * 0.22,
                             FontWeight = FontWeights.Bold,
                             Foreground = Brushes.Black,
                             TextAlignment = TextAlignment.Center,
+                            Width = mesaSize * 0.8,
+                            Height = mesaSize * 0.22 * 1.3,
                             Opacity = 0.6,
                             IsHitTestVisible = false
                         };
-                        Canvas.SetLeft(lbl, x + 33);
-                        Canvas.SetTop(lbl, y + 30);
+
+                        Canvas.SetLeft(lbl, x + (mesaSize - lbl.Width) / 2);
+                        Canvas.SetTop(lbl, y + (mesaSize - lbl.Height) / 2);
+
                         canvasSala.Children.Add(lbl);
+
                         continue;
-
                     }
-                    else
+
+                    // Imagen de la mesa
+                    Image imgMesa = new Image
                     {
+                        Source = new BitmapImage(new Uri(GetRutaImagenPorEstado(mesa.Estado), UriKind.Relative)),
+                        Cursor = Cursors.Hand,
+                        Tag = mesa
+                    };
 
-                        // Imagen según el estado de la mesa
-                        Image imgMesa = new Image
-                        {
-                            Width = 80,
-                            Height = 80,
-                            Source = new BitmapImage(new Uri(GetRutaImagenPorEstado(mesa.Estado), UriKind.Relative)),
-                            Cursor = Cursors.Hand,
-                            Tag = mesa // para acceder fácilmente luego
-                        };
+                    Border borde = new Border
+                    {
+                        Width = mesaSize,
+                        Height = mesaSize,
+                        BorderThickness = new Thickness(3),
+                        BorderBrush = Brushes.Black,
+                        Child = imgMesa
+                    };
 
-                        // Creamos el borde que contendrá la imagen
-                        Border borde = new Border
-                        {
-                            BorderThickness = new Thickness(3),
-                            BorderBrush = Brushes.Black,
-                            Child = imgMesa,
-                        };
+                    Canvas.SetLeft(borde, x);
+                    Canvas.SetTop(borde, y);
 
-                        // Asignamos posición
-                        Canvas.SetLeft(borde, x);
-                        Canvas.SetTop(borde, y);
+                    borde.MouseLeftButtonDown += Mesa_LeftClick;
+                    borde.MouseRightButtonDown += Mesa_RightClick;
 
-                        // Evento clic para seleccionar
-                        borde.MouseLeftButtonDown += Mesa_LeftClick;
-                        borde.MouseRightButtonDown += Mesa_RightClick;
+                    canvasSala.Children.Add(borde);
+                    mapaMesas.Add(borde, mesa);
 
-                        // Añadimos al Canvas
-                        canvasSala.Children.Add(borde);
-                        mapaMesas.Add(borde, mesa); // el diccionario guarda el borde como clave
+                    TextBlock label = new TextBlock
+                    {
+                        Text = mesa.Id.ToString(),
+                        FontSize = mesaSize * 0.14,
+                        FontWeight = FontWeights.Bold,
+                        Foreground = Brushes.White,
+                        Background = Brushes.Black,
+                        TextAlignment = TextAlignment.Center,
+                        Width = mesaSize * 0.25,
+                        Opacity = 0.6,
+                        IsHitTestVisible = false
+                    };
 
-                        // Etiqueta con el número de mesa
-                        TextBlock label = new TextBlock
-                        {
-                            Text = mesa.Id.ToString(),
-                            FontWeight = FontWeights.Bold,
-                            FontSize = 14,
-                            Foreground = Brushes.White,
-                            Background = Brushes.Black,
-                            TextAlignment = TextAlignment.Center,
-                            Width = 20,
-                            Opacity = 0.6,
-                            IsHitTestVisible = false
-                        };
-                        Canvas.SetLeft(label, x + 33);
-                        Canvas.SetTop(label, y + 60);
-                        canvasSala.Children.Add(label);
-                    }
+                    Canvas.SetLeft(label, x + mesaSize / 2.7);
+                    Canvas.SetTop(label, y + mesaSize * 0.75);
+                    canvasSala.Children.Add(label);
                 }
             }
+
             ActualizarSeleccionVisual();
             MostrarDatosMesa();
+        }
+
+        private void canvasSala_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            DibujarMesas();
         }
 
         private void ActualizarSeleccionVisual()

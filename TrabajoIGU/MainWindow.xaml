@@ -6,7 +6,6 @@
         xmlns:local="clr-namespace:TrabajoIGU"
         mc:Ignorable="d"
         Title="Gestión Restaurante" Height="600" Width="900" WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
         MouseLeftButtonDown="LvPlatosMenu_MouseLeftButtonDown">
     <Grid>
         <Grid x:Name="gridRestaurante">
@@ -21,15 +20,16 @@
             <Grid Grid.Column="0">
                 <!-- Imagen de fondo -->
                 <Image Source="Imagenes/sueloRestaurante.jpg"
-               Stretch="UniformToFill"
-               Opacity="0.9"
-               Panel.ZIndex="0"/>
+                       Stretch="UniformToFill"
+                       Opacity="0.9"
+                       Panel.ZIndex="0"/>
 
                 <!-- Canvas encima -->
                 <Canvas x:Name="canvasSala"
-                Background="Transparent"
-                MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
-                Panel.ZIndex="1"/>
+                        Background="Transparent"
+                        MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
+                        Panel.ZIndex="1"
+                        SizeChanged="canvasSala_SizeChanged"/>
             </Grid>
 
             <!-- ======== PANEL LATERAL ======== -->
@@ -40,39 +40,39 @@
                 <TextBlock x:Name="txtAforoRestaurante" Text="Aforo: 0/96" Margin="0 0 0 20"/>
 
                 <Button x:Name="btnGestionMenu"
-                Content="Gestión del Menú"
-                Background="#FF3C7EFF"
-                Foreground="White"
-                Margin="0 0 0 10"
-                Padding="10"
-                FontWeight="Bold"
-                BorderThickness="0"
-                Cursor="Hand"
-                HorizontalAlignment="Stretch"
-                Click="BtnGestionMenu_Click"/>
+                        Content="Gestión del Menú"
+                        Background="#FF3C7EFF"
+                        Foreground="White"
+                        Margin="0 0 0 10"
+                        Padding="10"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        HorizontalAlignment="Stretch"
+                        Click="BtnGestionMenu_Click"/>
 
                 <Button x:Name="btnVistaRestaurante"
-                Content="Vista del Restaurante"
-                Background="#FF3C7EFF"
-                Foreground="White"
-                Margin="0 0 0 10"
-                Padding="10"
-                FontWeight="Bold"
-                BorderThickness="0"
-                Cursor="Hand"
-                HorizontalAlignment="Stretch"
-                Click="BtnVistaRestaurante_Click"/>
+                        Content="Vista del Restaurante"
+                        Background="#FF3C7EFF"
+                        Foreground="White"
+                        Margin="0 0 0 10"
+                        Padding="10"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        HorizontalAlignment="Stretch"
+                        Click="BtnVistaRestaurante_Click"/>
 
                 <Button Content="Iniciar/Reiniciar Sesión"
-                Click="BtnReiniciar_Click"
-                Background="#FF3C7EFF"
-                Foreground="White"
-                Padding="10"
-                FontWeight="Bold"
-                BorderThickness="0"
-                Cursor="Hand"
-                HorizontalAlignment="Stretch"
-                Margin="0 0 0 20"/>
+                        Click="BtnReiniciar_Click"
+                        Background="#FF3C7EFF"
+                        Foreground="White"
+                        Padding="10"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        HorizontalAlignment="Stretch"
+                        Margin="0 0 0 20"/>
 
                 <TextBlock Text="Información de la mesa" FontSize="18" FontWeight="Bold" Margin="0 0 0 10"/>
 
