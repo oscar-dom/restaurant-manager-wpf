@@ -106,6 +106,7 @@ namespace TrabajoIGU.Windows
         {
             // Crear o reemplazar comanda
             var comanda = sesion.ObtenerComandaActual(mesa.Id);
+
             if (comanda == null)
             {
                 comanda = new Comanda(mesa.Id);
@@ -131,10 +132,27 @@ namespace TrabajoIGU.Windows
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             base.OnClosing(e);
+            var comanda = sesion.ObtenerComandaActual(mesa.Id);
 
             // 1. Si viene del botón GUARDAR → NO preguntar
             if (cierreDesdeGuardar)
             {
+                if (comanda.Platos.Count == 0)
+                {
+                    var r = MessageBox.Show(
+                            "La comanda está vacía, por lo tanto se borrará.\n¿Está seguro?",
+                            "Cerrar",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Warning);
+
+                    if (r == MessageBoxResult.No)
+                    {
+                        e.Cancel = true;
+                        cierreDesdeCancelar = false;
+                        return;
+                    }
+                }
+                sesion.ComandasHistoricas.Remove(comanda);
                 return;
             }
 
