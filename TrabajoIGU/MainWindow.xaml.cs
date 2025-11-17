@@ -352,9 +352,23 @@ namespace TrabajoIGU
                         DibujarMesas();
                         return;
                     }
-                    mesa.Estado = nuevoEstado;
-                    if (mesa.Estado == EstadoMesa.Libre)
+                    if (nuevoEstado == EstadoMesa.Libre && mesa.CapacidadActual!=0)
+                    {
+                        if(mesa.Estado== EstadoMesa.OcupadaConComanda)
+                        {
+                            // MOSTRAR MENSAJE DE "LOS COMENSALES DEJAN LA MESA Y GUARDAR LA COMANDA EN EL HISTORICO"
+                            mesa.CapacidadActual = 0;
+                            mesa.Estado = nuevoEstado;
+                            DibujarMesas();
+                            return;
+                        }
+                        //MOSTRAR MENSAJE "LOS COMENSALES DEJAN LA MESA"
                         mesa.CapacidadActual = 0;
+                        mesa.Estado = nuevoEstado;
+                        DibujarMesas();
+                        return;
+                    }
+                    mesa.Estado = nuevoEstado;
                     DibujarMesas();
                 };
                 itemCambiar.Items.Add(subItem);
@@ -383,7 +397,7 @@ namespace TrabajoIGU
                 menu.Items.Add(itemEditar);
             }
 
-            if (mesa.Estado == EstadoMesa.OcupadaSinComanda || mesa.Estado == EstadoMesa.OcupadaConComanda)
+            if ((mesa.Estado == EstadoMesa.OcupadaSinComanda && mesa.CapacidadActual!=0) || mesa.Estado == EstadoMesa.OcupadaConComanda)
             {
                 MenuItem itemComanda = new MenuItem { Header = "Editar comanda" };
                 itemComanda.Click += (s, ev) =>

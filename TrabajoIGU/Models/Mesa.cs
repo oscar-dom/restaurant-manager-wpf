@@ -20,6 +20,8 @@ namespace TrabajoIGU.Models
         public int CapacidadMaxima { get; set; }
         public int CapacidadActual { get; set; }
         public EstadoMesa Estado { get; set; }
+        public Comanda ComandaActiva { get; set; }
+
 
         public Mesa(int id, int capacidadMaxima)
         {

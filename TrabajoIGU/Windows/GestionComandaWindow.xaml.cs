@@ -104,19 +104,74 @@ namespace TrabajoIGU.Windows
         // ================
         private void BtnGuardar_Click(object sender, RoutedEventArgs e)
         {
-            // Crear o reemplazar comanda
-            var comanda = sesion.ObtenerComandaActual(mesa.Id);
+            cierreDesdeGuardar = true;
 
-            if (comanda == null)
+            var comandaActual = sesion.ObtenerComandaActual(mesa.Id);
+
+            // ───────────────────────────────
+            // CASO A → COMANDA EXISTENTE
+            // ───────────────────────────────
+            if (comandaActual != null)
             {
-                comanda = new Comanda(mesa.Id);
-                sesion.ComandasHistoricas.Add(comanda);
+                if (comandaTemp.Count == 0)
+                {
+                    var r = MessageBox.Show(
+                        "La comanda ha quedado vacía.\nSe eliminará la comanda.\n\n¿Desea continuar?",
+                        "Comanda vacía",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning);
+
+                    if (r == MessageBoxResult.No)
+                    {
+                        cierreDesdeGuardar = false;
+                        return;
+                    }
+
+                    // eliminar comanda
+                    sesion.ComandasHistoricas.Remove(comandaActual);
+                    mesa.Estado = EstadoMesa.OcupadaSinComanda;
+
+                    Close();
+                    return;
+                }
+
+                // Actualizar comanda existente
+                comandaActual.Platos = new Dictionary<Plato, int>(comandaTemp);
+                mesa.Estado = EstadoMesa.OcupadaConComanda;
+                Close();
+                return;
             }
 
-            comanda.Platos = new Dictionary<Plato, int>(comandaTemp);
+            // ───────────────────────────────
+            // CASO B → NUEVA COMANDA
+            // ───────────────────────────────
+            if (comandaTemp.Count == 0)
+            {
+                var r = MessageBox.Show(
+                    "No ha añadido ningún plato.\nNo se creará la comanda.\n\n¿Desea continuar?",
+                    "Comanda vacía",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
 
+                if (r == MessageBoxResult.No)
+                {
+                    cierreDesdeGuardar = false;
+                    return;
+                }
+
+                // No crear nada
+                mesa.Estado = EstadoMesa.OcupadaSinComanda;
+                Close();
+                return;
+            }
+
+            // Crear comanda nueva con platos
+            var nueva = new Comanda(mesa.Id);
+            nueva.Platos = new Dictionary<Plato, int>(comandaTemp);
+
+            sesion.ComandasHistoricas.Add(nueva);
             mesa.Estado = EstadoMesa.OcupadaConComanda;
-            cierreDesdeGuardar = true;
+
             Close();
         }
 
@@ -132,34 +187,14 @@ namespace TrabajoIGU.Windows
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             base.OnClosing(e);
-            var comanda = sesion.ObtenerComandaActual(mesa.Id);
-
-            // 1. Si viene del botón GUARDAR → NO preguntar
-            if (cierreDesdeGuardar)
-            {
-                if (comanda.Platos.Count == 0)
-                {
-                    var r = MessageBox.Show(
-                            "La comanda está vacía, por lo tanto se borrará.\n¿Está seguro?",
-                            "Cerrar",
-                            MessageBoxButton.YesNo,
-                            MessageBoxImage.Warning);
-
-                    if (r == MessageBoxResult.No)
-                    {
-                        e.Cancel = true;
-                        cierreDesdeCancelar = false;
-                        return;
-                    }
-                }
-                sesion.ComandasHistoricas.Remove(comanda);
-                return;
-            }
 
             if (ComandasSonIguales())
             {
                 cambiosRealizados = false;
             }
+
+            if (cierreDesdeGuardar)
+                return;
 
             // 2. Si viene del botón CANCELAR → preguntar si hay cambios
             if (cierreDesdeCancelar)
