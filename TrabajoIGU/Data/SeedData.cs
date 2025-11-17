@@ -42,33 +42,41 @@ namespace TrabajoIGU.Data
                 new Plato("Flan casero", CategoriaPlato.Postre, "Flan tradicional con caramelo")
             };
 
-            // ===== COMANDAS =====
-            // Mesa 1 (un grupo actual)
-            var c1 = new Comanda(1);
-            c1.AgregarPlato(sesion.Menu[0], 2); // Ensalada mixta
-            c1.AgregarPlato(sesion.Menu[3], 2); // Pollo al horno
-            c1.AgregarPlato(sesion.Menu[6], 2); // Tarta de queso
-            sesion.RegistrarComanda(c1);
+            // ============================================================
+            // COMANDAS HISTÓRICAS → SOLO antiguas, NO las activas
+            // ============================================================
 
-            // Mesa 2 (un grupo actual)
-            var c2 = new Comanda(2);
-            c2.AgregarPlato(sesion.Menu[1], 3); // Sopa
-            c2.AgregarPlato(sesion.Menu[5], 3); // Filete
-            c2.AgregarPlato(sesion.Menu[8], 3); // Flan
-            sesion.RegistrarComanda(c2);
-
-            // Mesa 3 (dos grupos consecutivos)
+            // Mesa 3 tuvo dos grupos -> ambas van a histórico
             var c3a = new Comanda(3);
             c3a.AgregarPlato(sesion.Menu[0], 2);
             c3a.AgregarPlato(sesion.Menu[3], 2);
-            sesion.RegistrarComanda(c3a);
 
-            // Segundo grupo (en la misma mesa)
-            var c3b = new Comanda(3);
-            c3b.AgregarPlato(sesion.Menu[2], 2);
-            c3b.AgregarPlato(sesion.Menu[4], 2);
-            c3b.AgregarPlato(sesion.Menu[7], 2);
-            sesion.RegistrarComanda(c3b);
+            sesion.ComandasHistoricas.Add(c3a);
+
+            // ============================================================
+            // COMANDAS ACTIVAS → SOLO la última comanda de cada mesa activa
+            // ============================================================
+
+            // Mesa 1 actual
+            var mesa1 = sesion.Mesas[0];
+            mesa1.ComandaActiva = new Comanda(1);
+            mesa1.ComandaActiva.AgregarPlato(sesion.Menu[0], 2);
+            mesa1.ComandaActiva.AgregarPlato(sesion.Menu[3], 2);
+            mesa1.ComandaActiva.AgregarPlato(sesion.Menu[6], 2);
+
+            // Mesa 2 actual
+            var mesa2 = sesion.Mesas[1];
+            mesa2.ComandaActiva = new Comanda(2);
+            mesa2.ComandaActiva.AgregarPlato(sesion.Menu[1], 3);
+            mesa2.ComandaActiva.AgregarPlato(sesion.Menu[5], 3);
+            mesa2.ComandaActiva.AgregarPlato(sesion.Menu[8], 3);
+
+            var mesa3 = sesion.Mesas[2];
+            mesa3.ComandaActiva= new Comanda(3);
+            mesa3.ComandaActiva.AgregarPlato(sesion.Menu[2], 2);
+            mesa3.ComandaActiva.AgregarPlato(sesion.Menu[4], 2);
+            mesa3.ComandaActiva.AgregarPlato(sesion.Menu[7], 2);
+
 
             // ===== ESTADOS DE MESAS =====
             sesion.Mesas[0].Estado = EstadoMesa.OcupadaConComanda; // Mesa 1

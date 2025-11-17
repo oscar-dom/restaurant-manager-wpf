@@ -43,41 +43,43 @@ namespace TrabajoIGU.Models
             var mesa = Mesas.FirstOrDefault(m => m.Id == comanda.IdMesa);
             if (mesa != null)
             {
+                mesa.ComandaActiva = null;
                 mesa.Estado = EstadoMesa.OcupadaConComanda;
             }
         }
 
         public Comanda ObtenerComandaActual(int idMesa)
         {
-            return ComandasHistoricas.LastOrDefault(c => c.IdMesa == idMesa);
+            return Mesas.FirstOrDefault(m => m.Id == idMesa)?.ComandaActiva;
         }
 
         public int TotalPlatosPorMesa(int idMesa)
         {
-            return ComandasHistoricas
-                .Where(c => c.IdMesa == idMesa)
-                .Sum(c => c.TotalPlatos());
+            var comanda = ObtenerComandaActual(idMesa);
+
+            return comanda?.TotalPlatos() ?? 0;
         }
 
         public Dictionary<string, int> PlatosPorCategoriaMesa(int idMesa, CategoriaPlato categoria)
         {
+            var comanda = ObtenerComandaActual(idMesa);
+
             var resultado = new Dictionary<string, int>();
 
-            var comandas = ComandasHistoricas
-                .Where(c => c.IdMesa == idMesa);
+            if (comanda == null)
+                return resultado;
 
-            foreach (var comanda in comandas)
+            foreach (var kvp in comanda.Platos)
             {
-                foreach (var kvp in comanda.Platos)
+                if (kvp.Key.Categoria == categoria)
                 {
-                    if (kvp.Key.Categoria == categoria)
-                    {
-                        if (!resultado.ContainsKey(kvp.Key.Nombre))
-                            resultado[kvp.Key.Nombre] = 0;
-                        resultado[kvp.Key.Nombre] += kvp.Value;
-                    }
+                    if (!resultado.ContainsKey(kvp.Key.Nombre))
+                        resultado[kvp.Key.Nombre] = 0;
+
+                    resultado[kvp.Key.Nombre] += kvp.Value;
                 }
             }
+
             return resultado;
         }
     }

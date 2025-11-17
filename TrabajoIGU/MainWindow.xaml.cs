@@ -195,35 +195,51 @@ namespace TrabajoIGU
 
         private void MostrarDatosMesa()
         {
+            // Resumen restaurante
             int activas = sesion.Disposicion.Cast<Mesa>().Count(m => m != null);
             txtResumenRestaurante.Text = $"Mesas activas: {activas} / {Sesion.Filas * Sesion.Columnas}";
 
-            int personasActuales = sesion.Disposicion.Cast<Mesa>().Where(m => m != null).Sum(m => m.CapacidadActual);
-            int aforoMaximo = sesion.Disposicion.Cast<Mesa>().Where(m => m != null).Sum(m => m.CapacidadMaxima); txtAforoRestaurante.Text = $"Aforo: {personasActuales} / {aforoMaximo}";
+            int personasActuales = sesion.Disposicion.Cast<Mesa>()
+                                   .Where(m => m != null)
+                                   .Sum(m => m.CapacidadActual);
 
+            int aforoMaximo = sesion.Disposicion.Cast<Mesa>()
+                                 .Where(m => m != null)
+                                 .Sum(m => m.CapacidadMaxima);
+
+            txtAforoRestaurante.Text = $"Aforo: {personasActuales} / {aforoMaximo}";
+
+            // Si no hay mesa seleccionada
             if (mesaSeleccionada == null)
             {
                 LimpiarPanel();
+                secondaryWindow?.ActualizarVista(sesion, null);
                 return;
             }
 
+            // Datos básicos de la mesa
             txtIdMesa.Text = mesaSeleccionada.Id.ToString();
             txtCapacidad.Text = mesaSeleccionada.CapacidadMaxima.ToString();
             txtEstado.Text = mesaSeleccionada.Estado.ToString();
             txtComensales.Text = mesaSeleccionada.CapacidadActual.ToString();
 
-            if (mesaSeleccionada.Estado == EstadoMesa.OcupadaConComanda)
+            // ✅ AHORA LEEMOS SIEMPRE DE ComandaActiva, NO DEL HISTÓRICO
+            var comandaActual = mesaSeleccionada.ComandaActiva;
+
+            if (comandaActual != null && comandaActual.Platos.Count > 0)
             {
-                var comandaActual = sesion.ObtenerComandaActual(mesaSeleccionada.Id);
-                int totalPlatos = comandaActual?.TotalPlatos() ?? 0;
+                int totalPlatos = comandaActual.TotalPlatos();
                 txtPlatos.Text = totalPlatos.ToString();
             }
             else
             {
                 txtPlatos.Text = "0";
             }
+
+            // Actualizar ventana secundaria
             secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
         }
+
 
         private void LimpiarPanel()
         {
@@ -284,24 +300,29 @@ namespace TrabajoIGU
             if (!mapaMesas.TryGetValue(borde, out var mesa))
                 return;
 
-            // Crear menú contextual dinámicamente
             ContextMenu menu = new ContextMenu();
 
-            // Crear una opción principal “Cambiar estado”
+
+            // =========================================================
+            // OPCIÓN ─── CAMBIAR ESTADO...
+            // =========================================================
             MenuItem itemCambiar = new MenuItem { Header = "Cambiar estado..." };
 
-            // Añadir subopciones según el estado actual
             foreach (var nuevoEstado in ObtenerEstadosPosibles(mesa.Estado))
             {
                 MenuItem subItem = new MenuItem { Header = nuevoEstado.ToString() };
+
                 subItem.Click += (s, ev) =>
                 {
+                    // ───────────────────────────────────────────────
+                    // NO PERMITIR crear comanda sin comensales
+                    // ───────────────────────────────────────────────
                     if (nuevoEstado == EstadoMesa.OcupadaConComanda && mesa.CapacidadActual == 0)
                     {
                         while (mesa.CapacidadActual < 1)
                         {
                             MessageBox.Show(
-                            "No puedes abrir una comanda sin comensales.\nPor favor, edita el número de comensales antes de continuar.",
+                            "No puedes abrir una comanda sin comensales.\nPor favor edita los comensales.",
                             "Advertencia",
                             MessageBoxButton.OK,
                             MessageBoxImage.Warning);
@@ -313,15 +334,16 @@ namespace TrabajoIGU
                             };
 
                             if (input.ShowDialog() == true)
-                            {
                                 mesa.CapacidadActual = input.NumComensales;
-                            } else
-                            {
+                            else
                                 return;
-                            }
                         }
                     }
-                    if (nuevoEstado== EstadoMesa.OcupadaConComanda)
+
+                    // ───────────────────────────────────────────────
+                    // ENTRAR A EDITAR COMANDA AUTOMÁTICAMENTE
+                    // ───────────────────────────────────────────────
+                    if (nuevoEstado == EstadoMesa.OcupadaConComanda)
                     {
                         var win = new GestionComandaWindow(sesion, mesa)
                         {
@@ -331,53 +353,71 @@ namespace TrabajoIGU
 
                         win.ShowDialog();
 
-                        var comanda = sesion.ObtenerComandaActual(mesa.Id);
+                        // Revisar comanda activa
+                        var comanda = mesa.ComandaActiva;
 
                         if (comanda == null || comanda.Platos.Count == 0)
                         {
-                            // Caso: comanda vacía → NO se considera comanda válida
+                            mesa.ComandaActiva = null;
                             mesa.Estado = EstadoMesa.OcupadaSinComanda;
-
-                            // si se creó una comanda vacía, eliminarla
-                            if (comanda != null)
-                                sesion.ComandasHistoricas.Remove(comanda);
                         }
                         else
                         {
-                            // Tiene platos → mantener estado correcta o aplicarselo
-                            if (mesa.Estado == EstadoMesa.OcupadaSinComanda)
-                                mesa.Estado = EstadoMesa.OcupadaConComanda;
+                            mesa.Estado = EstadoMesa.OcupadaConComanda;
                         }
 
                         DibujarMesas();
                         return;
                     }
-                    if (nuevoEstado == EstadoMesa.Libre && mesa.CapacidadActual!=0)
+
+                    // ───────────────────────────────────────────────
+                    // ESTADO → LIBRE (vaciar comanda si existe)
+                    // ───────────────────────────────────────────────
+                    if (nuevoEstado == EstadoMesa.Libre && mesa.CapacidadActual != 0)
                     {
-                        if(mesa.Estado== EstadoMesa.OcupadaConComanda)
+                        if (mesa.Estado == EstadoMesa.OcupadaConComanda)
                         {
-                            // MOSTRAR MENSAJE DE "LOS COMENSALES DEJAN LA MESA Y GUARDAR LA COMANDA EN EL HISTORICO"
-                            mesa.CapacidadActual = 0;
-                            mesa.Estado = nuevoEstado;
-                            DibujarMesas();
-                            return;
+                            var r2 = MessageBox.Show(
+                                "Si realiza esta acción se dará por finalizada la comanda actual.\n" +
+                                "La mesa quedará libre.",
+                                "Cerrar mesa",
+                                MessageBoxButton.YesNo,
+                                MessageBoxImage.Warning);
+
+                            if (r2 == MessageBoxResult.No)
+                                return;
+
+                            if (mesa.ComandaActiva != null)
+                                sesion.ComandasHistoricas.Add(mesa.ComandaActiva);
+
+                            mesa.ComandaActiva = null;
                         }
-                        //MOSTRAR MENSAJE "LOS COMENSALES DEJAN LA MESA"
+
                         mesa.CapacidadActual = 0;
-                        mesa.Estado = nuevoEstado;
+                        mesa.Estado = EstadoMesa.Libre;
                         DibujarMesas();
                         return;
                     }
+
+                    // ───── Otros cambios de estado normales ───────────────────
                     mesa.Estado = nuevoEstado;
                     DibujarMesas();
                 };
+
                 itemCambiar.Items.Add(subItem);
             }
             menu.Items.Add(itemCambiar);
 
-            if (mesa.Estado == EstadoMesa.Reservada || mesa.Estado == EstadoMesa.OcupadaSinComanda || mesa.Estado == EstadoMesa.OcupadaConComanda)
+
+            // ============================================================
+            // OPCIÓN ─── EDITAR Nº DE COMENSALES
+            // ============================================================
+            if (mesa.Estado == EstadoMesa.Reservada ||
+                mesa.Estado == EstadoMesa.OcupadaSinComanda ||
+                mesa.Estado == EstadoMesa.OcupadaConComanda)
             {
                 MenuItem itemEditar = new MenuItem { Header = "Editar nº comensales actuales" };
+
                 itemEditar.Click += (s, ev) =>
                 {
                     var input = new InputComensalesWindow(mesa.CapacidadActual, mesa.CapacidadMaxima, mesa.Estado)
@@ -389,17 +429,28 @@ namespace TrabajoIGU
                     if (input.ShowDialog() == true)
                     {
                         mesa.CapacidadActual = input.NumComensales;
+
                         if (mesa.Estado == EstadoMesa.OcupadaConComanda && mesa.CapacidadActual == 0)
+                        {
                             mesa.Estado = EstadoMesa.Libre;
+                            mesa.ComandaActiva = null;
+                        }
+
                         DibujarMesas();
                     }
                 };
                 menu.Items.Add(itemEditar);
             }
 
-            if ((mesa.Estado == EstadoMesa.OcupadaSinComanda && mesa.CapacidadActual!=0) || mesa.Estado == EstadoMesa.OcupadaConComanda)
+
+            // ============================================================
+            // OPCIÓN ─── EDITAR COMANDA
+            // ============================================================
+            if ((mesa.Estado == EstadoMesa.OcupadaSinComanda && mesa.CapacidadActual != 0) ||
+                 mesa.Estado == EstadoMesa.OcupadaConComanda)
             {
                 MenuItem itemComanda = new MenuItem { Header = "Editar comanda" };
+
                 itemComanda.Click += (s, ev) =>
                 {
                     var win = new GestionComandaWindow(sesion, mesa)
@@ -410,22 +461,14 @@ namespace TrabajoIGU
 
                     win.ShowDialog();
 
-                    var comanda = sesion.ObtenerComandaActual(mesa.Id);
-
-                    if (comanda == null || comanda.Platos.Count == 0)
+                    if (mesa.ComandaActiva == null || mesa.ComandaActiva.Platos.Count == 0)
                     {
-                        // Caso: comanda vacía → NO se considera comanda válida
+                        mesa.ComandaActiva = null;
                         mesa.Estado = EstadoMesa.OcupadaSinComanda;
-
-                        // si se creó una comanda vacía, eliminarla
-                        if (comanda != null)
-                            sesion.ComandasHistoricas.Remove(comanda);
                     }
                     else
                     {
-                        // Tiene platos → mantener estado correcta o aplicarselo
-                        if (mesa.Estado == EstadoMesa.OcupadaSinComanda)
-                            mesa.Estado = EstadoMesa.OcupadaConComanda;
+                        mesa.Estado = EstadoMesa.OcupadaConComanda;
                     }
 
                     DibujarMesas();
@@ -434,6 +477,44 @@ namespace TrabajoIGU
                 menu.Items.Add(itemComanda);
             }
 
+
+            // ============================================================
+            // ⭐ OPCIÓN NUEVA ─── FINALIZAR COMANDA
+            // ============================================================
+            if (mesa.Estado == EstadoMesa.OcupadaConComanda && mesa.ComandaActiva != null)
+            {
+                MenuItem itemFinalizar = new MenuItem { Header = "Finalizar comanda" };
+
+                itemFinalizar.Click += (s, ev) =>
+                {
+                    var r = MessageBox.Show(
+                        "Se dará por finalizada la comanda.\n" +
+                        "La mesa volverá a estar libre.\n\n" +
+                        "¿Desea continuar?",
+                        "Finalizar comanda",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (r == MessageBoxResult.No)
+                        return;
+
+                    // Pasar al histórico
+                    sesion.ComandasHistoricas.Add(mesa.ComandaActiva);
+
+                    mesa.ComandaActiva = null;
+                    mesa.CapacidadActual = 0;
+                    mesa.Estado = EstadoMesa.Libre;
+
+                    DibujarMesas();
+                };
+
+                menu.Items.Add(itemFinalizar);
+            }
+
+
+            // ============================================================
+            // OPCIÓN ─── ELIMINAR MESA
+            // ============================================================
             MenuItem itemEliminar = new MenuItem { Header = "Eliminar mesa" };
             itemEliminar.Click += (s, ev) =>
             {
@@ -453,12 +534,12 @@ namespace TrabajoIGU
             };
             menu.Items.Add(itemEliminar);
 
-            // Mostrar el menú contextual justo donde se hizo clic
+
+            // Mostrar menú
             menu.IsOpen = true;
-
             e.Handled = true;
-
         }
+
 
         private void CeldaVacia_RightClick(object sender, MouseButtonEventArgs e)
         {

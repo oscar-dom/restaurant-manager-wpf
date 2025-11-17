@@ -35,12 +35,12 @@ namespace TrabajoIGU.Windows
 
         private void CargarComanda()
         {
-            var comanda = sesion.ObtenerComandaActual(mesa.Id);
-
-            if (comanda != null)
-                comandaTemp = new Dictionary<Plato, int>(comanda.Platos);
+            if (mesa.ComandaActiva != null)
+                comandaTemp = new Dictionary<Plato, int>(mesa.ComandaActiva.Platos);
             else
                 comandaTemp = new Dictionary<Plato, int>();
+
+            comandaOriginal = new Dictionary<Plato, int>(comandaTemp);
 
             RefrescarComanda();
         }
@@ -59,26 +59,29 @@ namespace TrabajoIGU.Windows
 
         private void BtnMas_Click(object sender, RoutedEventArgs e)
         {
-            Button b = sender as Button;
-            if (b == null) return;
-            Plato plato = b.Tag as Plato;
+            var plato = (sender as Button)?.Tag as Plato;
             if (plato == null) return;
 
-            comandaTemp[plato]++;
+            if (!comandaTemp.ContainsKey(plato))
+                comandaTemp[plato] = 1;
+            else
+                comandaTemp[plato]++;
+
             cambiosRealizados = true;
             RefrescarComanda();
         }
 
         private void BtnMenos_Click(object sender, RoutedEventArgs e)
         {
-            var plato = (sender as Button).Tag as Plato;
+            var plato = (sender as Button)?.Tag as Plato;
+            if (plato == null) return;
 
             comandaTemp[plato]--;
-            cambiosRealizados = true;
 
             if (comandaTemp[plato] <= 0)
                 comandaTemp.Remove(plato);
 
+            cambiosRealizados = true;
             RefrescarComanda();
         }
 
@@ -106,15 +109,35 @@ namespace TrabajoIGU.Windows
         {
             cierreDesdeGuardar = true;
 
-            var comandaActual = sesion.ObtenerComandaActual(mesa.Id);
+            bool esNueva = (mesa.ComandaActiva == null);
 
             // ───────────────────────────────
-            // CASO A → COMANDA EXISTENTE
+            // CASO 1 → COMANDA (NUEVA O EXISTENTE) VACÍA
             // ───────────────────────────────
-            if (comandaActual != null)
+            if (comandaTemp.Count == 0)
             {
-                if (comandaTemp.Count == 0)
+                if (esNueva)
                 {
+                    // Nueva comanda sin platos → no se crea
+                    var r = MessageBox.Show(
+                        "No ha añadido ningún plato.\nNo se creará la comanda.\n\n¿Desea continuar?",
+                        "Comanda vacía",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning);
+
+                    if (r == MessageBoxResult.No)
+                    {
+                        cierreDesdeGuardar = false;
+                        return;
+                    }
+
+                    // No se crea nada, no tocamos ComandaActiva ni estados
+                    Close();
+                    return;
+                }
+                else
+                {
+                    // Comanda existente que ha quedado vacía → se elimina
                     var r = MessageBox.Show(
                         "La comanda ha quedado vacía.\nSe eliminará la comanda.\n\n¿Desea continuar?",
                         "Comanda vacía",
@@ -127,51 +150,29 @@ namespace TrabajoIGU.Windows
                         return;
                     }
 
-                    // eliminar comanda
-                    sesion.ComandasHistoricas.Remove(comandaActual);
-                    mesa.Estado = EstadoMesa.OcupadaSinComanda;
+                    // Eliminamos la comanda ACTIVA de la mesa
+                    mesa.ComandaActiva = null;
 
+                    // No tocamos estados: tú mandas con la lógica de estados
                     Close();
                     return;
                 }
-
-                // Actualizar comanda existente
-                comandaActual.Platos = new Dictionary<Plato, int>(comandaTemp);
-                mesa.Estado = EstadoMesa.OcupadaConComanda;
-                Close();
-                return;
             }
 
             // ───────────────────────────────
-            // CASO B → NUEVA COMANDA
+            // CASO 2 → HAY PLATOS EN comandaTemp
             // ───────────────────────────────
-            if (comandaTemp.Count == 0)
+
+            // Si es nueva, crear la comanda activa ahora
+            if (esNueva)
             {
-                var r = MessageBox.Show(
-                    "No ha añadido ningún plato.\nNo se creará la comanda.\n\n¿Desea continuar?",
-                    "Comanda vacía",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
-
-                if (r == MessageBoxResult.No)
-                {
-                    cierreDesdeGuardar = false;
-                    return;
-                }
-
-                // No crear nada
-                mesa.Estado = EstadoMesa.OcupadaSinComanda;
-                Close();
-                return;
+                mesa.ComandaActiva = new Comanda(mesa.Id);
             }
 
-            // Crear comanda nueva con platos
-            var nueva = new Comanda(mesa.Id);
-            nueva.Platos = new Dictionary<Plato, int>(comandaTemp);
+            // Actualizar los platos de la comanda activa
+            mesa.ComandaActiva.Platos = new Dictionary<Plato, int>(comandaTemp);
 
-            sesion.ComandasHistoricas.Add(nueva);
-            mesa.Estado = EstadoMesa.OcupadaConComanda;
-
+            // Tampoco tocamos estados aquí: los gestionas tú en MainWindow
             Close();
         }
 
@@ -188,13 +189,13 @@ namespace TrabajoIGU.Windows
         {
             base.OnClosing(e);
 
+            if (cierreDesdeGuardar)
+                return;
+
             if (ComandasSonIguales())
             {
                 cambiosRealizados = false;
             }
-
-            if (cierreDesdeGuardar)
-                return;
 
             // 2. Si viene del botón CANCELAR → preguntar si hay cambios
             if (cierreDesdeCancelar)
@@ -211,10 +212,8 @@ namespace TrabajoIGU.Windows
                     {
                         e.Cancel = true;
                         cierreDesdeCancelar = false;
-                        return;
                     }
                 }
-
                 return;
             }
 
@@ -230,37 +229,31 @@ namespace TrabajoIGU.Windows
                 if (r == MessageBoxResult.No)
                 {
                     e.Cancel = true;
-                    return;
                 }
             }
         }
 
         private bool ComandasSonIguales()
         {
-            CargarComandaOriginal();
-            if (comandaTemp.Count != comandaOriginal.Count)
+            if (mesa.ComandaActiva == null && comandaTemp.Count == 0)
+                return true;
+
+            if (mesa.ComandaActiva == null)
                 return false;
 
-            foreach (var kvp in comandaTemp)
+            if (mesa.ComandaActiva.Platos.Count != comandaTemp.Count)
+                return false;
+
+            foreach (var kv in mesa.ComandaActiva.Platos)
             {
-                if (!comandaOriginal.ContainsKey(kvp.Key))
+                if (!comandaTemp.ContainsKey(kv.Key))
                     return false;
 
-                if (comandaOriginal[kvp.Key] != kvp.Value)
+                if (comandaTemp[kv.Key] != kv.Value)
                     return false;
             }
 
             return true;
-        }
-
-        private void CargarComandaOriginal()
-        {
-            var comanda = sesion.ObtenerComandaActual(mesa.Id);
-            comandaOriginal = comanda != null
-                ? new Dictionary<Plato, int>(comanda.Platos)
-                : new Dictionary<Plato, int>();
-
-            // Marcamos cambios cuando se modifique comandaTemp
         }
 
         private void AplicarFiltros()
