@@ -29,6 +29,9 @@ namespace TrabajoIGU
         private Dictionary<UIElement, Mesa> mapaMesas = new Dictionary<UIElement, Mesa>();
         private SecondaryWindow secondaryWindow;
         private bool inicializandoMenu = true;
+        // Colores consistentes por plato (para el gráfico 7.2)
+        private Dictionary<string, Brush> mapaColoresPlatos = new Dictionary<string, Brush>();
+
 
         public MainWindow()
         {
@@ -285,35 +288,64 @@ namespace TrabajoIGU
         {
             canvasEstadisticasGlobales.Children.Clear();
 
-            // 🔥 Ahora sí: TODAS las mesas realmente existentes
-            var mesas = sesion.Disposicion
+            // ===============================
+            // 1) OBTENER MESAS ACTIVAS
+            // ===============================
+            var mesasActivas = sesion.Disposicion
                 .Cast<Mesa>()
                 .Where(m => m != null)
                 .ToList();
 
-            if (mesas.Count == 0)
+            // ===============================
+            // 2) OBTENER MESAS SOLO HISTÓRICAS
+            // ===============================
+            var idsHistoricas = sesion.ComandasHistoricas
+                .Select(c => c.IdMesa)
+                .Distinct()
+                .Where(id => !mesasActivas.Any(m => m.Id == id));
+
+            // Creamos "mesas fantasma" solo para mostrar en el gráfico
+            var mesasHistoricas = idsHistoricas
+                .Select(id => new Mesa(id, 0))
+                .ToList();
+
+            // ===============================
+            // 3) LISTA TOTAL DE MESAS A GRAFICAR
+            // ===============================
+            var todasLasMesas = mesasActivas
+                .Concat(mesasHistoricas)
+                .OrderBy(m => m.Id)
+                .ToList();
+
+            if (todasLasMesas.Count == 0)
                 return;
 
-            var datos = mesas.Select(m => new
+            // ===============================
+            // 4) CALCULAR DATOS POR MESA
+            // ===============================
+            var datos = todasLasMesas.Select(m => new
             {
                 Mesa = m,
                 Total = TotalPlatosMesa(m)
             }).ToList();
 
             int max = datos.Max(d => d.Total);
-            if (max == 0) max = 1;
+            if (max == 0) max = 1; // evitar división por cero
 
-            // Dimensiones del gráfico
+            // ===============================
+            // 5) DIMENSIONES DEL CANVAS
+            // ===============================
             double anchoCanvas = canvasEstadisticasGlobales.ActualWidth;
             double altoCanvas = canvasEstadisticasGlobales.ActualHeight;
 
-            if (anchoCanvas == 0 || altoCanvas == 0)
+            if (anchoCanvas <= 0 || altoCanvas <= 0)
                 return;
 
             double espacio = 20; // separación entre columnas
             double anchoColumna = (anchoCanvas - espacio * (datos.Count + 1)) / datos.Count;
+            if (anchoColumna < 10) anchoColumna = 10;
 
-            double altoMaxColumna = altoCanvas - 40; // margen para etiquetas
+            double altoMaxColumna = altoCanvas - 40; // margen inferior + etiquetas
 
             int index = 0;
 
@@ -324,19 +356,27 @@ namespace TrabajoIGU
                 double altura = (d.Total / (double)max) * altoMaxColumna;
                 double y = altoCanvas - altura - 20; // 20px margen inferior
 
-                // COLUMNA
+                bool esActiva = mesasActivas.Any(m => m.Id == d.Mesa.Id);
+
+                // ===============================
+                // 6) COLUMNA
+                // ===============================
                 var rect = new System.Windows.Shapes.Rectangle
                 {
                     Width = anchoColumna,
                     Height = altura,
-                    Fill = new SolidColorBrush(Color.FromRgb(70, 130, 180)) // azul suave
+                    Fill = esActiva
+                        ? new SolidColorBrush(Color.FromRgb(70, 130, 180))   // azul suave
+                        : new SolidColorBrush(Color.FromRgb(150, 150, 150))  // gris para mesas solo históricas
                 };
 
                 Canvas.SetLeft(rect, x);
                 Canvas.SetTop(rect, y);
                 canvasEstadisticasGlobales.Children.Add(rect);
 
-                // ETIQUETA VALOR
+                // ===============================
+                // 7) ETIQUETA VALOR (TOTAL PLATOS)
+                // ===============================
                 var lblValor = new TextBlock
                 {
                     Text = d.Total.ToString(),
@@ -349,7 +389,9 @@ namespace TrabajoIGU
                 Canvas.SetTop(lblValor, y - 20);
                 canvasEstadisticasGlobales.Children.Add(lblValor);
 
-                // ETIQUETA MESA
+                // ===============================
+                // 8) ETIQUETA MESA (ID)
+                // ===============================
                 var lblMesa = new TextBlock
                 {
                     Text = "Mesa " + d.Mesa.Id,
@@ -376,9 +418,171 @@ namespace TrabajoIGU
         {
             canvasEstadisticasMesa.Children.Clear();
 
-            // Aquí dibujaremos el gráfico por categoría (PASO 4)
+            if (mesaSeleccionada == null)
+            {
+                var msg = new TextBlock
+                {
+                    Text = "No hay ninguna mesa seleccionada.",
+                    FontSize = 16,
+                    FontWeight = FontWeights.Bold
+                };
+                Canvas.SetLeft(msg, 20);
+                Canvas.SetTop(msg, 20);
+                canvasEstadisticasMesa.Children.Add(msg);
+                return;
+            }
+
+            double ancho = canvasEstadisticasMesa.ActualWidth;
+            double alto = canvasEstadisticasMesa.ActualHeight;
+
+            if (ancho <= 0 || alto <= 0)
+                return;
+
+            // Categorías a representar
+            var categorias = new[] { CategoriaPlato.Primero, CategoriaPlato.Segundo, CategoriaPlato.Postre };
+            var nombresCategorias = new Dictionary<CategoriaPlato, string>
+    {
+        { CategoriaPlato.Primero, "Primeros" },
+        { CategoriaPlato.Segundo, "Segundos" },
+        { CategoriaPlato.Postre,  "Postres" }
+    };
+
+            // Datos por categoría
+            var datosPorCategoria = new Dictionary<CategoriaPlato, Dictionary<string, int>>();
+            var sumaPorCategoria = new Dictionary<CategoriaPlato, int>();
+
+            // Para la leyenda: totales por plato en toda la mesa
+            var totalesPlatoGlobal = new Dictionary<string, int>();
+
+            foreach (var cat in categorias)
+            {
+                var dict = ObtenerPlatosPorCategoriaMesaIncluyendoActiva(mesaSeleccionada, cat);
+                datosPorCategoria[cat] = dict;
+
+                int suma = dict.Values.Sum();
+                sumaPorCategoria[cat] = suma;
+
+                foreach (var kvp in dict)
+                {
+                    if (!totalesPlatoGlobal.ContainsKey(kvp.Key))
+                        totalesPlatoGlobal[kvp.Key] = 0;
+
+                    totalesPlatoGlobal[kvp.Key] += kvp.Value;
+                }
+            }
+
+            int maxColumna = sumaPorCategoria.Values.Max();
+            if (maxColumna == 0)
+            {
+                var msg = new TextBlock
+                {
+                    Text = "Esta mesa no tiene platos registrados.",
+                    FontSize = 16,
+                    FontWeight = FontWeights.Bold
+                };
+                Canvas.SetLeft(msg, 20);
+                Canvas.SetTop(msg, 20);
+                canvasEstadisticasMesa.Children.Add(msg);
+                return;
+            }
+
+            // Margenes del gráfico
+            double margenIzq = 60;
+            double margenDer = 20;
+            double margenSup = 20;
+            double margenInf = 40;
+
+            double anchoUtil = ancho - margenIzq - margenDer;
+            double altoUtil = alto - margenSup - margenInf;
+            if (altoUtil <= 0) altoUtil = 10;
+
+            // 3 columnas: una por categoría
+            int numCols = categorias.Length;
+            double separacionColumnas = anchoUtil / (numCols * 2.0); // pequeña separación
+            double anchoColumna = anchoUtil / (numCols * 1.5);       // ancho razonable
+
+            // Dibujo columnas apiladas
+            for (int i = 0; i < numCols; i++)
+            {
+                var cat = categorias[i];
+                var datosCat = datosPorCategoria[cat];
+
+                // X de la columna
+                double xCol = margenIzq + i * (anchoColumna + separacionColumnas);
+                double baseY = margenSup + altoUtil; // empieza desde abajo
+
+                // Orden opcional de platos (p. ej. por nombre)
+                foreach (var kvp in datosCat.OrderBy(k => k.Key))
+                {
+                    string nombrePlato = kvp.Key;
+                    int cantidad = kvp.Value;
+
+                    if (cantidad <= 0)
+                        continue;
+
+                    double alturaSeg = (cantidad / (double)maxColumna) * altoUtil;
+                    if (alturaSeg < 2) alturaSeg = 2; // mínimo visible
+
+                    double ySeg = baseY - alturaSeg;
+
+                    var rect = new System.Windows.Shapes.Rectangle
+                    {
+                        Width = anchoColumna,
+                        Height = alturaSeg,
+                        Fill = GetColorParaPlato(nombrePlato),
+                        Stroke = Brushes.Black,
+                        StrokeThickness = 0.5,
+                        ToolTip = $"{nombrePlato}\nPedidos: {cantidad}"
+                    };
+
+                    Canvas.SetLeft(rect, xCol);
+                    Canvas.SetTop(rect, ySeg);
+                    canvasEstadisticasMesa.Children.Add(rect);
+
+                    // Mostrar número dentro si la barra es suficientemente alta
+                    if (alturaSeg > 18)
+                    {
+                        var lblCant = new TextBlock
+                        {
+                            Text = cantidad.ToString(),
+                            FontSize = 12,
+                            FontWeight = FontWeights.Bold,
+                            Foreground = Brushes.White
+                        };
+
+                        Canvas.SetLeft(lblCant, xCol + anchoColumna / 2 - 8);
+                        Canvas.SetTop(lblCant, ySeg + alturaSeg / 2 - 8);
+                        canvasEstadisticasMesa.Children.Add(lblCant);
+                    }
+
+                    baseY -= alturaSeg;
+                }
+
+                // Etiqueta de la categoría bajo la columna
+                var lblCat = new TextBlock
+                {
+                    Text = nombresCategorias[cat],
+                    FontSize = 14,
+                    FontWeight = FontWeights.Bold,
+                    TextAlignment = TextAlignment.Center,
+                    Width = anchoColumna
+                };
+
+                Canvas.SetLeft(lblCat, xCol);
+                Canvas.SetTop(lblCat, margenSup + altoUtil + 5);
+                canvasEstadisticasMesa.Children.Add(lblCat);
+            }
+
+            
         }
 
+        private void canvasEstadisticasMesa_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (gridEstadisticasMesa.Visibility == Visibility.Visible && mesaSeleccionada != null)
+            {
+                DibujarEstadisticasMesa();
+            }
+        }
 
 
         #endregion
@@ -965,6 +1169,68 @@ namespace TrabajoIGU
 
             return total;
         }
+
+        private Brush GetColorParaPlato(string nombrePlato)
+        {
+            if (mapaColoresPlatos.ContainsKey(nombrePlato))
+                return mapaColoresPlatos[nombrePlato];
+
+            // Paleta fija de colores sobrios
+            Brush[] paleta = new Brush[]
+            {
+        new SolidColorBrush(Color.FromRgb(70,130,180)),   // SteelBlue
+        new SolidColorBrush(Color.FromRgb(46,139,87)),    // SeaGreen
+        new SolidColorBrush(Color.FromRgb(255,140,0)),    // DarkOrange
+        new SolidColorBrush(Color.FromRgb(123,104,238)),  // MediumSlateBlue
+        new SolidColorBrush(Color.FromRgb(220,20,60)),    // Crimson
+        new SolidColorBrush(Color.FromRgb(189,183,107)),  // DarkKhaki
+            };
+
+            int index = mapaColoresPlatos.Count % paleta.Length;
+            Brush elegido = paleta[index];
+            mapaColoresPlatos[nombrePlato] = elegido;
+            return elegido;
+        }
+
+        private Dictionary<string, int> ObtenerPlatosPorCategoriaMesaIncluyendoActiva(Mesa mesa, CategoriaPlato categoria)
+        {
+            Dictionary<string, int> resultado = new Dictionary<string, int>();
+
+            // 1️⃣ Comandas históricas (solo sumar las que sean de la mesa)
+            var historicas = sesion.ComandasHistoricas.Where(c => c.IdMesa == mesa.Id);
+
+            foreach (var com in historicas)
+            {
+                foreach (var kvp in com.Platos)
+                {
+                    if (kvp.Key.Categoria != categoria)
+                        continue;
+
+                    if (!resultado.ContainsKey(kvp.Key.Nombre))
+                        resultado[kvp.Key.Nombre] = 0;
+
+                    resultado[kvp.Key.Nombre] += kvp.Value;
+                }
+            }
+
+            // 2️⃣ Comanda activa (solo una, y no debe duplicarse)
+            if (mesa.ComandaActiva != null)
+            {
+                foreach (var kvp in mesa.ComandaActiva.Platos)
+                {
+                    if (kvp.Key.Categoria != categoria)
+                        continue;
+
+                    if (!resultado.ContainsKey(kvp.Key.Nombre))
+                        resultado[kvp.Key.Nombre] = 0;
+
+                    resultado[kvp.Key.Nombre] += kvp.Value;
+                }
+            }
+
+            return resultado;
+        }
+
 
         #endregion
 

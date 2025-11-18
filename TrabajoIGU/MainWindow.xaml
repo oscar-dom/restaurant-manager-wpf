@@ -378,7 +378,7 @@
         </Grid>
 
         <!-- =================================================== -->
-        <!--   ESTADÍSTICAS DE LA MESA (OCULTO INICIALMENTE)    -->
+        <!--   ESTADÍSTICAS DE LA MESA (OCULTO INICIALMENTE)     -->
         <!-- =================================================== -->
         <Grid x:Name="gridEstadisticasMesa" Visibility="Collapsed" Margin="15">
 
@@ -388,7 +388,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- TÍTULO (AUTOMÁTICO SEGÚN LA MESA SELECCIONADA) -->
+            <!-- TÍTULO -->
             <TextBlock x:Name="txtTituloEstadisticaMesa"
                        Text="Estadísticas de la mesa"
                        FontSize="24"
@@ -410,11 +410,14 @@
                         Click="BtnVolverEstadisticasMesa_Click"/>
             </StackPanel>
 
-            <!-- CANVAS DEL GRÁFICO -->
-            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <!-- SOLO EL CANVAS -->
+            <ScrollViewer Grid.Row="2"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Auto">
                 <Canvas x:Name="canvasEstadisticasMesa"
                         Background="White"
-                        Height="500"/>
+                        MinHeight="300"
+                        SizeChanged="canvasEstadisticasMesa_SizeChanged"/>
             </ScrollViewer>
 
         </Grid>
