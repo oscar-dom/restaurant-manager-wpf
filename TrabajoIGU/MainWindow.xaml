@@ -33,15 +33,42 @@
             </Grid>
 
             <!-- ======== PANEL LATERAL ======== -->
+
             <StackPanel Grid.Column="1" Margin="20" Background="#FFF9F9F9">
-                <TextBlock Text="Información del Restaurante" FontSize="18" FontWeight="Bold" Margin="0 0 0 10"/>
 
-                <TextBlock x:Name="txtResumenRestaurante" Text="Mesas activas: 0" Margin="0 0 0 10"/>
-                <TextBlock x:Name="txtAforoRestaurante" Text="Aforo: 0/96" Margin="0 0 0 20"/>
+                <!-- =============================== -->
+                <!--        INFORMACIÓN GENERAL      -->
+                <!-- =============================== -->
+                <TextBlock Text="Información del Restaurante"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           Margin="0 0 0 10"/>
 
+                <TextBlock x:Name="txtResumenRestaurante"
+                           Text="Mesas activas: 0"
+                           Margin="0 0 0 10"/>
+                <TextBlock x:Name="txtAforoRestaurante"
+                           Text="Aforo: 0/96"
+                           Margin="0 0 0 20"/>
+
+                <!-- =============================== -->
+                <!--  EST / MENU / VISTA / REINICIO  -->
+                <!-- =============================== -->
+                <Button x:Name="btnEstadisticasGlobales"
+                        Content="Estadísticas globales"
+                        Background="#3C7EFF"
+                        Foreground="White"
+                        Margin="0 0 0 10"
+                        Padding="10"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        HorizontalAlignment="Stretch"
+                        Click="BtnEstadisticasGlobales_Click"/>
+                
                 <Button x:Name="btnGestionMenu"
                         Content="Gestión del Menú"
-                        Background="#FF3C7EFF"
+                        Background="#3C7EFF"
                         Foreground="White"
                         Margin="0 0 0 10"
                         Padding="10"
@@ -53,7 +80,7 @@
 
                 <Button x:Name="btnVistaRestaurante"
                         Content="Vista del Restaurante"
-                        Background="#FF3C7EFF"
+                        Background="#3C7EFF"
                         Foreground="White"
                         Margin="0 0 0 10"
                         Padding="10"
@@ -65,7 +92,7 @@
 
                 <Button Content="Iniciar/Reiniciar Sesión"
                         Click="BtnReiniciar_Click"
-                        Background="#FF3C7EFF"
+                        Background="#3C7EFF"
                         Foreground="White"
                         Padding="10"
                         FontWeight="Bold"
@@ -74,7 +101,14 @@
                         HorizontalAlignment="Stretch"
                         Margin="0 0 0 20"/>
 
-                <TextBlock Text="Información de la mesa" FontSize="18" FontWeight="Bold" Margin="0 0 0 10"/>
+
+                <!-- =============================== -->
+                <!--      INFORMACIÓN DE LA MESA     -->
+                <!-- =============================== -->
+                <TextBlock Text="Información de la mesa"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           Margin="0 0 0 10"/>
 
                 <TextBlock Text="ID Mesa:" FontWeight="Bold"/>
                 <TextBlock x:Name="txtIdMesa" Margin="0 0 0 10"/>
@@ -90,6 +124,19 @@
 
                 <TextBlock Text="Platos en comanda:" FontWeight="Bold"/>
                 <TextBlock x:Name="txtPlatos" Margin="0 0 0 10"/>
+
+                <Button x:Name="btnEstadisticasMesa"
+                        Content="Estadísticas de la mesa"
+                        Background="#3C7EFF"
+                        Foreground="White"
+                        Margin="10 10 0 0"
+                        Padding="10"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        HorizontalAlignment="Stretch"
+                        IsEnabled="False"
+                        Click="BtnEstadisticasMesa_Click"/>
 
             </StackPanel>
         </Grid>
@@ -288,6 +335,90 @@
             </Grid>
 
         </Grid>
+
+        <!-- =================================================== -->
+        <!--   ESTADÍSTICAS GLOBALES (OCULTO INICIALMENTE)      -->
+        <!-- =================================================== -->
+        <Grid x:Name="gridEstadisticasGlobales" Visibility="Collapsed" Margin="15">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- TÍTULO -->
+            <TextBlock Text="Estadísticas globales"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       Grid.Row="0"/>
+
+            <!-- BOTÓN VOLVER -->
+            <StackPanel Grid.Row="1"
+                        Margin="0 10 0 20"
+                        HorizontalAlignment="Center">
+                <Button Content="Volver"
+                        Padding="8"
+                        Width="150"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        Background="#3C7EFF"
+                        Foreground="White"
+                        Click="BtnVolverEstadisticasGlobales_Click"/>
+            </StackPanel>
+
+            <!-- CANVAS DEL GRÁFICO -->
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                <Canvas x:Name="canvasEstadisticasGlobales"
+                        Background="White"
+                        Height="500"/>
+            </ScrollViewer>
+
+        </Grid>
+
+        <!-- =================================================== -->
+        <!--   ESTADÍSTICAS DE LA MESA (OCULTO INICIALMENTE)    -->
+        <!-- =================================================== -->
+        <Grid x:Name="gridEstadisticasMesa" Visibility="Collapsed" Margin="15">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- TÍTULO (AUTOMÁTICO SEGÚN LA MESA SELECCIONADA) -->
+            <TextBlock x:Name="txtTituloEstadisticaMesa"
+                       Text="Estadísticas de la mesa"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       Grid.Row="0"/>
+
+            <!-- BOTÓN VOLVER -->
+            <StackPanel Grid.Row="1"
+                        Margin="0 10 0 20"
+                        HorizontalAlignment="Center">
+                <Button Content="Volver"
+                        Padding="8"
+                        Width="150"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        Background="#3C7EFF"
+                        Foreground="White"
+                        Click="BtnVolverEstadisticasMesa_Click"/>
+            </StackPanel>
+
+            <!-- CANVAS DEL GRÁFICO -->
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                <Canvas x:Name="canvasEstadisticasMesa"
+                        Background="White"
+                        Height="500"/>
+            </ScrollViewer>
+
+        </Grid>
+
 
     </Grid>
     
