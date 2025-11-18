@@ -135,7 +135,7 @@
                         BorderThickness="0"
                         Cursor="Hand"
                         HorizontalAlignment="Stretch"
-                        IsEnabled="False"
+                        IsEnabled="True"
                         Click="BtnEstadisticasMesa_Click"/>
 
             </StackPanel>
@@ -372,7 +372,7 @@
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                 <Canvas x:Name="canvasEstadisticasGlobales"
                         Background="White"
-                        Height="500"/>
+                        SizeChanged="canvasEstadisticasGlobales_SizeChanged"/>
             </ScrollViewer>
 
         </Grid>

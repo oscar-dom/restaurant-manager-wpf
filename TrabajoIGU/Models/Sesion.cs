@@ -50,7 +50,8 @@ namespace TrabajoIGU.Models
 
         public Comanda ObtenerComandaActual(int idMesa)
         {
-            return Mesas.FirstOrDefault(m => m.Id == idMesa)?.ComandaActiva;
+            var mesa = Mesas.FirstOrDefault(m => m.Id == idMesa);
+            return mesa?.ComandaActiva;
         }
 
         public int TotalPlatosPorMesa(int idMesa)

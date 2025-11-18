@@ -11,6 +11,8 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -238,8 +240,13 @@ namespace TrabajoIGU
 
             // Actualizar ventana secundaria
             secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
-        }
 
+            if (gridEstadisticasMesa.Visibility == Visibility.Visible && mesaSeleccionada != null)
+            {
+                txtTituloEstadisticaMesa.Text = $"Estadísticas de la mesa {mesaSeleccionada.Id}";
+                DibujarEstadisticasMesa();
+            }
+        }
 
         private void LimpiarPanel()
         {
@@ -273,6 +280,107 @@ namespace TrabajoIGU
             MostrarDatosMesa();
             ActualizarSeleccionVisual();
         }
+
+        private void DibujarEstadisticasGlobales()
+        {
+            canvasEstadisticasGlobales.Children.Clear();
+
+            // 🔥 Ahora sí: TODAS las mesas realmente existentes
+            var mesas = sesion.Disposicion
+                .Cast<Mesa>()
+                .Where(m => m != null)
+                .ToList();
+
+            if (mesas.Count == 0)
+                return;
+
+            var datos = mesas.Select(m => new
+            {
+                Mesa = m,
+                Total = TotalPlatosMesa(m)
+            }).ToList();
+
+            int max = datos.Max(d => d.Total);
+            if (max == 0) max = 1;
+
+            // Dimensiones del gráfico
+            double anchoCanvas = canvasEstadisticasGlobales.ActualWidth;
+            double altoCanvas = canvasEstadisticasGlobales.ActualHeight;
+
+            if (anchoCanvas == 0 || altoCanvas == 0)
+                return;
+
+            double espacio = 20; // separación entre columnas
+            double anchoColumna = (anchoCanvas - espacio * (datos.Count + 1)) / datos.Count;
+
+            double altoMaxColumna = altoCanvas - 40; // margen para etiquetas
+
+            int index = 0;
+
+            foreach (var d in datos)
+            {
+                double x = espacio + index * (anchoColumna + espacio);
+
+                double altura = (d.Total / (double)max) * altoMaxColumna;
+                double y = altoCanvas - altura - 20; // 20px margen inferior
+
+                // COLUMNA
+                var rect = new System.Windows.Shapes.Rectangle
+                {
+                    Width = anchoColumna,
+                    Height = altura,
+                    Fill = new SolidColorBrush(Color.FromRgb(70, 130, 180)) // azul suave
+                };
+
+                Canvas.SetLeft(rect, x);
+                Canvas.SetTop(rect, y);
+                canvasEstadisticasGlobales.Children.Add(rect);
+
+                // ETIQUETA VALOR
+                var lblValor = new TextBlock
+                {
+                    Text = d.Total.ToString(),
+                    FontWeight = FontWeights.Bold,
+                    FontSize = 14,
+                    Foreground = Brushes.Black
+                };
+
+                Canvas.SetLeft(lblValor, x + anchoColumna / 2 - 10);
+                Canvas.SetTop(lblValor, y - 20);
+                canvasEstadisticasGlobales.Children.Add(lblValor);
+
+                // ETIQUETA MESA
+                var lblMesa = new TextBlock
+                {
+                    Text = "Mesa " + d.Mesa.Id,
+                    FontSize = 14,
+                    TextAlignment = TextAlignment.Center,
+                    Width = anchoColumna
+                };
+
+                Canvas.SetLeft(lblMesa, x);
+                Canvas.SetTop(lblMesa, altoCanvas - 18);
+                canvasEstadisticasGlobales.Children.Add(lblMesa);
+
+                index++;
+            }
+        }
+
+        private void canvasEstadisticasGlobales_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (gridEstadisticasGlobales.Visibility == Visibility.Visible)
+                DibujarEstadisticasGlobales();
+        }
+
+        private void DibujarEstadisticasMesa()
+        {
+            canvasEstadisticasMesa.Children.Clear();
+
+            // Aquí dibujaremos el gráfico por categoría (PASO 4)
+        }
+
+
+
         #endregion
 
         //CONTROL DE EVENTOS
@@ -540,7 +648,6 @@ namespace TrabajoIGU
             e.Handled = true;
         }
 
-
         private void CeldaVacia_RightClick(object sender, MouseButtonEventArgs e)
         {
             var celda = sender as Border;
@@ -713,6 +820,58 @@ namespace TrabajoIGU
 
             // Si sí fue sobre una tarjeta → selección normal
         }
+
+        private void BtnEstadisticasGlobales_Click(object sender, RoutedEventArgs e)
+        {
+            // Oculta el restaurante y cualquier otra vista
+            gridRestaurante.Visibility = Visibility.Collapsed;
+
+            // Muestra este grid
+            gridEstadisticasGlobales.Visibility = Visibility.Visible;
+
+            // Dibujamos
+            DibujarEstadisticasGlobales();
+        }
+
+        private void BtnVolverEstadisticasGlobales_Click(object sender, RoutedEventArgs e)
+        {
+            gridEstadisticasGlobales.Visibility = Visibility.Collapsed;
+            gridEstadisticasMesa.Visibility = Visibility.Collapsed;
+
+            // Vuelvo al restaurante
+            gridRestaurante.Visibility = Visibility.Visible;
+        }
+
+        private void BtnEstadisticasMesa_Click(object sender, RoutedEventArgs e)
+        {
+            if (mesaSeleccionada == null)
+            {
+                MessageBox.Show("Seleccione una mesa primero.", "Aviso");
+                return;
+            }
+
+            // Oculto todo
+            gridRestaurante.Visibility = Visibility.Collapsed;
+            gridGestionMenu.Visibility = Visibility.Collapsed;
+            gridEstadisticasGlobales.Visibility = Visibility.Collapsed;
+
+            // Muestro este
+            gridEstadisticasMesa.Visibility = Visibility.Visible;
+
+            // Actualizo el título
+            txtTituloEstadisticaMesa.Text = $"Estadísticas de la mesa {mesaSeleccionada.Id}";
+
+            // Y dibujo la gráfica
+            DibujarEstadisticasMesa();
+        }
+
+        private void BtnVolverEstadisticasMesa_Click(object sender, RoutedEventArgs e)
+        {
+            gridEstadisticasMesa.Visibility = Visibility.Collapsed;
+
+            gridRestaurante.Visibility = Visibility.Visible;
+        }
+
         #endregion
 
         //AUXULIARES
@@ -791,6 +950,22 @@ namespace TrabajoIGU
 
             lvPlatosMenu.ItemsSource = lista;
         }
+
+        private int TotalPlatosMesa(Mesa mesa)
+        {
+            int total = 0;
+
+            // Histórico
+            foreach (var c in sesion.ComandasHistoricas.Where(c => c.IdMesa == mesa.Id))
+                total += c.TotalPlatos();
+
+            // Comanda activa
+            if (mesa.ComandaActiva != null)
+                total += mesa.ComandaActiva.TotalPlatos();
+
+            return total;
+        }
+
         #endregion
 
     }
