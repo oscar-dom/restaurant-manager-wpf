@@ -48,36 +48,6 @@ namespace TrabajoIGU.Models
             var mesa = Mesas.FirstOrDefault(m => m.Id == idMesa);
             return mesa?.ComandaActiva;
         }
-
-        public int TotalPlatosPorMesa(int idMesa)
-        {
-            var comanda = ObtenerComandaActual(idMesa);
-
-            return comanda?.TotalPlatos() ?? 0;
-        }
-
-        public Dictionary<string, int> PlatosPorCategoriaMesa(int idMesa, CategoriaPlato categoria)
-        {
-            var comanda = ObtenerComandaActual(idMesa);
-
-            var resultado = new Dictionary<string, int>();
-
-            if (comanda == null)
-                return resultado;
-
-            foreach (var kvp in comanda.Platos)
-            {
-                if (kvp.Key.Categoria == categoria)
-                {
-                    if (!resultado.ContainsKey(kvp.Key.Nombre))
-                        resultado[kvp.Key.Nombre] = 0;
-
-                    resultado[kvp.Key.Nombre] += kvp.Value;
-                }
-            }
-
-            return resultado;
-        }
     }
 }
 

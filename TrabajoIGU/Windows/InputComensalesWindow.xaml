@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:TrabajoIGU"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
+        Icon="/Imagenes/IconoRestaurante.ico"
         Height="180" Width="300"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner">

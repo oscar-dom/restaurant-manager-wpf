@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TrabajoIGU"
         mc:Ignorable="d"
+        Icon="/Imagenes/IconoRestaurante.ico"
         Title="Nueva Mesa" Height="180" Width="300"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize">

@@ -166,5 +166,8 @@
     <Resource Include="Imagenes\mesaOcupada.png" />
     <Resource Include="Imagenes\mesaComanda.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Imagenes\IconoRestaurante.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TrabajoIGU.Windows"
         mc:Ignorable="d"
+        Icon="/Imagenes/IconoRestaurante.ico"
         Title="Gestión de Comanda"
         Width="950" Height="600"
         MinWidth="950" MinHeight="600"
@@ -27,7 +28,8 @@
         <!--  FILA 0 — TÍTULO CENTRADO                             -->
         <!-- ===================================================== -->
 
-        <TextBlock Text="Gestión de Comanda"
+        <TextBlock x:Name="txtComandaMesa"
+                   Text="Gestión de Comanda"
                    FontSize="24"
                    FontWeight="Bold"
                    TextAlignment="Center"

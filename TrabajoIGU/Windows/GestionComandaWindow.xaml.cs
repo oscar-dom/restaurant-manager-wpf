@@ -23,7 +23,7 @@ namespace TrabajoIGU.Windows
             InitializeComponent();
             this.sesion = sesion;
             this.mesa = mesa;
-
+            txtComandaMesa.Text = $"Comanda de la mesa {mesa.Id}";
             CargarComanda();
             CargarMenu();
         }
