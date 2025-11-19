@@ -10,6 +10,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
@@ -219,6 +220,8 @@ namespace TrabajoIGU
             {
                 LimpiarPanel();
                 secondaryWindow?.ActualizarVista(sesion, null);
+                txtTituloEstadisticaMesa.Text = $"Ninguna mesa seleccionada";
+                DibujarEstadisticasMesa();
                 return;
             }
 
@@ -244,8 +247,8 @@ namespace TrabajoIGU
             // Actualizar ventana secundaria
             secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
 
-            if (gridEstadisticasMesa.Visibility == Visibility.Visible && mesaSeleccionada != null)
-            {
+            if (gridEstadisticasMesa.Visibility == Visibility.Visible)
+            {  
                 txtTituloEstadisticaMesa.Text = $"Estadísticas de la mesa {mesaSeleccionada.Id}";
                 DibujarEstadisticasMesa();
             }
@@ -417,6 +420,11 @@ namespace TrabajoIGU
         private void DibujarEstadisticasMesa()
         {
             canvasEstadisticasMesa.Children.Clear();
+            panelLeyendaMesa.Children.Clear();
+
+            double ancho = canvasEstadisticasMesa.ActualWidth;
+            double alto = canvasEstadisticasMesa.ActualHeight;
+
 
             if (mesaSeleccionada == null)
             {
@@ -426,14 +434,15 @@ namespace TrabajoIGU
                     FontSize = 16,
                     FontWeight = FontWeights.Bold
                 };
-                Canvas.SetLeft(msg, 20);
-                Canvas.SetTop(msg, 20);
+                msg.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                Size size = msg.DesiredSize;
+
+                Canvas.SetLeft(msg, ((ancho - size.Width)/2));
+                Canvas.SetTop(msg, ((alto-size.Height)/2));
                 canvasEstadisticasMesa.Children.Add(msg);
                 return;
             }
 
-            double ancho = canvasEstadisticasMesa.ActualWidth;
-            double alto = canvasEstadisticasMesa.ActualHeight;
 
             if (ancho <= 0 || alto <= 0)
                 return;
@@ -480,8 +489,12 @@ namespace TrabajoIGU
                     FontSize = 16,
                     FontWeight = FontWeights.Bold
                 };
-                Canvas.SetLeft(msg, 20);
-                Canvas.SetTop(msg, 20);
+                msg.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                Size size = msg.DesiredSize;
+
+                Canvas.SetLeft(msg, ((ancho - size.Width) / 2));
+                Canvas.SetTop(msg, ((alto - size.Height) / 2));
+
                 canvasEstadisticasMesa.Children.Add(msg);
                 return;
             }
@@ -511,7 +524,12 @@ namespace TrabajoIGU
                 double xCol = margenIzq + i * (anchoColumna + separacionColumnas);
                 double baseY = margenSup + altoUtil; // empieza desde abajo
 
-                // Orden opcional de platos (p. ej. por nombre)
+                // 🔹 TOTAL de esta categoría (para la etiqueta superior)
+                int totalCat = sumaPorCategoria[cat];
+                double alturaTotalColumna = (totalCat / (double)maxColumna) * altoUtil;
+                double yTopColumna = margenSup + altoUtil - alturaTotalColumna;
+
+                // Segmentos (platos) apilados
                 foreach (var kvp in datosCat.OrderBy(k => k.Key))
                 {
                     string nombrePlato = kvp.Key;
@@ -531,8 +549,7 @@ namespace TrabajoIGU
                         Height = alturaSeg,
                         Fill = GetColorParaPlato(nombrePlato),
                         Stroke = Brushes.Black,
-                        StrokeThickness = 0.5,
-                        ToolTip = $"{nombrePlato}\nPedidos: {cantidad}"
+                        StrokeThickness = 0.5
                     };
 
                     Canvas.SetLeft(rect, xCol);
@@ -558,6 +575,22 @@ namespace TrabajoIGU
                     baseY -= alturaSeg;
                 }
 
+                // 🔹 ETIQUETA TOTAL ENCIMA DE LA COLUMNA
+                if (totalCat > 0)
+                {
+                    var lblTotal = new TextBlock
+                    {
+                        Text = totalCat.ToString(),
+                        FontSize = 14,
+                        FontWeight = FontWeights.Bold,
+                        Foreground = Brushes.Black
+                    };
+
+                    Canvas.SetLeft(lblTotal, xCol + anchoColumna / 2 - 10);
+                    Canvas.SetTop(lblTotal, yTopColumna - 20);
+                    canvasEstadisticasMesa.Children.Add(lblTotal);
+                }
+
                 // Etiqueta de la categoría bajo la columna
                 var lblCat = new TextBlock
                 {
@@ -573,12 +606,55 @@ namespace TrabajoIGU
                 canvasEstadisticasMesa.Children.Add(lblCat);
             }
 
-            
+            // =========================
+            // LEYENDA A LA DERECHA
+            // =========================
+            var tituloLeyenda = new TextBlock
+            {
+                Text = "Leyenda",
+                FontSize = 16,
+                FontWeight = FontWeights.Bold,
+                Margin = new Thickness(0, 0, 0, 10)
+            };
+            panelLeyendaMesa.Children.Add(tituloLeyenda);
+
+            foreach (var kvp in totalesPlatoGlobal.OrderBy(k => k.Key))
+            {
+                string nombre = kvp.Key;
+                int total = kvp.Value;
+
+                var fila = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Margin = new Thickness(5, 2, 5, 2)
+                };
+
+                var recColor = new System.Windows.Shapes.Rectangle
+                {
+                    Width = 16,
+                    Height = 16,
+                    Fill = GetColorParaPlato(nombre),
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 0.5,
+                    Margin = new Thickness(0, 0, 5, 0)
+                };
+
+                var txt = new TextBlock
+                {
+                    Text = $"{nombre} ({total})",
+                    FontSize = 13,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+
+                fila.Children.Add(recColor);
+                fila.Children.Add(txt);
+                panelLeyendaMesa.Children.Add(fila);
+            }
         }
 
         private void canvasEstadisticasMesa_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (gridEstadisticasMesa.Visibility == Visibility.Visible && mesaSeleccionada != null)
+            if (gridEstadisticasMesa.Visibility == Visibility.Visible)
             {
                 DibujarEstadisticasMesa();
             }
@@ -900,7 +976,8 @@ namespace TrabajoIGU
 
         private void BtnReiniciar_Click(object sender, RoutedEventArgs e)
         {
-            sesion.ReiniciarSesion();
+            sesion.IniciarSesion();
+            mesaSeleccionada = null;
             DibujarMesas();
             LimpiarPanel();
         }
@@ -1128,7 +1205,7 @@ namespace TrabajoIGU
             if (sesion?.Menu == null)
                 return;
 
-            var lista = sesion.Menu.ToList();
+            var lista = sesion.Menu.OrderBy(p => p.Categoria).ToList();
 
             // Texto
             string texto = txtBuscarMenu.Text.Trim().ToLower();
@@ -1230,7 +1307,6 @@ namespace TrabajoIGU
 
             return resultado;
         }
-
 
         #endregion
 

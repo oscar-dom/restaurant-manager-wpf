@@ -28,13 +28,8 @@ namespace TrabajoIGU.Models
         {
             Disposicion = new Mesa[Filas, Columnas];
             Mesas = new List<Mesa>();
-            Menu = new List<Plato>();
+            //Menu = new List<Plato>(); NO TIENE SENTIDO BORRAR EL MENU A MENOS QUE FUERA DEL DIA Y TENGA QUE CAMBIAR
             ComandasHistoricas = new List<Comanda>();
-        }
-
-        public void ReiniciarSesion()
-        {
-            IniciarSesion();
         }
 
         public void RegistrarComanda(Comanda comanda)

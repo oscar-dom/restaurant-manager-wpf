@@ -34,7 +34,7 @@
 
             <!-- ======== PANEL LATERAL ======== -->
 
-            <StackPanel Grid.Column="1" Margin="20" Background="#FFF9F9F9">
+            <StackPanel Grid.Column="1" Margin="10" Background="#FFF9F9F9">
 
                 <!-- =============================== -->
                 <!--        INFORMACIÓN GENERAL      -->
@@ -92,7 +92,7 @@
 
                 <Button Content="Iniciar/Reiniciar Sesión"
                         Click="BtnReiniciar_Click"
-                        Background="#3C7EFF"
+                        Background="PaleVioletRed"
                         Foreground="White"
                         Padding="10"
                         FontWeight="Bold"
@@ -129,7 +129,7 @@
                         Content="Estadísticas de la mesa"
                         Background="#3C7EFF"
                         Foreground="White"
-                        Margin="10 10 0 0"
+                        Margin="0 10 0 0"
                         Padding="10"
                         FontWeight="Bold"
                         BorderThickness="0"
@@ -378,7 +378,7 @@
         </Grid>
 
         <!-- =================================================== -->
-        <!--   ESTADÍSTICAS DE LA MESA (OCULTO INICIALMENTE)     -->
+        <!--   ESTADÍSTICAS DE LA MESA (OCULTO INICIALMENTE)    -->
         <!-- =================================================== -->
         <Grid x:Name="gridEstadisticasMesa" Visibility="Collapsed" Margin="15">
 
@@ -390,35 +390,54 @@
 
             <!-- TÍTULO -->
             <TextBlock x:Name="txtTituloEstadisticaMesa"
-                       Text="Estadísticas de la mesa"
-                       FontSize="24"
-                       FontWeight="Bold"
-                       HorizontalAlignment="Center"
-                       Grid.Row="0"/>
+               Text="Estadísticas de la mesa"
+               FontSize="24"
+               FontWeight="Bold"
+               HorizontalAlignment="Center"
+               Grid.Row="0"/>
 
             <!-- BOTÓN VOLVER -->
             <StackPanel Grid.Row="1"
-                        Margin="0 10 0 20"
-                        HorizontalAlignment="Center">
+                Margin="0 10 0 20"
+                HorizontalAlignment="Center">
                 <Button Content="Volver"
-                        Padding="8"
-                        Width="150"
-                        FontWeight="Bold"
-                        BorderThickness="0"
-                        Background="#3C7EFF"
-                        Foreground="White"
-                        Click="BtnVolverEstadisticasMesa_Click"/>
+                Padding="8"
+                Width="150"
+                FontWeight="Bold"
+                BorderThickness="0"
+                Background="#3C7EFF"
+                Foreground="White"
+                Click="BtnVolverEstadisticasMesa_Click"/>
             </StackPanel>
 
-            <!-- SOLO EL CANVAS -->
-            <ScrollViewer Grid.Row="2"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Auto">
-                <Canvas x:Name="canvasEstadisticasMesa"
-                        Background="White"
-                        MinHeight="300"
-                        SizeChanged="canvasEstadisticasMesa_SizeChanged"/>
-            </ScrollViewer>
+            <!-- GRÁFICO + LEYENDA -->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <!-- Canvas (gráfico) -->
+                    <ColumnDefinition Width="auto"/>
+                    <!-- Leyenda -->
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- LEYENDA -->
+                <ScrollViewer Grid.Column="0"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="panelLeyendaMesa"
+                                Margin="10"/>
+                </ScrollViewer>
+                
+                <!-- CANVAS DEL GRÁFICO -->
+                <ScrollViewer Grid.Column="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Auto">
+                    <Canvas x:Name="canvasEstadisticasMesa"
+                            Background="White"
+                            MinHeight="300"
+                            SizeChanged="canvasEstadisticasMesa_SizeChanged"/>  
+                </ScrollViewer>
+
+                
+            </Grid>
 
         </Grid>
 
