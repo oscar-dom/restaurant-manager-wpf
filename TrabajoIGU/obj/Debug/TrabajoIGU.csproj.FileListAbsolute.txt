@@ -45,3 +45,5 @@ C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\EditarPlat
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\EditarPlatoWindow.baml
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\GestionComandaWindow.g.cs
 C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\Windows\GestionComandaWindow.baml
+C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\bin\Debug\Data\menu.txt
+C:\Users\oscar\Desktop\GitHub\TrabajoIGU\TrabajoIGU\obj\Debug\TrabajoIGU_Content.g.cs

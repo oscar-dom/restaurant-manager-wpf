@@ -10,23 +10,24 @@
         MouseLeftButtonDown="LvPlatosMenu_MouseLeftButtonDown">
     
     <Grid>
+        <!-- =============================== -->
+        <!--      GRID DEL RESTAURANTE       -->
+        <!-- =============================== -->
         <Grid x:Name="gridRestaurante">
             <Grid.ColumnDefinitions>
+                <!-- Canvas de mesas -->
                 <ColumnDefinition Width="*" />
-                <!-- Sala -->
-                <ColumnDefinition Width="auto" />
                 <!-- Panel lateral -->
+                <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
 
             <!-- ======== CANVAS DE MESAS ======== -->
             <Grid Grid.Column="0">
-                <!-- Imagen de fondo -->
                 <Image Source="Imagenes/sueloRestaurante.jpg"
                        Stretch="UniformToFill"
                        Opacity="0.9"
                        Panel.ZIndex="0"/>
 
-                <!-- Canvas encima -->
                 <Canvas x:Name="canvasSala"
                         Background="Transparent"
                         MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
@@ -35,12 +36,9 @@
             </Grid>
 
             <!-- ======== PANEL LATERAL ======== -->
-
             <StackPanel Grid.Column="1" Margin="20" Background="White">
 
-                <!-- =============================== -->
-                <!--        INFORMACIÓN GENERAL      -->
-                <!-- =============================== -->
+                <!-- INFORMACIÓN GENERAL -->
                 <TextBlock Text="Información del Restaurante"
                            FontSize="18"
                            FontWeight="Bold"
@@ -53,9 +51,7 @@
                            Text="Aforo: 0/96"
                            Margin="0 0 0 20"/>
 
-                <!-- =============================== -->
-                <!--  EST / MENU / VISTA / REINICIO  -->
-                <!-- =============================== -->
+                <!-- EST / MENU / VISTA / REINICIO -->
                 <Button x:Name="btnEstadisticasGlobales"
                         Content="Estadísticas globales"
                         Background="#3C7EFF"
@@ -103,10 +99,8 @@
                         HorizontalAlignment="Stretch"
                         Margin="0 0 0 20"/>
 
-
-                <!-- =============================== -->
-                <!--      INFORMACIÓN DE LA MESA     -->
-                <!-- =============================== -->
+                <!-- INFORMACIÓN DE LA MESA -->
+                
                 <TextBlock Text="Información de la mesa"
                            FontSize="18"
                            FontWeight="Bold"
@@ -143,29 +137,26 @@
             </StackPanel>
         </Grid>
 
-        <!-- MENU -->
+        <!-- =============================== -->
+        <!--           GRID DEL MENÚ         -->
+        <!-- =============================== -->
         <Grid x:Name="gridGestionMenu" Visibility="Collapsed" Margin="15" >
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
                 <!-- Título + volver -->
                 <RowDefinition Height="Auto"/>
                 <!-- Añadir plato -->
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
                 <!-- Expander + Lista -->
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- ===================================================== -->
-            <!--  FILA 0 — TÍTULO + BOTÓN VOLVER                       -->
-            <!-- ===================================================== -->
+            <!-- FILA 0 — TÍTULO + BOTÓN VOLVER -->
             <TextBlock Text="Gestión del Menú"
                        FontSize="24"
                        FontWeight="Bold" TextAlignment="Center"/>
 
-
-            <!-- ===================================================== -->
-            <!--  FILA 1 — BOTÓN AÑADIR PLATO Y VOLVER                 -->
-            <!-- ===================================================== -->
+            <!-- FILA 1 — BOTÓN AÑADIR PLATO Y VOLVER -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0 10 0 10" HorizontalAlignment="Center">
                 <Button Content="Volver"
                         Grid.Row="1"
@@ -188,18 +179,16 @@
                         Click="BtnAgregarPlatoMenu_Click"/>
             </StackPanel>
 
-            <!-- ===================================================== -->
-            <!--  FILA 2 — EXPANDER + LISTADO                          -->
-            <!-- ===================================================== -->
+            <!-- FILA 2 — EXPANDER + LISTADO -->
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
+                    <!-- Expander -->
                     <ColumnDefinition Width="Auto"/>
-                    <!-- Se ajusta según expander -->
+                    <!-- List Box -->
                     <ColumnDefinition Width="*"/>
-                    <!-- Lista ocupa el resto -->
                 </Grid.ColumnDefinitions>
 
-                <!-- FILTROS EN EXPANDER -->
+                <!-- Filtros expander -->
                 <Expander Grid.Column="0"
                           Header="🔎"
                           Margin="0 15 25 0"
@@ -237,7 +226,7 @@
                 </Expander>
 
 
-                <!-- LISTADO DE PLATOS A LA DERECHA -->
+                <!-- Platos ListBox -->
                 <ScrollViewer Grid.Column="1"
                               VerticalScrollBarVisibility="Auto">
 
@@ -258,7 +247,6 @@
 
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
-                                <!-- quitamos padding y fondo por defecto -->
                                 <Setter Property="Padding" Value="0"/>
                                 <Setter Property="Margin" Value="10"/>
                                 <Setter Property="Background" Value="Transparent"/>
@@ -266,7 +254,6 @@
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ListBoxItem">
-                                            <!-- Marco exterior redondeado que se colorea al seleccionar -->
                                             <Border x:Name="outerBorder"
                                                     CornerRadius="12"
                                                     BorderThickness="2"
@@ -276,13 +263,11 @@
                                             </Border>
 
                                             <ControlTemplate.Triggers>
-                                                <!-- SELECCIONADO -->
                                                 <Trigger Property="IsSelected" Value="True">
                                                     <Setter TargetName="outerBorder" Property="BorderBrush" Value="#3C7EFF"/>
                                                     <Setter TargetName="outerBorder" Property="Background" Value="#E7F0FF"/>
                                                 </Trigger>
 
-                                                <!-- HOVER (ratón encima) -->
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter TargetName="outerBorder" Property="BorderBrush" Value="#8AAEFF"/>
                                                 </Trigger>
@@ -339,7 +324,7 @@
         </Grid>
 
         <!-- =================================================== -->
-        <!--   ESTADÍSTICAS GLOBALES (OCULTO INICIALMENTE)      -->
+        <!--   GRID ESTADÍSTICAS GLOBALES (OCULTO INICIALMENTE)  -->
         <!-- =================================================== -->
         <Grid x:Name="gridEstadisticasGlobales" Visibility="Collapsed" Margin="15">
 
@@ -378,7 +363,7 @@
         </Grid>
 
         <!-- =================================================== -->
-        <!--   ESTADÍSTICAS DE LA MESA (OCULTO INICIALMENTE)    -->
+        <!-- GRID ESTADÍSTICAS DE LA MESA (OCULTO INICIALMENTE)  -->
         <!-- =================================================== -->
         <Grid x:Name="gridEstadisticasMesa" Visibility="Collapsed" Margin="15">
 
@@ -388,7 +373,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- TÍTULO -->
+            <!-- TITULO + VOLVER -->
             <TextBlock x:Name="txtTituloEstadisticaMesa"
                Text="Estadísticas de la mesa"
                FontSize="24"
@@ -396,7 +381,6 @@
                HorizontalAlignment="Center"
                Grid.Row="0"/>
 
-            <!-- BOTÓN VOLVER -->
             <StackPanel Grid.Row="1"
                 Margin="0 10 0 20"
                 HorizontalAlignment="Center">
@@ -434,12 +418,10 @@
                             MinHeight="300"
                             SizeChanged="canvasEstadisticasMesa_SizeChanged"/>  
                 </ScrollViewer>
-
                 
             </Grid>
 
         </Grid>
-
 
     </Grid>
     

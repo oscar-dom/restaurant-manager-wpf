@@ -32,22 +32,12 @@ namespace TrabajoIGU.Models
             ComandasHistoricas = new List<Comanda>();
         }
 
-        public void RegistrarComanda(Comanda comanda)
-        {
-            ComandasHistoricas.Add(comanda);
-            var mesa = Mesas.FirstOrDefault(m => m.Id == comanda.IdMesa);
-            if (mesa != null)
-            {
-                mesa.ComandaActiva = null;
-                mesa.Estado = EstadoMesa.OcupadaConComanda;
-            }
-        }
-
         public Comanda ObtenerComandaActual(int idMesa)
         {
             var mesa = Mesas.FirstOrDefault(m => m.Id == idMesa);
             return mesa?.ComandaActiva;
         }
+
     }
 }
 

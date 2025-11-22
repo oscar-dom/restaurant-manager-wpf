@@ -13,7 +13,6 @@
     <Window.Resources>
         <Style TargetType="DataGridRow">
             <Style.Triggers>
-                <!-- Sobrevolada con ratón -->
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#79A5FF"/>
                     <Setter Property="Foreground" Value="White"/>
@@ -28,7 +27,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- 🟦 Tabla de MESAS -->
+        <!-- Tabla de MESAS -->
         <GroupBox Header="Listado de Mesas" Margin="0 0 0 10">
             <DataGrid x:Name="dgMesas"
                       AutoGenerateColumns="False"
@@ -59,7 +58,7 @@
             </DataGrid>
         </GroupBox>
 
-        <!-- 🟩 Tabla de PLATOS -->
+        <!-- Tabla de PLATOS -->
         <GroupBox Header="Platos de la Comanda" Grid.Row="1">
             <Grid>
                 <TextBlock x:Name="txtSinComanda"

@@ -31,12 +31,10 @@ namespace TrabajoIGU.Windows
         {
             sesion = sesionActiva;
 
-            // Rellenar la tabla de mesas
             var listaMesas = sesion.Disposicion.Cast<Mesa>().Where(m => m != null).ToList();
 
             dgMesas.ItemsSource = listaMesas;
 
-            // Seleccionar la mesa actual si existe
             if (mesaSeleccionada != null)
             {
                 dgMesas.SelectedItem = listaMesas.FirstOrDefault(m => m.Id == mesaSeleccionada.Id);
@@ -49,7 +47,6 @@ namespace TrabajoIGU.Windows
                 dgMesas.UpdateLayout();
             }
 
-            // Actualizar la tabla de platos
             ActualizarPlatos(mesaSeleccionada);
         }
 

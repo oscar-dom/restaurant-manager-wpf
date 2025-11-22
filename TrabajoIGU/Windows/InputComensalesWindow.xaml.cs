@@ -53,7 +53,8 @@ namespace TrabajoIGU.Windows
             if (estadoMesa == EstadoMesa.OcupadaConComanda && valor == 0)
             {
                 var respuesta = MessageBox.Show(
-                    "Todos los comensales abandonarán la mesa. Como consecuencia se cambiará el estado a Libre.\n\n¿Deseas continuar?",
+                    "Todos los comensales abandonarán la mesa.\n" +
+                    "Se guardará la comanda y la mesa quedará libre.\n\n¿Deseas continuar?",
                     "Advertencia",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);

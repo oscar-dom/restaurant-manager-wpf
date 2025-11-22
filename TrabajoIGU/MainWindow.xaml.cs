@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,7 +30,6 @@ namespace TrabajoIGU
         private Mesa mesaSeleccionada;
         private Dictionary<UIElement, Mesa> mapaMesas = new Dictionary<UIElement, Mesa>();
         private SecondaryWindow secondaryWindow;
-        private bool inicializandoMenu = true;
         // Colores consistentes por plato (para el gráfico 7.2)
         private Dictionary<string, Brush> mapaColoresPlatos = new Dictionary<string, Brush>();
 
@@ -39,8 +39,6 @@ namespace TrabajoIGU
             InitializeComponent();
             sesion = SeedData.CrearSesionDePrueba();
             DibujarMesas();
-            Loaded += MainWindow_Loaded;
-
         }
 
         //INTERFAZ
@@ -78,7 +76,6 @@ namespace TrabajoIGU
                 {
                     Mesa mesa = sesion.Disposicion[fila, col];
 
-                    // Posición superior izquierda de la celda
                     double x = margenX + col * celdaAncho + (celdaAncho - mesaSize) / 2;
                     double y = margenY + fila * celdaAlto + (celdaAlto - mesaSize) / 2;
 
@@ -231,7 +228,6 @@ namespace TrabajoIGU
             txtEstado.Text = mesaSeleccionada.Estado.ToString();
             txtComensales.Text = mesaSeleccionada.CapacidadActual.ToString();
 
-            // ✅ AHORA LEEMOS SIEMPRE DE ComandaActiva, NO DEL HISTÓRICO
             var comandaActual = mesaSeleccionada.ComandaActiva;
 
             if (comandaActual != null && comandaActual.Platos.Count > 0)
@@ -244,7 +240,6 @@ namespace TrabajoIGU
                 txtPlatos.Text = "0";
             }
 
-            // Actualizar ventana secundaria
             secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
 
             if (gridEstadisticasMesa.Visibility == Visibility.Visible)
@@ -261,23 +256,6 @@ namespace TrabajoIGU
             txtEstado.Text = "Ninguna mesa seleccionada";
             txtComensales.Text = "Ninguna mesa seleccionada";
             txtPlatos.Text = "Ninguna mesa seleccionada";
-        }
-
-        private string GetRutaImagenPorEstado(EstadoMesa estado)
-        {
-            switch (estado)
-            {
-                case EstadoMesa.Libre:
-                    return "Imagenes/mesaLibre.png";
-                case EstadoMesa.Reservada:
-                    return "Imagenes/mesaReservada.png";
-                case EstadoMesa.OcupadaSinComanda:
-                    return "Imagenes/mesaOcupada.png";
-                case EstadoMesa.OcupadaConComanda:
-                    return "Imagenes/mesaComanda.png";
-                default:
-                    return "Imagenes/mesaLibre.png";
-            }
         }
 
         private void MesaSeleccionadaDesdeSecundaria(Mesa mesa)
@@ -690,7 +668,6 @@ namespace TrabajoIGU
 
             ContextMenu menu = new ContextMenu();
 
-
             // =========================================================
             // OPCIÓN ─── CAMBIAR ESTADO...
             // =========================================================
@@ -741,7 +718,6 @@ namespace TrabajoIGU
 
                         win.ShowDialog();
 
-                        // Revisar comanda activa
                         var comanda = mesa.ComandaActiva;
 
                         if (comanda == null || comanda.Platos.Count == 0)
@@ -759,24 +735,30 @@ namespace TrabajoIGU
                     }
 
                     // ───────────────────────────────────────────────
-                    // ESTADO → LIBRE (vaciar comanda si existe)
+                    // ESTADO → LIBRE (vaciar y guardar comanda si existe)
                     // ───────────────────────────────────────────────
                     if (nuevoEstado == EstadoMesa.Libre && mesa.CapacidadActual != 0)
                     {
                         if (mesa.Estado == EstadoMesa.OcupadaConComanda)
                         {
                             var r2 = MessageBox.Show(
-                                "Si realiza esta acción se dará por finalizada la comanda actual.\n" +
-                                "La mesa quedará libre.",
-                                "Cerrar mesa",
+                                "Todos los comensales abandonarán la mesa.\n" +
+                                "Se guardará la comanda y la mesa quedará libre.\n\n¿Deseas continuar?",
+                                "Advertencia",
                                 MessageBoxButton.YesNo,
                                 MessageBoxImage.Warning);
 
                             if (r2 == MessageBoxResult.No)
                                 return;
 
-                            if (mesa.ComandaActiva != null)
-                                sesion.ComandasHistoricas.Add(mesa.ComandaActiva);
+                            var comanda = mesa.ComandaActiva;
+                            GenerarFactura(mesa, comanda);
+
+                            sesion.ComandasHistoricas.Add(mesa.ComandaActiva);
+
+                            mesa.ComandaActiva = null;
+                            mesa.CapacidadActual = 0;
+                            mesa.Estado = EstadoMesa.Libre;
 
                             mesa.ComandaActiva = null;
                         }
@@ -820,6 +802,9 @@ namespace TrabajoIGU
 
                         if (mesa.Estado == EstadoMesa.OcupadaConComanda && mesa.CapacidadActual == 0)
                         {
+                            var comanda = mesa.ComandaActiva;
+                            GenerarFactura(mesa, comanda);
+                            sesion.ComandasHistoricas.Add(mesa.ComandaActiva);
                             mesa.Estado = EstadoMesa.Libre;
                             mesa.ComandaActiva = null;
                         }
@@ -834,8 +819,7 @@ namespace TrabajoIGU
             // ============================================================
             // OPCIÓN ─── EDITAR COMANDA
             // ============================================================
-            if ((mesa.Estado == EstadoMesa.OcupadaSinComanda && mesa.CapacidadActual != 0) ||
-                 mesa.Estado == EstadoMesa.OcupadaConComanda)
+            if ((mesa.Estado == EstadoMesa.OcupadaSinComanda && mesa.CapacidadActual != 0) || mesa.Estado == EstadoMesa.OcupadaConComanda)
             {
                 MenuItem itemComanda = new MenuItem { Header = "Editar comanda" };
 
@@ -867,7 +851,7 @@ namespace TrabajoIGU
 
 
             // ============================================================
-            // ⭐ OPCIÓN NUEVA ─── FINALIZAR COMANDA
+            // OPCIÓN ─── FINALIZAR COMANDA
             // ============================================================
             if (mesa.Estado == EstadoMesa.OcupadaConComanda && mesa.ComandaActiva != null)
             {
@@ -885,6 +869,9 @@ namespace TrabajoIGU
 
                     if (r == MessageBoxResult.No)
                         return;
+                    
+                    var comanda = mesa.ComandaActiva;
+                    GenerarFactura(mesa, comanda);
 
                     // Pasar al histórico
                     sesion.ComandasHistoricas.Add(mesa.ComandaActiva);
@@ -912,6 +899,17 @@ namespace TrabajoIGU
                     {
                         if (sesion.Disposicion[f, c]?.Id == mesa.Id)
                         {
+                            var r = MessageBox.Show(
+                                    "Si elimina la mesa se perderá la comanda actual.\n" +
+                                    "Este cambio será irreversible.\n\n" +
+                                    "¿Desea continuar?",
+                                    "Eliminar mesa",
+                                    MessageBoxButton.YesNo,
+                                    MessageBoxImage.Question);
+
+                            if (r == MessageBoxResult.No)
+                                return;
+
                             sesion.Disposicion[f, c] = null;
                             DibujarMesas();
                             LimpiarPanel();
@@ -921,7 +919,6 @@ namespace TrabajoIGU
                 }
             };
             menu.Items.Add(itemEliminar);
-
 
             // Mostrar menú
             menu.IsOpen = true;
@@ -967,7 +964,6 @@ namespace TrabajoIGU
 
         private void CeldaVacia_LeftClick(object sender, MouseButtonEventArgs e)
         {
-            // Deselecciona cualquier mesa y limpia el panel
             mesaSeleccionada = null;
             LimpiarPanel();
             ActualizarSeleccionVisual();
@@ -984,7 +980,6 @@ namespace TrabajoIGU
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            // Si se hace clic en el canvas vacío, deseleccionar
             if (e.Source == canvasSala)
             {
                 mesaSeleccionada = null;
@@ -996,26 +991,21 @@ namespace TrabajoIGU
 
         private void BtnVistaRestaurante_Click(object sender, RoutedEventArgs e)
         {
-            // Si ya está abierta, la traemos al frente
             if (secondaryWindow != null && secondaryWindow.IsVisible)
             {
                 secondaryWindow.Activate();
                 return;
             }
 
-            // Crear nueva instancia
             secondaryWindow = new SecondaryWindow(sesion)
             {
                 Owner = this
             };
 
-            // Suscripción a evento de selección desde la ventana secundaria
             secondaryWindow.MesaSeleccionadaDesdeSecundaria += MesaSeleccionadaDesdeSecundaria;
 
-            // Mostrar ventana no modal
             secondaryWindow.Show();
 
-            // Actualizar su vista inicial
             secondaryWindow.ActualizarVista(sesion, mesaSeleccionada);
         }
 
@@ -1043,12 +1033,15 @@ namespace TrabajoIGU
 
             if (ventana.ShowDialog() == true)
             {
-                // Añadir el plato a la sesión
                 sesion.Menu.Add(ventana.PlatoCreado);
 
-                // Refrescar lista
                 AplicarFiltrosMenu();
             }
+        }
+
+        private void FiltroMenu_Changed(object sender, EventArgs e)
+        {
+            AplicarFiltrosMenu();
         }
 
         private void BtnLimpiarFiltrosMenu_Click(object sender, RoutedEventArgs e)
@@ -1092,34 +1085,24 @@ namespace TrabajoIGU
             var item = ItemsControl.ContainerFromElement(lvPlatosMenu, e.OriginalSource as DependencyObject)
                        as ListBoxItem;
 
-            // Si NO fue sobre una tarjeta → deseleccionar
             if (item == null)
             {
                 lvPlatosMenu.SelectedItem = null;
                 return;
             }
-
-            // Si sí fue sobre una tarjeta → selección normal
         }
 
         private void BtnEstadisticasGlobales_Click(object sender, RoutedEventArgs e)
         {
-            // Oculta el restaurante y cualquier otra vista
             gridRestaurante.Visibility = Visibility.Collapsed;
-
-            // Muestra este grid
             gridEstadisticasGlobales.Visibility = Visibility.Visible;
 
-            // Dibujamos
             DibujarEstadisticasGlobales();
         }
 
         private void BtnVolverEstadisticasGlobales_Click(object sender, RoutedEventArgs e)
         {
             gridEstadisticasGlobales.Visibility = Visibility.Collapsed;
-            gridEstadisticasMesa.Visibility = Visibility.Collapsed;
-
-            // Vuelvo al restaurante
             gridRestaurante.Visibility = Visibility.Visible;
         }
 
@@ -1131,25 +1114,17 @@ namespace TrabajoIGU
                 return;
             }
 
-            // Oculto todo
             gridRestaurante.Visibility = Visibility.Collapsed;
-            gridGestionMenu.Visibility = Visibility.Collapsed;
-            gridEstadisticasGlobales.Visibility = Visibility.Collapsed;
-
-            // Muestro este
             gridEstadisticasMesa.Visibility = Visibility.Visible;
 
-            // Actualizo el título
             txtTituloEstadisticaMesa.Text = $"Estadísticas de la mesa {mesaSeleccionada.Id}";
 
-            // Y dibujo la gráfica
             DibujarEstadisticasMesa();
         }
 
         private void BtnVolverEstadisticasMesa_Click(object sender, RoutedEventArgs e)
         {
             gridEstadisticasMesa.Visibility = Visibility.Collapsed;
-
             gridRestaurante.Visibility = Visibility.Visible;
         }
 
@@ -1157,6 +1132,23 @@ namespace TrabajoIGU
 
         //AUXULIARES
         #region Métodos auxiliares
+        private string GetRutaImagenPorEstado(EstadoMesa estado)
+        {
+            switch (estado)
+            {
+                case EstadoMesa.Libre:
+                    return "Imagenes/mesaLibre.png";
+                case EstadoMesa.Reservada:
+                    return "Imagenes/mesaReservada.png";
+                case EstadoMesa.OcupadaSinComanda:
+                    return "Imagenes/mesaOcupada.png";
+                case EstadoMesa.OcupadaConComanda:
+                    return "Imagenes/mesaComanda.png";
+                default:
+                    return "Imagenes/mesaLibre.png";
+            }
+        }
+        
         private List<EstadoMesa> ObtenerEstadosPosibles(EstadoMesa estadoActual)
         {
             var lista = new List<EstadoMesa>();
@@ -1184,20 +1176,6 @@ namespace TrabajoIGU
             }
 
             return lista;
-        }
-
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            inicializandoMenu = false;
-            AplicarFiltrosMenu();
-        }
-
-        private void FiltroMenu_Changed(object sender, EventArgs e)
-        {
-            if (inicializandoMenu)
-                return;
-
-            AplicarFiltrosMenu();
         }
 
         private void AplicarFiltrosMenu()
@@ -1252,7 +1230,7 @@ namespace TrabajoIGU
             if (mapaColoresPlatos.ContainsKey(nombrePlato))
                 return mapaColoresPlatos[nombrePlato];
 
-            // Paleta fija de colores sobrios
+            // Paleta fija de colores
             Brush[] paleta = new Brush[]
             {
         new SolidColorBrush(Color.FromRgb(70,130,180)),   // SteelBlue
@@ -1308,6 +1286,46 @@ namespace TrabajoIGU
             return resultado;
         }
 
+        public static void GenerarFactura(Mesa mesa, Comanda comanda)
+        {
+            if (comanda == null || comanda.Platos.Count == 0)
+                return; // nada que facturar
+
+            string fecha = DateTime.Now.ToString("yyyy-MM-dd_HH-mm");
+            string nombreArchivo = $"Factura_Mesa{mesa.Id}_{fecha}.txt";
+
+            string carpeta = "Facturas";
+            if (!Directory.Exists(carpeta))
+                Directory.CreateDirectory(carpeta);
+
+            string ruta = System.IO.Path.Combine(carpeta, nombreArchivo);
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("RESTAURANTE LOS COMIDITAS");
+            sb.AppendLine($"Factura de Mesa {mesa.Id}");
+            sb.AppendLine($"Fecha: {DateTime.Now:dd/MM/yyyy HH:mm}");
+            sb.AppendLine();
+            sb.AppendLine("Platos consumidos:");
+            sb.AppendLine();
+
+            int total = 0;
+
+            foreach (var kvp in comanda.Platos)
+            {
+                string nombre = kvp.Key.Nombre;
+                int cantidad = kvp.Value;
+                total += cantidad;
+
+                sb.AppendLine($"- {nombre}  .......... x{cantidad}");
+            }
+
+            sb.AppendLine();
+            sb.AppendLine($"TOTAL DE PLATOS: {total}");
+            sb.AppendLine();
+            sb.AppendLine("Gracias por su visita.");
+
+            File.WriteAllText(ruta, sb.ToString());
+        }   
         #endregion
 
     }

@@ -1,0 +1,13 @@
+RESTAURANTE LOS COMIDITAS
+Factura de Mesa 1
+Fecha: 22/11/2025 19:03
+
+Platos consumidos:
+
+- Ensalada mixta  .......... x2
+- Pollo al horno  .......... x2
+- Tarta de queso  .......... x2
+
+TOTAL DE PLATOS: 6
+
+Gracias por su visita.

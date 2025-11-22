@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,7 +25,10 @@ namespace TrabajoIGU.Data
             };
 
             // ===== MENÚ =====
-            sesion.Menu = new List<Plato>
+            var rutaMenu = System.IO.Path.Combine("Data", "menu.txt");
+            sesion.Menu = CargarMenuDesdeArchivo(rutaMenu);
+
+            /*sesion.Menu = new List<Plato>
             {
                 // Primeros
                 new Plato("Ensalada mixta", CategoriaPlato.Primero, "Lechuga fresca, tomate y cebolla"),
@@ -40,7 +44,7 @@ namespace TrabajoIGU.Data
                 new Plato("Tarta de queso", CategoriaPlato.Postre, "Tarta casera cremosa al horno"),
                 new Plato("Fruta del tiempo", CategoriaPlato.Postre, "Selección fresca de frutas de temporada"),
                 new Plato("Flan casero", CategoriaPlato.Postre, "Flan tradicional con caramelo")
-            };
+            };*/
 
             // ============================================================
             // COMANDAS HISTÓRICAS → SOLO antiguas, NO las activas
@@ -108,6 +112,36 @@ namespace TrabajoIGU.Data
 
             return sesion;
         }
+
+        private static List<Plato> CargarMenuDesdeArchivo(string ruta)
+        {
+            var lista = new List<Plato>();
+
+            if (!File.Exists(ruta))
+                throw new FileNotFoundException($"No se encontró el archivo de menú: {ruta}");
+
+            foreach (var linea in File.ReadAllLines(ruta))
+            {
+                if (string.IsNullOrWhiteSpace(linea)) continue;
+                if (linea.Trim().StartsWith("#")) continue;
+
+                var partes = linea.Split('|');
+                if (partes.Length < 2) continue;
+
+                string nombre = partes[0].Trim();
+                string categoriaTexto = partes[1].Trim();
+                string descripcion = partes.Length >= 3 ? partes[2].Trim() : "";
+
+                CategoriaPlato categoria;
+                if (!Enum.TryParse(categoriaTexto, out categoria))
+                    continue;
+
+                lista.Add(new Plato(nombre, categoria, descripcion));
+            }
+
+            return lista;
+        }
+
     }
 }
 
