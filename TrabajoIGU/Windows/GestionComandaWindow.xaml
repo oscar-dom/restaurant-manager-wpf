@@ -15,17 +15,13 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- Título -->
             <RowDefinition Height="Auto"/>
-            <!-- Guía -->
             <RowDefinition Height="Auto"/>
-            <!-- Botones -->
             <RowDefinition Height="*"/>
-            <!-- Expander + Menú + Comanda -->
         </Grid.RowDefinitions>
 
         <!-- ===================================================== -->
-        <!--  FILA 0 — TÍTULO CENTRADO                             -->
+        <!--  FILA 0 — TÍTULO                             -->
         <!-- ===================================================== -->
 
         <TextBlock x:Name="txtComandaMesa"
@@ -71,32 +67,29 @@
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
-                <!-- Expander -->
                 <ColumnDefinition Width="*"/>
-                <!-- Menú -->
                 <ColumnDefinition Width="190"/>
-                <!-- Comanda -->
             </Grid.ColumnDefinitions>
 
-            <!-- ======== EXPANDER FILTROS ======== -->
+            <!-- EXPANDER FILTROS -->
            
             <Expander Grid.Column="0"
-                  Header="🔎"
-                  ExpandDirection="Right"
-                  VerticalAlignment="Top"
-                  Margin="0 15 20 0">
+                      Header="🔎"
+                      ExpandDirection="Right"
+                      VerticalAlignment="Top"
+                      Margin="0 15 20 0">
                 <StackPanel Margin="20 0 20 0" Width="200">
 
                     <TextBlock Text="Filtro por nombre" FontWeight="SemiBold"/>
                     <TextBox x:Name="txtBuscar"
-                         Margin="0 3 0 10"
-                         TextChanged="Filtro_Changed"/>
+                             Margin="0 3 0 10"
+                             TextChanged="Filtro_Changed"/>
 
                     <TextBlock Text="Categoría" FontWeight="SemiBold"/>
                     <ComboBox x:Name="cbCategoria"
-                          SelectedIndex="0"
-                          Margin="0 3 0 10"
-                          SelectionChanged="Filtro_Changed">
+                              SelectedIndex="0"
+                              Margin="0 3 0 10"
+                              SelectionChanged="Filtro_Changed">
                         <ComboBoxItem Content="Todas"/>
                         <ComboBoxItem Content="Primero"/>
                         <ComboBoxItem Content="Segundo"/>
@@ -104,16 +97,16 @@
                     </ComboBox>
 
                     <Button Content="Limpiar filtros"
-                        Width="120"
-                        Padding="5"
-                        Background="#DDDDDD"
-                        BorderThickness="0"
-                        Click="BtnLimpiarFiltros_Click"
-                        Margin="10"/>
+                            Width="120"
+                            Padding="5"
+                            Background="#DDDDDD"
+                            BorderThickness="0"
+                            Click="BtnLimpiarFiltros_Click"
+                            Margin="10"/>
                 </StackPanel>
             </Expander>
 
-            <!-- ======== LISTA DE PLATOS (MENÚ) ======== -->
+            <!-- LISTA DE PLATOS (MENÚ) -->
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -186,14 +179,14 @@
                                         Width="180">
                                     <StackPanel>
                                         <TextBlock Text="{Binding Nombre}"
-                                               FontWeight="Bold"
-                                               TextWrapping="Wrap"/>
+                                                   FontWeight="Bold"
+                                                   TextWrapping="Wrap"/>
                                         <TextBlock Text="{Binding Categoria}"
-                                               Foreground="#3C7EFF"
-                                               FontWeight="SemiBold"/>
+                                                   Foreground="#3C7EFF"
+                                                   FontWeight="SemiBold"/>
                                         <TextBlock Text="{Binding Descripcion}"
-                                               Foreground="Gray"
-                                               TextWrapping="Wrap"/>
+                                                   Foreground="Gray"
+                                                   TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
@@ -211,20 +204,20 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0"
-                       Text="Comanda"
-                       FontSize="14"
-                       FontWeight="Bold"
-                       TextAlignment="Center"
-                       HorizontalAlignment="Left"
-                       Margin="15 5 0 5"/>
+                           Text="Comanda"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           TextAlignment="Center"
+                           HorizontalAlignment="Left"
+                           Margin="15 5 0 5"/>
 
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
 
                     <ListBox x:Name="lvComanda"
-                         BorderThickness="0"
-                         Background="Transparent"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         SelectionMode="Single">
+                             BorderThickness="0"
+                             Background="Transparent"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             SelectionMode="Single">
 
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -242,10 +235,10 @@
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ListBoxItem">
                                             <Border x:Name="outerBorder"
-                                                CornerRadius="12"
-                                                BorderThickness="2"
-                                                BorderBrush="Transparent"
-                                                Background="Transparent">
+                                                    CornerRadius="12"
+                                                    BorderThickness="2"
+                                                    BorderBrush="Transparent"
+                                                    Background="Transparent">
                                                 <ContentPresenter />
                                             </Border>
 
@@ -268,12 +261,12 @@
                             <DataTemplate>
 
                                 <Border BorderThickness="1"
-                                    BorderBrush="#C9C9C9"
-                                    CornerRadius="10"
-                                    Padding="10"
-                                    Background="White"
-                                    Width="150"
-                                    Height="Auto">
+                                        BorderBrush="#C9C9C9"
+                                        CornerRadius="10"
+                                        Padding="10"
+                                        Background="White"
+                                        Width="150"
+                                        Height="Auto">
 
                                     <Grid>
                                         <Grid.RowDefinitions>
@@ -281,7 +274,6 @@
                                             <RowDefinition Height="*"/>
                                         </Grid.RowDefinitions>
 
-                                        <!-- NOMBRE DEL PLATO -->
                                         <TextBlock Text="{Binding Key.Nombre}"
                                                FontWeight="Bold"
                                                FontSize="14"
@@ -290,33 +282,32 @@
                                                TextAlignment="Center"
                                                Margin="0 0 0 10"/>
 
-                                        <!-- BOTONES Y CANTIDAD -->
                                         <StackPanel Grid.Row="1"
                                                 Orientation="Horizontal"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center">
 
                                             <Button Content="➖​"
-                                                Width="28"
-                                                Height="28"
-                                                FontWeight="Bold"
-                                                Margin="0 0 5 5"
-                                                Tag="{Binding Key}"
-                                                Click="BtnMenos_Click"/>
+                                                    Width="28"
+                                                    Height="28"
+                                                    FontWeight="Bold"
+                                                    Margin="0 0 5 5"
+                                                    Tag="{Binding Key}"
+                                                    Click="BtnMenos_Click"/>
 
                                             <TextBlock Text="{Binding Value}"
-                                                   FontSize="16"
-                                                   FontWeight="Bold"
-                                                   VerticalAlignment="Center"
-                                                   Margin="5 0 5 5"/>
+                                                       FontSize="16"
+                                                       FontWeight="Bold"
+                                                       VerticalAlignment="Center"
+                                                       Margin="5 0 5 5"/>
 
                                             <Button Content="➕​"
-                                                Width="28"
-                                                Height="28"
-                                                FontWeight="Bold"
-                                                Margin="5 0 0 5"
-                                                Tag="{Binding Key}"
-                                                Click="BtnMas_Click"/>
+                                                    Width="28"
+                                                    Height="28"
+                                                    FontWeight="Bold"
+                                                    Margin="5 0 0 5"
+                                                    Tag="{Binding Key}"
+                                                    Click="BtnMas_Click"/>
 
                                         </StackPanel>
 

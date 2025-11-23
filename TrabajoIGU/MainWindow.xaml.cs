@@ -1183,6 +1183,7 @@ namespace TrabajoIGU
             if (sesion?.Menu == null)
                 return;
 
+            //Menú sin filtros
             var lista = sesion.Menu.OrderBy(p => p.Categoria).ToList();
 
             // Texto
@@ -1233,12 +1234,12 @@ namespace TrabajoIGU
             // Paleta fija de colores
             Brush[] paleta = new Brush[]
             {
-        new SolidColorBrush(Color.FromRgb(70,130,180)),   // SteelBlue
-        new SolidColorBrush(Color.FromRgb(46,139,87)),    // SeaGreen
-        new SolidColorBrush(Color.FromRgb(255,140,0)),    // DarkOrange
-        new SolidColorBrush(Color.FromRgb(123,104,238)),  // MediumSlateBlue
-        new SolidColorBrush(Color.FromRgb(220,20,60)),    // Crimson
-        new SolidColorBrush(Color.FromRgb(189,183,107)),  // DarkKhaki
+                new SolidColorBrush(Color.FromRgb(70,130,180)),   // SteelBlue
+                new SolidColorBrush(Color.FromRgb(46,139,87)),    // SeaGreen
+                new SolidColorBrush(Color.FromRgb(255,140,0)),    // DarkOrange
+                new SolidColorBrush(Color.FromRgb(123,104,238)),  // MediumSlateBlue
+                new SolidColorBrush(Color.FromRgb(220,20,60)),    // Crimson
+                new SolidColorBrush(Color.FromRgb(189,183,107)),  // DarkKhaki
             };
 
             int index = mapaColoresPlatos.Count % paleta.Length;
