@@ -353,12 +353,40 @@
                         Click="BtnVolverEstadisticasGlobales_Click"/>
             </StackPanel>
 
-            <!-- CANVAS DEL GRÁFICO -->
-            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-                <Canvas x:Name="canvasEstadisticasGlobales"
-                        Background="White"
-                        SizeChanged="canvasEstadisticasGlobales_SizeChanged"/>
-            </ScrollViewer>
+            <!-- GRÁFICO + LEYENDA -->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <!-- Canvas (gráfico) -->
+                    <ColumnDefinition Width="auto"/>
+                    <!-- Leyenda -->
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- LEYENDA -->
+                <ScrollViewer Grid.Column="0"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="panelLeyendaGlobal" HorizontalAlignment="Left" Margin="10">
+                        <TextBlock Text="Leyenda" FontSize="16" FontWeight="Bold" Margin="0 0 0 10"/>
+                        <StackPanel Orientation="Horizontal" Margin="5 2 5 2">
+                            <Rectangle Width="16" Height="16" Stroke="Black" StrokeThickness="0.5" Fill="SteelBlue" Margin="0 0 5 0"/>
+                            <TextBlock Text="Mesa existente" FontSize="13" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="5 2 5 2">
+                            <Rectangle Width="16" Height="16" Stroke="Black" StrokeThickness="0.5" Fill="Gray" Margin="0 0 5 0"/>
+                            <TextBlock Text="Mesa no existente (con histórico)" FontSize="13" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                </ScrollViewer>
+
+                <!-- CANVAS DEL GRÁFICO -->
+                <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                    <Canvas x:Name="canvasEstadisticasGlobales"
+                            Background="White"
+                            SizeChanged="canvasEstadisticasGlobales_SizeChanged"/>
+                </ScrollViewer>
+            </Grid>
 
         </Grid>
 
@@ -375,22 +403,21 @@
 
             <!-- TITULO + VOLVER -->
             <TextBlock x:Name="txtTituloEstadisticaMesa"
-               Text="Estadísticas de la mesa"
-               FontSize="24"
-               FontWeight="Bold"
-               HorizontalAlignment="Center"
-               Grid.Row="0"/>
+                       Text="Estadísticas de la mesa"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       Grid.Row="0"/>
 
             <StackPanel Grid.Row="1"
-                Margin="0 10 0 20"
-                HorizontalAlignment="Center">
+                        Margin="0 10 0 20"
+                        HorizontalAlignment="Center">
                 <Button Content="Volver"
                         Padding="6"
                         Width="150"
                         FontWeight="Bold"
                         BorderThickness="0"
-
-                Click="BtnVolverEstadisticasMesa_Click"/>
+                        Click="BtnVolverEstadisticasMesa_Click"/>
             </StackPanel>
 
             <!-- GRÁFICO + LEYENDA -->

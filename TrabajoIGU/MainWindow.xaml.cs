@@ -585,7 +585,7 @@ namespace TrabajoIGU
             }
 
             // =========================
-            // LEYENDA A LA DERECHA
+            // LEYENDA
             // =========================
             var tituloLeyenda = new TextBlock
             {
