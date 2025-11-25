@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -637,7 +638,6 @@ namespace TrabajoIGU
                 DibujarEstadisticasMesa();
             }
         }
-
 
         #endregion
 
@@ -1325,7 +1325,20 @@ namespace TrabajoIGU
             sb.AppendLine();
             sb.AppendLine("Gracias por su visita.");
 
-            File.WriteAllText(ruta, sb.ToString());
+            var dialog = new SaveFileDialog
+            {
+                Title = "Guardar factura",
+                FileName = nombreArchivo,
+                Filter = "Archivo de texto (*.txt)|*.txt",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+            };
+
+            bool? result = dialog.ShowDialog();
+
+            if (result == true)
+            {
+                File.WriteAllText(dialog.FileName, sb.ToString());
+            }
         }   
         #endregion
 
