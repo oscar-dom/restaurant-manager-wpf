@@ -45,6 +45,7 @@ namespace TrabajoIGU.Windows
             if (mesa.ComandaActiva == null) { 
                 MessageBox.Show("La mesa no tiene comanda activa. Se creará una nueva comanda.", "Información", MessageBoxButton.OK, MessageBoxImage.Information);
                 mesa.ComandaActiva = new Comanda(mesa.Id);
+                mesa.Estado = EstadoMesa.OcupadaConComanda;
             }
             // Guardamos copia original
             comandaOriginal = new Dictionary<Plato, int>(mesa.ComandaActiva.Platos);
