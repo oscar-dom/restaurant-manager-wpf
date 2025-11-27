@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using TrabajoIGU.Models;
 
 namespace TrabajoIGU.Windows
@@ -11,12 +12,13 @@ namespace TrabajoIGU.Windows
     {
         private Sesion sesion;
         private Mesa mesa;
-        private Dictionary<Plato, int> comandaTemp;
+        private SecondaryWindow secondaryWindow => Application.Current.Windows.OfType<SecondaryWindow>().FirstOrDefault();
+
         private Dictionary<Plato, int> comandaOriginal;
+
         private bool cambiosRealizados = false;
         private bool cierreDesdeCancelar = false;
         private bool cierreDesdeGuardar = false;
-
 
         public GestionComandaWindow(Sesion sesion, Mesa mesa)
         {
@@ -28,6 +30,10 @@ namespace TrabajoIGU.Windows
             CargarMenu();
         }
 
+        // ======================
+        // CARGA DE MENÚ Y COMANDA
+        // ======================
+
         private void CargarMenu()
         {
             lvMenu.ItemsSource = sesion.Menu.OrderBy(p => p.Categoria).ToList();
@@ -35,22 +41,24 @@ namespace TrabajoIGU.Windows
 
         private void CargarComanda()
         {
-            if (mesa.ComandaActiva != null)
-                comandaTemp = new Dictionary<Plato, int>(mesa.ComandaActiva.Platos);
-            else
-                comandaTemp = new Dictionary<Plato, int>();
-
-            comandaOriginal = new Dictionary<Plato, int>(comandaTemp);
+            // Crear comanda activa si no existe
+            if (mesa.ComandaActiva == null) { 
+                MessageBox.Show("La mesa no tiene comanda activa. Se creará una nueva comanda.", "Información", MessageBoxButton.OK, MessageBoxImage.Information);
+                mesa.ComandaActiva = new Comanda(mesa.Id);
+            }
+            // Guardamos copia original
+            comandaOriginal = new Dictionary<Plato, int>(mesa.ComandaActiva.Platos);
 
             RefrescarComanda();
         }
 
         private void RefrescarComanda()
         {
-            lvComanda.ItemsSource = null;
-            lvComanda.ItemsSource = comandaTemp.ToList();
-        }
+            secondaryWindow?.ActualizarVista(sesion, mesa);
 
+            lvComanda.ItemsSource = null;
+            lvComanda.ItemsSource = mesa.ComandaActiva.Platos.ToList();
+        }
 
 
         // =============
@@ -62,10 +70,10 @@ namespace TrabajoIGU.Windows
             var plato = (sender as Button)?.Tag as Plato;
             if (plato == null) return;
 
-            if (!comandaTemp.ContainsKey(plato))
-                comandaTemp[plato] = 1;
+            if (!mesa.ComandaActiva.Platos.ContainsKey(plato))
+                mesa.ComandaActiva.Platos[plato] = 1;
             else
-                comandaTemp[plato]++;
+                mesa.ComandaActiva.Platos[plato]++;
 
             cambiosRealizados = true;
             RefrescarComanda();
@@ -76,10 +84,10 @@ namespace TrabajoIGU.Windows
             var plato = (sender as Button)?.Tag as Plato;
             if (plato == null) return;
 
-            comandaTemp[plato]--;
+            mesa.ComandaActiva.Platos[plato]--;
 
-            if (comandaTemp[plato] <= 0)
-                comandaTemp.Remove(plato);
+            if (mesa.ComandaActiva.Platos[plato] <= 0)
+                mesa.ComandaActiva.Platos.Remove(plato);
 
             cambiosRealizados = true;
             RefrescarComanda();
@@ -88,173 +96,105 @@ namespace TrabajoIGU.Windows
         // ===================
         // DOBLE CLICK EN MENÚ
         // ===================
-        private void LvMenu_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+
+        private void LvMenu_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var plato = lvMenu.SelectedItem as Plato;
             if (plato == null) return;
 
-            if (!comandaTemp.ContainsKey(plato))
-                comandaTemp[plato] = 1;
+            if (!mesa.ComandaActiva.Platos.ContainsKey(plato))
+                mesa.ComandaActiva.Platos[plato] = 1;
             else
-                comandaTemp[plato]++;
+                mesa.ComandaActiva.Platos[plato]++;
 
             cambiosRealizados = true;
             RefrescarComanda();
         }
 
-        // ================
-        // GUARDAR CAMBIOS
-        // ================
+
+        // =============
+        // GUARDAR
+        // =============
+
         private void BtnGuardar_Click(object sender, RoutedEventArgs e)
         {
             cierreDesdeGuardar = true;
-
-            bool esNueva = (mesa.ComandaActiva == null);
-
-            // ───────────────────────────────
-            // CASO 1 → COMANDA (NUEVA O EXISTENTE) VACÍA
-            // ───────────────────────────────
-            if (comandaTemp.Count == 0)
-            {
-                if (esNueva)
-                {
-                    // Nueva comanda sin platos → no se crea
-                    var r = MessageBox.Show(
-                        "No ha añadido ningún plato.\nNo se creará la comanda.\n\n¿Desea continuar?",
-                        "Comanda vacía",
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Warning);
-
-                    if (r == MessageBoxResult.No)
-                    {
-                        cierreDesdeGuardar = false;
-                        return;
-                    }
-
-                    // No se crea nada, no tocamos ComandaActiva ni estados
-                    Close();
-                    return;
-                }
-                else
-                {
-                    // Comanda existente que ha quedado vacía → se elimina
-                    var r = MessageBox.Show(
-                        "La comanda ha quedado vacía.\nSe eliminará la comanda.\n\n¿Desea continuar?",
-                        "Comanda vacía",
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Warning);
-
-                    if (r == MessageBoxResult.No)
-                    {
-                        cierreDesdeGuardar = false;
-                        return;
-                    }
-
-                    // Eliminamos la comanda ACTIVA de la mesa
-                    mesa.ComandaActiva = null;
-
-                    // No tocamos estados: tú mandas con la lógica de estados
-                    Close();
-                    return;
-                }
-            }
-
-            // ───────────────────────────────
-            // CASO 2 → HAY PLATOS EN comandaTemp
-            // ───────────────────────────────
-
-            // Si es nueva, crear la comanda activa ahora
-            if (esNueva)
-            {
-                mesa.ComandaActiva = new Comanda(mesa.Id);
-            }
-
-            // Actualizar los platos de la comanda activa
-            mesa.ComandaActiva.Platos = new Dictionary<Plato, int>(comandaTemp);
-
-            // Tampoco tocamos estados aquí: los gestionas tú en MainWindow
             Close();
         }
 
-        // ================
-        // CANCELAR CAMBIOS
-        // ================
+
+        // =============
+        // CANCELAR
+        // =============
+
         private void BtnCancelar_Click(object sender, RoutedEventArgs e)
         {
             cierreDesdeCancelar = true;
             Close();
         }
 
+
+        // ===============================
+        // GESTIÓN DE CIERRE DE VENTANA
+        // ===============================
+
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             base.OnClosing(e);
 
+            // Si se pulsó Guardar → no preguntar
             if (cierreDesdeGuardar)
                 return;
 
-            if (ComandasSonIguales())
-            {
-                cambiosRealizados = false;
-            }
+            // Detectar cambios
+            cambiosRealizados = !ComandasSonIguales();
 
-            // 2. Si viene del botón CANCELAR → preguntar si hay cambios
-            if (cierreDesdeCancelar)
-            {
-                if (cambiosRealizados)
-                {
-                    var r = MessageBox.Show(
-                        "Hay cambios sin guardar.\n¿Salir sin guardar?",
-                        "Cerrar",
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Warning);
+            if (!cambiosRealizados)
+                return;
 
-                    if (r == MessageBoxResult.No)
-                    {
-                        e.Cancel = true;
-                        cierreDesdeCancelar = false;
-                    }
-                }
+            // Preguntamos si de verdad quiere descartar cambios
+            var r = MessageBox.Show(
+                "Hay cambios sin guardar.\n¿Desea descartar los cambios?",
+                "Descartar cambios",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (r == MessageBoxResult.No)
+            {
+                e.Cancel = true;
+                cierreDesdeCancelar = false;
                 return;
             }
 
-            // 3. Si la ventana se cierra con la X del sistema → preguntar
-            if (cambiosRealizados)
-            {
-                var r = MessageBox.Show(
-                    "Hay cambios sin guardar.\n¿Salir sin guardar?",
-                    "Cerrar",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
-
-                if (r == MessageBoxResult.No)
-                {
-                    e.Cancel = true;
-                }
-            }
+            // Restauramos comanda original
+            mesa.ComandaActiva.Platos = new Dictionary<Plato, int>(comandaOriginal);
         }
+
+
+        // ======================
+        // COMPARACIÓN DE COMANDAS
+        // ======================
 
         private bool ComandasSonIguales()
         {
-            if (mesa.ComandaActiva == null && comandaTemp.Count == 0)
-                return true;
+            var actual = mesa.ComandaActiva.Platos;
 
-            if (mesa.ComandaActiva == null)
+            if (actual.Count != comandaOriginal.Count)
                 return false;
 
-            if (mesa.ComandaActiva.Platos.Count != comandaTemp.Count)
-                return false;
-
-            foreach (var kv in mesa.ComandaActiva.Platos)
+            foreach (var kv in comandaOriginal)
             {
-                if (!comandaTemp.ContainsKey(kv.Key))
-                    return false;
-
-                if (comandaTemp[kv.Key] != kv.Value)
-                    return false;
+                if (!actual.ContainsKey(kv.Key)) return false;
+                if (actual[kv.Key] != kv.Value) return false;
             }
 
             return true;
         }
+
+
+        // ======================
+        // FILTROS
+        // ======================
 
         private void AplicarFiltros()
         {
@@ -263,7 +203,7 @@ namespace TrabajoIGU.Windows
 
             var lista = sesion.Menu.ToList();
 
-            // Filtro texto
+            // Texto
             string t = txtBuscar.Text.Trim().ToLower();
             if (t != "")
             {
@@ -273,14 +213,13 @@ namespace TrabajoIGU.Windows
                 ).ToList();
             }
 
-            // Filtro categoría
+            // Categoría
             if (cbCategoria.SelectedItem is ComboBoxItem item)
             {
                 string cat = item.Content.ToString();
                 if (cat != "Todas")
                 {
-                    CategoriaPlato c;
-                    if (Enum.TryParse(cat, out c))
+                    if (Enum.TryParse(cat, out CategoriaPlato c))
                         lista = lista.Where(p => p.Categoria == c).ToList();
                 }
             }
