@@ -12,6 +12,8 @@ namespace TrabajoIGU.Windows
     {
         private Sesion sesion;
         private Mesa mesa;
+
+        private MainWindow MainWindow => Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
         private SecondaryWindow secondaryWindow => Application.Current.Windows.OfType<SecondaryWindow>().FirstOrDefault();
 
         private Dictionary<Plato, int> comandaOriginal;
@@ -56,7 +58,7 @@ namespace TrabajoIGU.Windows
         private void RefrescarComanda()
         {
             secondaryWindow?.ActualizarVista(sesion, mesa);
-
+            MainWindow.DibujarMesas();
             lvComanda.ItemsSource = null;
             lvComanda.ItemsSource = mesa.ComandaActiva.Platos.ToList();
         }

@@ -44,7 +44,7 @@ namespace TrabajoIGU
 
         //INTERFAZ
         #region Actualización de interfaz
-        private void DibujarMesas()
+        public void DibujarMesas()
         {
             if (canvasSala.ActualWidth == 0 || canvasSala.ActualHeight == 0)
                 return;
