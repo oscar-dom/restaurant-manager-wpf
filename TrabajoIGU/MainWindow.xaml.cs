@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -31,8 +32,8 @@ namespace TrabajoIGU
         private Mesa mesaSeleccionada;
         private Dictionary<UIElement, Mesa> mapaMesas = new Dictionary<UIElement, Mesa>();
         private SecondaryWindow secondaryWindow;
-        // Colores consistentes por plato (para el gráfico 7.2)
         private Dictionary<string, Brush> mapaColoresPlatos = new Dictionary<string, Brush>();
+        private readonly HashSet<Mesa> mesasSuscritas = new HashSet<Mesa>();
 
 
         public MainWindow()
@@ -40,6 +41,7 @@ namespace TrabajoIGU
             InitializeComponent();
             sesion = SeedData.CrearSesionDePrueba();
             DibujarMesas();
+            SuscribirMesasSesion();
         }
 
         //INTERFAZ
@@ -217,7 +219,6 @@ namespace TrabajoIGU
             if (mesaSeleccionada == null)
             {
                 LimpiarPanel();
-                secondaryWindow?.ActualizarVista(sesion, null);
                 txtTituloEstadisticaMesa.Text = $"Ninguna mesa seleccionada";
                 DibujarEstadisticasMesa();
                 return;
@@ -240,8 +241,6 @@ namespace TrabajoIGU
             {
                 txtPlatos.Text = "0";
             }
-
-            secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
 
             if (gridEstadisticasMesa.Visibility == Visibility.Visible)
             {  
@@ -651,6 +650,7 @@ namespace TrabajoIGU
             if (mapaMesas.TryGetValue(borde, out var mesa))
             {
                 mesaSeleccionada = mesa;
+                sesion.SeleccionarMesa(mesaSeleccionada);
                 MostrarDatosMesa();
                 ActualizarSeleccionVisual();
             }
@@ -710,6 +710,12 @@ namespace TrabajoIGU
                     // ───────────────────────────────────────────────
                     if (nuevoEstado == EstadoMesa.OcupadaConComanda)
                     {
+                        if (mesa.ComandaActiva == null)
+                        {
+                            mesa.ComandaActiva = new Comanda(mesa.Id);
+                            mesa.ComandaActiva.PropertyChanged += ComandaOnChanged;
+                        }
+                        mesa.ComandaActiva.PropertyChanged += ComandaOnChanged;
                         var win = new GestionComandaWindow(sesion, mesa)
                         {
                             Owner = this,
@@ -717,6 +723,7 @@ namespace TrabajoIGU
                         };
 
                         win.ShowDialog();
+                        mesa.ComandaActiva.PropertyChanged -= ComandaOnChanged;
 
                         var comanda = mesa.ComandaActiva;
 
@@ -825,6 +832,12 @@ namespace TrabajoIGU
 
                 itemComanda.Click += (s, ev) =>
                 {
+                    if (mesa.ComandaActiva == null)
+                    {
+                        mesa.ComandaActiva = new Comanda(mesa.Id);
+                        mesa.ComandaActiva.PropertyChanged += ComandaOnChanged;
+                    }
+                    mesa.ComandaActiva.PropertyChanged += ComandaOnChanged;
                     var win = new GestionComandaWindow(sesion, mesa)
                     {
                         Owner = this,
@@ -832,6 +845,7 @@ namespace TrabajoIGU
                     };
 
                     win.ShowDialog();
+                    mesa.ComandaActiva.PropertyChanged -= ComandaOnChanged;
 
                     if (mesa.ComandaActiva == null || mesa.ComandaActiva.Platos.Count == 0)
                     {
@@ -965,9 +979,9 @@ namespace TrabajoIGU
         private void CeldaVacia_LeftClick(object sender, MouseButtonEventArgs e)
         {
             mesaSeleccionada = null;
+            sesion.SeleccionarMesa(mesaSeleccionada);
             LimpiarPanel();
             ActualizarSeleccionVisual();
-            secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
         }
 
         private void BtnReiniciar_Click(object sender, RoutedEventArgs e)
@@ -983,9 +997,9 @@ namespace TrabajoIGU
             if (e.Source == canvasSala)
             {
                 mesaSeleccionada = null;
+                sesion.SeleccionarMesa(mesaSeleccionada);
                 LimpiarPanel();
                 ActualizarSeleccionVisual();
-                secondaryWindow?.ActualizarVista(sesion, mesaSeleccionada);
             }
         }
 
@@ -997,7 +1011,7 @@ namespace TrabajoIGU
                 return;
             }
 
-            secondaryWindow = new SecondaryWindow(sesion)
+            secondaryWindow = new SecondaryWindow(sesion, mesaSeleccionada)
             {
                 Owner = this
             };
@@ -1005,8 +1019,6 @@ namespace TrabajoIGU
             secondaryWindow.MesaSeleccionadaDesdeSecundaria += MesaSeleccionadaDesdeSecundaria;
 
             secondaryWindow.Show();
-
-            secondaryWindow.ActualizarVista(sesion, mesaSeleccionada);
         }
 
         private void BtnGestionMenu_Click(object sender, RoutedEventArgs e)
@@ -1128,6 +1140,44 @@ namespace TrabajoIGU
             gridRestaurante.Visibility = Visibility.Visible;
         }
 
+        private void ComandaOnChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (mesaSeleccionada != null && mesaSeleccionada.ComandaActiva != null)
+            {
+                MostrarDatosMesa();
+            }
+        }
+
+        private void MesaSeleccionadaOnChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // Solo reaccionamos a cambios de la propiedad MesaSeleccionada
+            if (e.PropertyName != nameof(Mesa.MesaSeleccionada))
+                return;
+
+            var m = sender as Mesa;
+            if (m == null) return;
+
+            // Asegurarnos de ejecutar la actualización en el hilo UI
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.Invoke(() => MesaSeleccionadaOnChanged(sender, e));
+                return;
+            }
+
+            // Si la mesa se marca como seleccionada, la adoptamos; si se desmarca y era la actual, la limpiamos
+            if (m.MesaSeleccionada)
+            {
+                mesaSeleccionada = m;
+            }
+            else
+            {
+                if (mesaSeleccionada != null && mesaSeleccionada.Id == m.Id)
+                    mesaSeleccionada = null;
+            }
+
+            MostrarDatosMesa();
+            ActualizarSeleccionVisual();
+        }
         #endregion
 
         //AUXULIARES
@@ -1339,7 +1389,27 @@ namespace TrabajoIGU
             {
                 File.WriteAllText(dialog.FileName, sb.ToString());
             }
-        }   
+        }
+
+        private void SuscribirMesasSesion()
+        {
+            // Desuscribimos primero
+            foreach (var m in mesasSuscritas.ToList())
+            {
+                m.PropertyChanged -= MesaSeleccionadaOnChanged;
+            }
+            mesasSuscritas.Clear();
+
+            if (sesion?.Mesas == null) return;
+
+            foreach (var m in sesion.Mesas)
+            {
+                // evitamos suscripciones duplicadas
+                m.PropertyChanged -= MesaSeleccionadaOnChanged;
+                m.PropertyChanged += MesaSeleccionadaOnChanged;
+                mesasSuscritas.Add(m);
+            }
+        }
         #endregion
 
     }

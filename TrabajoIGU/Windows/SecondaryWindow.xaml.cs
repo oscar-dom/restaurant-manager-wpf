@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using TrabajoIGU.Models;
+using System.ComponentModel;
 
 namespace TrabajoIGU.Windows
 {
@@ -21,24 +22,33 @@ namespace TrabajoIGU.Windows
 
         private Sesion sesion;
 
-        public SecondaryWindow(Sesion sesionActiva)
+        private Mesa mesa;
+
+        private readonly HashSet<Mesa> mesasSuscritas = new HashSet<Mesa>();
+
+        private Comanda comandaSuscrita;
+
+        public SecondaryWindow(Sesion sesionActiva, Mesa mesaSeleccionada)
         {
             InitializeComponent();
-            sesion = sesionActiva;
+            this.sesion = sesionActiva;
+            this.mesa = mesaSeleccionada;
+            ActualizarVista();
         }
 
-        public void ActualizarVista(Sesion sesionActiva, Mesa mesaSeleccionada)
+        public void ActualizarVista()
         {
-            sesion = sesionActiva;
+            SuscribirMesasSesion();
+            SuscribirComandaDeMesaActual();
 
             var listaMesas = sesion.Disposicion.Cast<Mesa>().Where(m => m != null).ToList();
 
             dgMesas.ItemsSource = listaMesas;
 
-            if (mesaSeleccionada != null)
+            if (mesa != null)
             {
-                dgMesas.SelectedItem = listaMesas.FirstOrDefault(m => m.Id == mesaSeleccionada.Id);
-                dgMesas.UpdateLayout(); 
+                dgMesas.SelectedItem = listaMesas.FirstOrDefault(m => m.Id == mesa.Id);
+                dgMesas.UpdateLayout();
                 dgMesas.Focus();
             }
             else
@@ -47,10 +57,47 @@ namespace TrabajoIGU.Windows
                 dgMesas.UpdateLayout();
             }
 
-            ActualizarPlatos(mesaSeleccionada);
+            ActualizarPlatos();
         }
 
-        private void ActualizarPlatos(Mesa mesa)
+        private void SuscribirMesasSesion()
+        {
+            // Desuscribimos primero
+            foreach (var m in mesasSuscritas.ToList())
+            {
+                m.PropertyChanged -= MesaSeleccionadaOnChanged;
+            }
+            mesasSuscritas.Clear();
+
+            if (sesion?.Mesas == null) return;
+
+            foreach (var m in sesion.Mesas)
+            {
+                // evitamos suscripciones duplicadas
+                m.PropertyChanged -= MesaSeleccionadaOnChanged;
+                m.PropertyChanged += MesaSeleccionadaOnChanged;
+                mesasSuscritas.Add(m);
+            }
+        }
+
+        private void SuscribirComandaDeMesaActual()
+        {
+            // desuscribir la comanda previa
+            if (comandaSuscrita != null)
+            {
+                comandaSuscrita.PropertyChanged -= ComandaOnChanged;
+                comandaSuscrita = null;
+            }
+
+            if (mesa?.ComandaActiva != null)
+            {
+                comandaSuscrita = mesa.ComandaActiva;
+                comandaSuscrita.PropertyChanged -= ComandaOnChanged;
+                comandaSuscrita.PropertyChanged += ComandaOnChanged;
+            }
+        }
+
+        private void ActualizarPlatos()
         {
             if (mesa == null || mesa.Estado != EstadoMesa.OcupadaConComanda)
             {
@@ -86,12 +133,14 @@ namespace TrabajoIGU.Windows
 
         private void dgMesas_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (dgMesas.SelectedItem is Mesa mesa)
+            if (dgMesas.SelectedItem is Mesa mesaSeleccionada)
             {
-                ActualizarPlatos(mesa);
-                MesaSeleccionadaDesdeSecundaria?.Invoke(mesa);
+                sesion.SeleccionarMesa(mesaSeleccionada);
+                mesa = mesaSeleccionada;
+                ActualizarVista();
             }
         }
+
         private void dgMesas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             // Comprobamos si el click NO fue sobre una fila
@@ -100,12 +149,68 @@ namespace TrabajoIGU.Windows
             if (row == null)
             {
                 dgMesas.SelectedItem = null;
+                sesion.SeleccionarMesa(null);
+                mesa = null;
+                ActualizarVista();
+            }
+        }
 
-                dgPlatos.ItemsSource = null;
-                txtSinComanda.Visibility = Visibility.Visible;
-                dgPlatos.Visibility = Visibility.Hidden;
+        private void ComandaOnChanged(object sender, PropertyChangedEventArgs e)
+        {
+            ActualizarPlatos();
+        }
 
-                MesaSeleccionadaDesdeSecundaria?.Invoke(null);
+        private void MesaSeleccionadaOnChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // solo reaccionamos si cambia la propiedad MesaSeleccionada o ComandaActiva
+            if (e.PropertyName != nameof(Mesa.MesaSeleccionada) && e.PropertyName != nameof(Mesa.ComandaActiva))
+                return;
+
+            var nueva = sender as Mesa;
+            if (nueva == null) return;
+
+            if (e.PropertyName == nameof(Mesa.ComandaActiva))
+            {
+                // si la comanda de esta mesa ha cambiado y es la mesa actual, re-suscribimos
+                if (mesa != null && mesa.Id == nueva.Id)
+                {
+                    ActualizarVista();
+                }
+                return;
+            }
+
+            // si la mesa se ha marcado como seleccionada, la usamos; si se ha desmarcado y era la actual, la limpiamos
+            if (nueva.MesaSeleccionada)
+            {
+                mesa = nueva;
+                ActualizarVista();
+            }
+            else
+            {
+                if (mesa != null && mesa.Id == nueva.Id)
+                {
+                    mesa = null;
+                    ActualizarVista();
+                }
+            }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+
+            // limpiar suscripciones a mesas
+            foreach (var m in mesasSuscritas.ToList())
+            {
+                m.PropertyChanged -= MesaSeleccionadaOnChanged;
+            }
+            mesasSuscritas.Clear();
+
+            // limpiar suscripción a comanda
+            if (comandaSuscrita != null)
+            {
+                comandaSuscrita.PropertyChanged -= ComandaOnChanged;
+                comandaSuscrita = null;
             }
         }
     }

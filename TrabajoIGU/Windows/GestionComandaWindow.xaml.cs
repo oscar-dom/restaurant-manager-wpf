@@ -13,13 +13,9 @@ namespace TrabajoIGU.Windows
         private Sesion sesion;
         private Mesa mesa;
 
-        private MainWindow MainWindow => Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
-        private SecondaryWindow secondaryWindow => Application.Current.Windows.OfType<SecondaryWindow>().FirstOrDefault();
-
         private Dictionary<Plato, int> comandaOriginal;
 
         private bool cambiosRealizados = false;
-        private bool cierreDesdeCancelar = false;
         private bool cierreDesdeGuardar = false;
 
         public GestionComandaWindow(Sesion sesion, Mesa mesa)
@@ -43,12 +39,6 @@ namespace TrabajoIGU.Windows
 
         private void CargarComanda()
         {
-            // Crear comanda activa si no existe
-            if (mesa.ComandaActiva == null) { 
-                MessageBox.Show("La mesa no tiene comanda activa. Se creará una nueva comanda.", "Información", MessageBoxButton.OK, MessageBoxImage.Information);
-                mesa.ComandaActiva = new Comanda(mesa.Id);
-                mesa.Estado = EstadoMesa.OcupadaConComanda;
-            }
             // Guardamos copia original
             comandaOriginal = new Dictionary<Plato, int>(mesa.ComandaActiva.Platos);
 
@@ -57,8 +47,6 @@ namespace TrabajoIGU.Windows
 
         private void RefrescarComanda()
         {
-            secondaryWindow?.ActualizarVista(sesion, mesa);
-            MainWindow.DibujarMesas();
             lvComanda.ItemsSource = null;
             lvComanda.ItemsSource = mesa.ComandaActiva.Platos.ToList();
         }
@@ -71,12 +59,8 @@ namespace TrabajoIGU.Windows
         private void BtnMas_Click(object sender, RoutedEventArgs e)
         {
             var plato = (sender as Button)?.Tag as Plato;
-            if (plato == null) return;
-
-            if (!mesa.ComandaActiva.Platos.ContainsKey(plato))
-                mesa.ComandaActiva.Platos[plato] = 1;
-            else
-                mesa.ComandaActiva.Platos[plato]++;
+            
+            mesa.ComandaActiva.AñadirPlato(plato);
 
             cambiosRealizados = true;
             RefrescarComanda();
@@ -85,12 +69,8 @@ namespace TrabajoIGU.Windows
         private void BtnMenos_Click(object sender, RoutedEventArgs e)
         {
             var plato = (sender as Button)?.Tag as Plato;
-            if (plato == null) return;
 
-            mesa.ComandaActiva.Platos[plato]--;
-
-            if (mesa.ComandaActiva.Platos[plato] <= 0)
-                mesa.ComandaActiva.Platos.Remove(plato);
+            mesa.ComandaActiva.QuitarPlato(plato);
 
             cambiosRealizados = true;
             RefrescarComanda();
@@ -103,12 +83,8 @@ namespace TrabajoIGU.Windows
         private void LvMenu_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var plato = lvMenu.SelectedItem as Plato;
-            if (plato == null) return;
 
-            if (!mesa.ComandaActiva.Platos.ContainsKey(plato))
-                mesa.ComandaActiva.Platos[plato] = 1;
-            else
-                mesa.ComandaActiva.Platos[plato]++;
+            mesa.ComandaActiva.AñadirPlato(plato);
 
             cambiosRealizados = true;
             RefrescarComanda();
@@ -132,7 +108,6 @@ namespace TrabajoIGU.Windows
 
         private void BtnCancelar_Click(object sender, RoutedEventArgs e)
         {
-            cierreDesdeCancelar = true;
             Close();
         }
 
@@ -165,12 +140,11 @@ namespace TrabajoIGU.Windows
             if (r == MessageBoxResult.No)
             {
                 e.Cancel = true;
-                cierreDesdeCancelar = false;
                 return;
             }
 
             // Restauramos comanda original
-            mesa.ComandaActiva.Platos = new Dictionary<Plato, int>(comandaOriginal);
+            mesa.ComandaActiva.Platos = comandaOriginal;
         }
 
 

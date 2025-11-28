@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Shapes;
 using TrabajoIGU.Models;
 
 namespace TrabajoIGU.Data
@@ -51,11 +52,10 @@ namespace TrabajoIGU.Data
             // ============================================================
 
             // Mesa 3 tuvo dos grupos -> ambas van a histórico
-            var c3a = new Comanda(3);
-            c3a.AgregarPlato(sesion.Menu[0], 2);
-            c3a.AgregarPlato(sesion.Menu[3], 2);
-
-            sesion.ComandasHistoricas.Add(c3a);
+            var comandaMesa3Antigua = new Comanda(3);
+            comandaMesa3Antigua.Platos[sesion.Menu[0]] = 2;
+            comandaMesa3Antigua.Platos[sesion.Menu[3]] = 2;
+            sesion.ComandasHistoricas.Add(comandaMesa3Antigua);
 
             // ============================================================
             // COMANDAS ACTIVAS → SOLO la última comanda de cada mesa activa
@@ -64,23 +64,23 @@ namespace TrabajoIGU.Data
             // Mesa 1 actual
             var mesa1 = sesion.Mesas[0];
             mesa1.ComandaActiva = new Comanda(1);
-            mesa1.ComandaActiva.AgregarPlato(sesion.Menu[0], 2);
-            mesa1.ComandaActiva.AgregarPlato(sesion.Menu[3], 2);
-            mesa1.ComandaActiva.AgregarPlato(sesion.Menu[6], 2);
+            mesa1.ComandaActiva.Platos[sesion.Menu[0]] = 2;
+            mesa1.ComandaActiva.Platos[sesion.Menu[3]] = 2;
+            mesa1.ComandaActiva.Platos[sesion.Menu[6]] = 2;
 
             // Mesa 2 actual
             var mesa2 = sesion.Mesas[1];
             mesa2.ComandaActiva = new Comanda(2);
-            mesa2.ComandaActiva.AgregarPlato(sesion.Menu[1], 3);
-            mesa2.ComandaActiva.AgregarPlato(sesion.Menu[5], 3);
-            mesa2.ComandaActiva.AgregarPlato(sesion.Menu[8], 3);
+            mesa2.ComandaActiva.Platos[sesion.Menu[1]] = 3;
+            mesa2.ComandaActiva.Platos[sesion.Menu[5]] = 3;
+            mesa2.ComandaActiva.Platos[sesion.Menu[8]] = 3;
 
+            // Mesa 3 actual
             var mesa3 = sesion.Mesas[2];
             mesa3.ComandaActiva= new Comanda(3);
-            mesa3.ComandaActiva.AgregarPlato(sesion.Menu[2], 2);
-            mesa3.ComandaActiva.AgregarPlato(sesion.Menu[4], 2);
-            mesa3.ComandaActiva.AgregarPlato(sesion.Menu[7], 2);
-
+            mesa3.ComandaActiva.Platos[sesion.Menu[2]] = 2;
+            mesa3.ComandaActiva.Platos[sesion.Menu[4]] = 2;
+            mesa3.ComandaActiva.Platos[sesion.Menu[7]] = 2;
 
             // ===== ESTADOS DE MESAS =====
             sesion.Mesas[0].Estado = EstadoMesa.OcupadaConComanda;

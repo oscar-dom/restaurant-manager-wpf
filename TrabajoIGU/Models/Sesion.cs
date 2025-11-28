@@ -38,6 +38,35 @@ namespace TrabajoIGU.Models
             return mesa?.ComandaActiva;
         }
 
+        public void SeleccionarMesa(Mesa mesaSeleccionada)
+        {
+            // Si no hay lista de mesas, nada que hacer
+            if (Mesas == null || Mesas.Count == 0)
+                return;
+
+            // Si se pasa null, deseleccionamos todas
+            if (mesaSeleccionada == null)
+            {
+                foreach (var m in Mesas)
+                    m.MesaSeleccionada = false;
+                return;
+            }
+
+            // Intentamos localizar la mesa por referencia o por Id
+            var objetivo = Mesas.FirstOrDefault(m => ReferenceEquals(m, mesaSeleccionada) || m.Id == mesaSeleccionada.Id);
+
+            if (objetivo == null)
+            {
+                // Si no se encuentra, deseleccionar todo por seguridad
+                foreach (var m in Mesas)
+                    m.MesaSeleccionada = false;
+                return;
+            }
+
+            // Marcar la objetivo y desmarcar las demás
+            foreach (var m in Mesas)
+                m.MesaSeleccionada = (m == objetivo);
+        }
     }
 }
 
