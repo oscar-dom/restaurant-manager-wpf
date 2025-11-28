@@ -38,6 +38,7 @@ namespace TrabajoIGU.Windows
 
         public void ActualizarVista()
         {
+
             SuscribirMesasSesion();
             SuscribirComandaDeMesaActual();
 
@@ -84,7 +85,7 @@ namespace TrabajoIGU.Windows
         {
             // desuscribir la comanda previa
             if (comandaSuscrita != null)
-            {
+            {   
                 comandaSuscrita.PropertyChanged -= ComandaOnChanged;
                 comandaSuscrita = null;
             }
@@ -99,7 +100,7 @@ namespace TrabajoIGU.Windows
 
         private void ActualizarPlatos()
         {
-            if (mesa == null || mesa.Estado != EstadoMesa.OcupadaConComanda)
+            if (mesa == null || mesa.ComandaActiva == null)
             {
                 dgPlatos.ItemsSource = null;
                 dgPlatos.Visibility = Visibility.Collapsed;

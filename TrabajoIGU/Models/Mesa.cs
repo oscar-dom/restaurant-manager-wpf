@@ -18,10 +18,38 @@ namespace TrabajoIGU.Models
     public class Mesa : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+
         public int Id { get; set; }
         public int CapacidadMaxima { get; set; }
-        public int CapacidadActual { get; set; }
-        public EstadoMesa Estado { get; set; }
+
+        private int capacidadActual_;
+        public int CapacidadActual
+        {
+            get => capacidadActual_;
+            set
+            {
+                if (capacidadActual_ != value)
+                {
+                    capacidadActual_ = value;
+                    OnPropertyChanged(nameof(CapacidadActual));
+                }
+            }
+        }
+
+        private EstadoMesa estado_;
+        public EstadoMesa Estado
+        {
+            get => estado_;
+            set
+            {
+                if (estado_ != value)
+                {
+                    estado_ = value;
+                    OnPropertyChanged(nameof(Estado));
+                }
+            }
+        }
+
         private bool MesaSeleccionada_;
         public bool MesaSeleccionada
         {
@@ -35,18 +63,32 @@ namespace TrabajoIGU.Models
                 }
             }
         }
-        public Comanda ComandaActiva { get; set; }
 
+        private Comanda comandaActiva_;
+        public Comanda ComandaActiva
+        {
+            get => comandaActiva_;
+            set
+            {
+                if (!ReferenceEquals(comandaActiva_, value))
+                {
+                    comandaActiva_ = value;
+                    OnPropertyChanged(nameof(ComandaActiva));
+                }
+            }
+        }
 
         public Mesa(int id, int capacidadMaxima)
         {
             Id = id;
             CapacidadMaxima = capacidadMaxima;
-            CapacidadActual = 0;
-            Estado = EstadoMesa.Libre;
+            capacidadActual_ = 0;
+            estado_ = EstadoMesa.Libre;
             MesaSeleccionada = false;
+            comandaActiva_ = null;
         }
-        void OnPropertyChanged(string propertyName)
+
+        protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

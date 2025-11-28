@@ -205,13 +205,9 @@ namespace TrabajoIGU
             int activas = sesion.Disposicion.Cast<Mesa>().Count(m => m != null);
             txtResumenRestaurante.Text = $"Mesas activas: {activas} / {Sesion.Filas * Sesion.Columnas}";
 
-            int personasActuales = sesion.Disposicion.Cast<Mesa>()
-                                   .Where(m => m != null)
-                                   .Sum(m => m.CapacidadActual);
+            int personasActuales = sesion.Disposicion.Cast<Mesa>().Where(m => m != null).Sum(m => m.CapacidadActual);
 
-            int aforoMaximo = sesion.Disposicion.Cast<Mesa>()
-                                 .Where(m => m != null)
-                                 .Sum(m => m.CapacidadMaxima);
+            int aforoMaximo = sesion.Disposicion.Cast<Mesa>().Where(m => m != null).Sum(m => m.CapacidadMaxima);
 
             txtAforoRestaurante.Text = $"Aforo: {personasActuales} / {aforoMaximo}";
 
@@ -219,8 +215,6 @@ namespace TrabajoIGU
             if (mesaSeleccionada == null)
             {
                 LimpiarPanel();
-                txtTituloEstadisticaMesa.Text = $"Ninguna mesa seleccionada";
-                DibujarEstadisticasMesa();
                 return;
             }
 
@@ -242,11 +236,6 @@ namespace TrabajoIGU
                 txtPlatos.Text = "0";
             }
 
-            if (gridEstadisticasMesa.Visibility == Visibility.Visible)
-            {  
-                txtTituloEstadisticaMesa.Text = $"Estadísticas de la mesa {mesaSeleccionada.Id}";
-                DibujarEstadisticasMesa();
-            }
         }
 
         private void LimpiarPanel()
@@ -256,13 +245,6 @@ namespace TrabajoIGU
             txtEstado.Text = "Ninguna mesa seleccionada";
             txtComensales.Text = "Ninguna mesa seleccionada";
             txtPlatos.Text = "Ninguna mesa seleccionada";
-        }
-
-        private void MesaSeleccionadaDesdeSecundaria(Mesa mesa)
-        {
-            mesaSeleccionada = mesa;
-            MostrarDatosMesa();
-            ActualizarSeleccionVisual();
         }
 
         private void DibujarEstadisticasGlobales()
@@ -399,6 +381,13 @@ namespace TrabajoIGU
         {
             canvasEstadisticasMesa.Children.Clear();
             panelLeyendaMesa.Children.Clear();
+            if (mesaSeleccionada == null)
+            {
+                txtTituloEstadisticaMesa.Text = $"Ninguna mesa seleccionada";
+                return;
+            }
+
+            txtTituloEstadisticaMesa.Text = $"Estadísticas de la mesa {mesaSeleccionada.Id}";
 
             double ancho = canvasEstadisticasMesa.ActualWidth;
             double alto = canvasEstadisticasMesa.ActualHeight;
@@ -428,11 +417,11 @@ namespace TrabajoIGU
             // Categorías a representar
             var categorias = new[] { CategoriaPlato.Primero, CategoriaPlato.Segundo, CategoriaPlato.Postre };
             var nombresCategorias = new Dictionary<CategoriaPlato, string>
-    {
-        { CategoriaPlato.Primero, "Primeros" },
-        { CategoriaPlato.Segundo, "Segundos" },
-        { CategoriaPlato.Postre,  "Postres" }
-    };
+            {
+                { CategoriaPlato.Primero, "Primeros" },
+                { CategoriaPlato.Segundo, "Segundos" },
+                { CategoriaPlato.Postre,  "Postres" }
+            };
 
             // Datos por categoría
             var datosPorCategoria = new Dictionary<CategoriaPlato, Dictionary<string, int>>();
@@ -964,6 +953,7 @@ namespace TrabajoIGU
                     sesion.Disposicion[fila, col] = nueva;
 
                     mesaSeleccionada = nueva;
+                    sesion.SeleccionarMesa(mesaSeleccionada);
 
                     DibujarMesas();
                 }
@@ -988,6 +978,7 @@ namespace TrabajoIGU
         {
             sesion.IniciarSesion();
             mesaSeleccionada = null;
+            sesion.SeleccionarMesa(mesaSeleccionada);
             DibujarMesas();
             LimpiarPanel();
         }
@@ -1015,8 +1006,6 @@ namespace TrabajoIGU
             {
                 Owner = this
             };
-
-            secondaryWindow.MesaSeleccionadaDesdeSecundaria += MesaSeleccionadaDesdeSecundaria;
 
             secondaryWindow.Show();
         }
@@ -1177,6 +1166,8 @@ namespace TrabajoIGU
 
             MostrarDatosMesa();
             ActualizarSeleccionVisual();
+            DibujarEstadisticasMesa();
+
         }
         #endregion
 
@@ -1393,7 +1384,6 @@ namespace TrabajoIGU
 
         private void SuscribirMesasSesion()
         {
-            // Desuscribimos primero
             foreach (var m in mesasSuscritas.ToList())
             {
                 m.PropertyChanged -= MesaSeleccionadaOnChanged;
@@ -1404,7 +1394,6 @@ namespace TrabajoIGU
 
             foreach (var m in sesion.Mesas)
             {
-                // evitamos suscripciones duplicadas
                 m.PropertyChanged -= MesaSeleccionadaOnChanged;
                 m.PropertyChanged += MesaSeleccionadaOnChanged;
                 mesasSuscritas.Add(m);

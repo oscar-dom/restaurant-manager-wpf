@@ -121,8 +121,24 @@ namespace TrabajoIGU.Windows
             base.OnClosing(e);
 
             // Si se pulsó Guardar → no preguntar
-            if (cierreDesdeGuardar)
+            if (cierreDesdeGuardar) {
+                if (mesa.ComandaActiva.Platos.Count == 0)
+                {
+                    var res = MessageBox.Show(
+                    "La comanda ha quedado vacía y por ello se borrará.\n¿Desea proceder?",
+                    "Descartar cambios",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                    if (res == MessageBoxResult.No)
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
                 return;
+            }
+                    
 
             // Detectar cambios
             cambiosRealizados = !ComandasSonIguales();
