@@ -103,7 +103,7 @@ namespace TrabajoIGU.Models
             OnPropertyChanged(nameof(Disposicion));
         }
 
-        protected void OnPropertyChanged(string propertyName)
+        private void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

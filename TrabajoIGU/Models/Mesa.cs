@@ -88,7 +88,7 @@ namespace TrabajoIGU.Models
             comandaActiva_ = null;
         }
 
-        protected void OnPropertyChanged(string propertyName)
+        private void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
