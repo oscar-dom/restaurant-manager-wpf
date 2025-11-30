@@ -1,16 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TrabajoIGU.Models
 {
-    public class Sesion
+    public class Sesion : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
         public const int Filas = 4;
         public const int Columnas = 3;
-        public Mesa[,] Disposicion { get; set; }  // matriz 4x3
+        public Mesa[,] Disposicion_;  // matriz 4x3
+        public Mesa[,] Disposicion
+        {
+            get => Disposicion_;
+            set
+            {
+                if (Disposicion_ != value)
+                {
+                    Disposicion_ = value;
+                    OnPropertyChanged(nameof(Disposicion));
+                }
+            }
+        }
+
 
         public List<Mesa> Mesas { get; set; }
         public List<Plato> Menu { get; set; }
@@ -66,6 +79,40 @@ namespace TrabajoIGU.Models
             // Marcar la objetivo y desmarcar las demás
             foreach (var m in Mesas)
                 m.MesaSeleccionada = (m == objetivo);
+        }
+
+        public void AñadirMesa(Mesa nuevaMesa, int fila, int columna)
+        {
+            if (fila < 0 || fila >= Filas || columna < 0 || columna >= Columnas)
+                throw new ArgumentOutOfRangeException("Fila o columna fuera de rango.");
+            Disposicion[fila, columna] = nuevaMesa;
+            Mesas.Add(nuevaMesa);
+            OnPropertyChanged(nameof(Disposicion));
+        }
+
+        public void EliminarMesa(Mesa mesaAEliminar)
+        {
+            if (mesaAEliminar == null)
+                return;
+            // Buscar y eliminar de la disposición
+            for (int i = 0; i < Filas; i++)
+            {
+                for (int j = 0; j < Columnas; j++)
+                {
+                    if (ReferenceEquals(Disposicion[i, j], mesaAEliminar))
+                    {
+                        Disposicion[i, j] = null;
+                    }
+                }
+            }
+            // Eliminar de la lista de mesas
+            Mesas.RemoveAll(m => m.Id == mesaAEliminar.Id);
+            OnPropertyChanged(nameof(Disposicion));
+        }
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

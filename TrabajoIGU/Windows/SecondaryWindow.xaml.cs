@@ -18,8 +18,6 @@ namespace TrabajoIGU.Windows
 {
     public partial class SecondaryWindow : Window
     {
-        public event Action<Mesa> MesaSeleccionadaDesdeSecundaria;
-
         private Sesion sesion;
 
         private Mesa mesa;
@@ -33,13 +31,13 @@ namespace TrabajoIGU.Windows
             InitializeComponent();
             this.sesion = sesionActiva;
             this.mesa = mesaSeleccionada;
+            this.sesion.PropertyChanged += SesionOnChanged;
             ActualizarVista();
         }
 
         public void ActualizarVista()
         {
-
-            SuscribirMesasSesion();
+            SuscribirMesasSesionSeleccionada();
             SuscribirComandaDeMesaActual();
 
             var listaMesas = sesion.Disposicion.Cast<Mesa>().Where(m => m != null).ToList();
@@ -61,9 +59,8 @@ namespace TrabajoIGU.Windows
             ActualizarPlatos();
         }
 
-        private void SuscribirMesasSesion()
+        private void SuscribirMesasSesionSeleccionada()
         {
-            // Desuscribimos primero
             foreach (var m in mesasSuscritas.ToList())
             {
                 m.PropertyChanged -= MesaSeleccionadaOnChanged;
@@ -74,7 +71,6 @@ namespace TrabajoIGU.Windows
 
             foreach (var m in sesion.Mesas)
             {
-                // evitamos suscripciones duplicadas
                 m.PropertyChanged -= MesaSeleccionadaOnChanged;
                 m.PropertyChanged += MesaSeleccionadaOnChanged;
                 mesasSuscritas.Add(m);
@@ -83,7 +79,6 @@ namespace TrabajoIGU.Windows
 
         private void SuscribirComandaDeMesaActual()
         {
-            // desuscribir la comanda previa
             if (comandaSuscrita != null)
             {   
                 comandaSuscrita.PropertyChanged -= ComandaOnChanged;
@@ -161,9 +156,13 @@ namespace TrabajoIGU.Windows
             ActualizarPlatos();
         }
 
+        private void SesionOnChanged(object sender, PropertyChangedEventArgs e)
+        {
+            ActualizarVista();
+        }
+
         private void MesaSeleccionadaOnChanged(object sender, PropertyChangedEventArgs e)
         {
-            // solo reaccionamos si cambia la propiedad MesaSeleccionada o ComandaActiva
             if (e.PropertyName != nameof(Mesa.MesaSeleccionada) && e.PropertyName != nameof(Mesa.ComandaActiva))
                 return;
 

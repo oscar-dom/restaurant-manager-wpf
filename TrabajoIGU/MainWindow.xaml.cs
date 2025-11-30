@@ -330,7 +330,8 @@ namespace TrabajoIGU
                     Height = altura,
                     Fill = esActiva
                         ? new SolidColorBrush(Color.FromRgb(70, 130, 180))   // azul suave
-                        : new SolidColorBrush(Color.FromRgb(150, 150, 150))  // gris para mesas solo históricas
+                        : new SolidColorBrush(Color.FromRgb(150, 150, 150)),  // gris para mesas solo históricas
+                    ToolTip = $"Mesa {d.Mesa.Id}\nTotal platos: {d.Total}",
                 };
 
                 Canvas.SetLeft(rect, x);
@@ -913,7 +914,7 @@ namespace TrabajoIGU
                             if (r == MessageBoxResult.No)
                                 return;
 
-                            sesion.Disposicion[f, c] = null;
+                            sesion.EliminarMesa(mesaSeleccionada);
                             DibujarMesas();
                             LimpiarPanel();
                             return;
@@ -950,7 +951,7 @@ namespace TrabajoIGU
                     int col = (numeroCelda - 1) % Sesion.Columnas;
 
                     Mesa nueva = new Mesa(numeroCelda, input.CapacidadMaxima);
-                    sesion.Disposicion[fila, col] = nueva;
+                    sesion.AñadirMesa(nueva,fila,col);
 
                     mesaSeleccionada = nueva;
                     sesion.SeleccionarMesa(mesaSeleccionada);
@@ -960,7 +961,6 @@ namespace TrabajoIGU
             };
             menu.Items.Add(itemAdd);
             menu.Placement = PlacementMode.MousePoint;
-            menu.HorizontalOffset = 10;
             menu.IsOpen = true;
 
             e.Handled = true;
@@ -981,6 +981,33 @@ namespace TrabajoIGU
             sesion.SeleccionarMesa(mesaSeleccionada);
             DibujarMesas();
             LimpiarPanel();
+        }
+
+        private void BtnVaciarMesas_Click(object sender, RoutedEventArgs e)
+        {
+            // Confirmación para evitar errores
+            var r = MessageBox.Show(
+                "Se vaciarán todas las mesas activas:\n" +
+                "• Se eliminará la comanda activa.\n" +
+                "• Los comensales actuales pasarán a 0.\n" +
+                "• Las mesas volverán a estado Libre.\n\n" +
+                "¿Desea continuar?",
+                "Vaciar todas las mesas",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (r != MessageBoxResult.Yes)
+                return;
+
+            foreach (var mesa in sesion.Disposicion)
+            {
+                if (mesa == null) continue;
+
+                mesa.CapacidadActual = 0;
+                mesa.ComandaActiva = null;
+                mesa.Estado = EstadoMesa.Libre;
+            }
+            DibujarMesas();
         }
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -1401,5 +1428,9 @@ namespace TrabajoIGU
         }
         #endregion
 
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

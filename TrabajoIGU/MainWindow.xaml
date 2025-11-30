@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:TrabajoIGU"
         mc:Ignorable="d"
         Icon="/Imagenes/IconoRestaurante.ico"
-        Title="Gestión Restaurante" MinHeight="700" MinWidth="900" Height="700" Width="900" WindowStartupLocation="CenterScreen"
-        MouseLeftButtonDown="LvPlatosMenu_MouseLeftButtonDown">
+        Title="Gestión Restaurante" MinHeight="750" MinWidth="900" Height="750" Width="900" WindowStartupLocation="CenterScreen"
+        >
     
     <Grid>
         <!-- =============================== -->
@@ -87,7 +87,18 @@
                         Cursor="Hand"
                         HorizontalAlignment="Stretch"
                         Click="BtnVistaRestaurante_Click"/>
-
+                
+                <Button Content="Vaciar Mesas"
+                        Click="BtnVaciarMesas_Click"
+                        Background="PaleVioletRed"
+                        Foreground="White"
+                        Padding="10"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        HorizontalAlignment="Stretch"
+                        Margin="0 0 0 10"/>
+                
                 <Button Content="Iniciar/Reiniciar Sesión"
                         Click="BtnReiniciar_Click"
                         Background="PaleVioletRed"

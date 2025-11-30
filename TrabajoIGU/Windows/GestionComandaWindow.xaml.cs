@@ -120,7 +120,6 @@ namespace TrabajoIGU.Windows
         {
             base.OnClosing(e);
 
-            // Si se pulsó Guardar → no preguntar
             if (cierreDesdeGuardar) {
                 if (mesa.ComandaActiva.Platos.Count == 0)
                 {
@@ -139,14 +138,11 @@ namespace TrabajoIGU.Windows
                 return;
             }
                     
-
-            // Detectar cambios
             cambiosRealizados = !ComandasSonIguales();
 
             if (!cambiosRealizados)
                 return;
 
-            // Preguntamos si de verdad quiere descartar cambios
             var r = MessageBox.Show(
                 "Hay cambios sin guardar.\n¿Desea descartar los cambios?",
                 "Descartar cambios",
@@ -159,7 +155,6 @@ namespace TrabajoIGU.Windows
                 return;
             }
 
-            // Restauramos comanda original
             mesa.ComandaActiva.Platos = comandaOriginal;
         }
 

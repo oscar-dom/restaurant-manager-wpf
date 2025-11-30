@@ -5,9 +5,9 @@ Sopa de verduras|Primero|Caldo suave con verduras de temporada
 Gazpacho andaluz|Primero|Tomate, pepino, ajo y aceite de oliva
 
 Pollo al horno|Segundo|Pollo marinado asado lentamente
-Merluza a la plancha|Segundo|Filete de merluza con aceite y limón
-Filete con patatas|Segundo|Carne de ternera acompañada de patatas fritas
+Merluza a la plancha|Segundo|Filete de merluza con aceite y limon
+Filete con patatas|Segundo|Carne de ternera con guarnicion de patatas fritas
 
 Tarta de queso|Postre|Tarta casera cremosa al horno
-Fruta del tiempo|Postre|Selección fresca de frutas de temporada
+Fruta del tiempo|Postre|Seleccion fresca de frutas de temporada
 Flan casero|Postre|Flan tradicional con caramelo
