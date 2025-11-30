@@ -131,9 +131,8 @@ namespace TrabajoIGU.Windows
         {
             if (dgMesas.SelectedItem is Mesa mesaSeleccionada)
             {
-                sesion.SeleccionarMesa(mesaSeleccionada);
                 mesa = mesaSeleccionada;
-                ActualizarVista();
+                sesion.SeleccionarMesa(mesaSeleccionada);
             }
         }
 
@@ -145,9 +144,8 @@ namespace TrabajoIGU.Windows
             if (row == null)
             {
                 dgMesas.SelectedItem = null;
-                sesion.SeleccionarMesa(null);
                 mesa = null;
-                ActualizarVista();
+                sesion.SeleccionarMesa(null);
             }
         }
 

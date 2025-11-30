@@ -28,10 +28,6 @@ namespace TrabajoIGU.Windows
             CargarMenu();
         }
 
-        // ======================
-        // CARGA DE MENÚ Y COMANDA
-        // ======================
-
         private void CargarMenu()
         {
             lvMenu.ItemsSource = sesion.Menu.OrderBy(p => p.Categoria).ToList();
@@ -39,7 +35,6 @@ namespace TrabajoIGU.Windows
 
         private void CargarComanda()
         {
-            // Guardamos copia original
             comandaOriginal = new Dictionary<Plato, int>(mesa.ComandaActiva.Platos);
 
             RefrescarComanda();
@@ -50,11 +45,6 @@ namespace TrabajoIGU.Windows
             lvComanda.ItemsSource = null;
             lvComanda.ItemsSource = mesa.ComandaActiva.Platos.ToList();
         }
-
-
-        // =============
-        // BOTONES + / -
-        // =============
 
         private void BtnMas_Click(object sender, RoutedEventArgs e)
         {
@@ -76,10 +66,6 @@ namespace TrabajoIGU.Windows
             RefrescarComanda();
         }
 
-        // ===================
-        // DOBLE CLICK EN MENÚ
-        // ===================
-
         private void LvMenu_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var plato = lvMenu.SelectedItem as Plato;
@@ -90,31 +76,16 @@ namespace TrabajoIGU.Windows
             RefrescarComanda();
         }
 
-
-        // =============
-        // GUARDAR
-        // =============
-
         private void BtnGuardar_Click(object sender, RoutedEventArgs e)
         {
             cierreDesdeGuardar = true;
             Close();
         }
 
-
-        // =============
-        // CANCELAR
-        // =============
-
         private void BtnCancelar_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
-
-
-        // ===============================
-        // GESTIÓN DE CIERRE DE VENTANA
-        // ===============================
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
@@ -158,11 +129,6 @@ namespace TrabajoIGU.Windows
             mesa.ComandaActiva.Platos = comandaOriginal;
         }
 
-
-        // ======================
-        // COMPARACIÓN DE COMANDAS
-        // ======================
-
         private bool ComandasSonIguales()
         {
             var actual = mesa.ComandaActiva.Platos;
@@ -179,11 +145,6 @@ namespace TrabajoIGU.Windows
             return true;
         }
 
-
-        // ======================
-        // FILTROS
-        // ======================
-
         private void AplicarFiltros()
         {
             if (sesion == null || sesion.Menu == null)
@@ -191,7 +152,6 @@ namespace TrabajoIGU.Windows
 
             var lista = sesion.Menu.ToList();
 
-            // Texto
             string t = txtBuscar.Text.Trim().ToLower();
             if (t != "")
             {
@@ -201,7 +161,6 @@ namespace TrabajoIGU.Windows
                 ).ToList();
             }
 
-            // Categoría
             if (cbCategoria.SelectedItem is ComboBoxItem item)
             {
                 string cat = item.Content.ToString();

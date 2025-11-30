@@ -53,11 +53,9 @@ namespace TrabajoIGU.Models
 
         public void SeleccionarMesa(Mesa mesaSeleccionada)
         {
-            // Si no hay lista de mesas, nada que hacer
             if (Mesas == null || Mesas.Count == 0)
                 return;
 
-            // Si se pasa null, deseleccionamos todas
             if (mesaSeleccionada == null)
             {
                 foreach (var m in Mesas)
@@ -65,18 +63,15 @@ namespace TrabajoIGU.Models
                 return;
             }
 
-            // Intentamos localizar la mesa por referencia o por Id
             var objetivo = Mesas.FirstOrDefault(m => ReferenceEquals(m, mesaSeleccionada) || m.Id == mesaSeleccionada.Id);
 
             if (objetivo == null)
             {
-                // Si no se encuentra, deseleccionar todo por seguridad
                 foreach (var m in Mesas)
                     m.MesaSeleccionada = false;
                 return;
             }
 
-            // Marcar la objetivo y desmarcar las demás
             foreach (var m in Mesas)
                 m.MesaSeleccionada = (m == objetivo);
         }
@@ -94,7 +89,6 @@ namespace TrabajoIGU.Models
         {
             if (mesaAEliminar == null)
                 return;
-            // Buscar y eliminar de la disposición
             for (int i = 0; i < Filas; i++)
             {
                 for (int j = 0; j < Columnas; j++)
@@ -105,7 +99,6 @@ namespace TrabajoIGU.Models
                     }
                 }
             }
-            // Eliminar de la lista de mesas
             Mesas.RemoveAll(m => m.Id == mesaAEliminar.Id);
             OnPropertyChanged(nameof(Disposicion));
         }
