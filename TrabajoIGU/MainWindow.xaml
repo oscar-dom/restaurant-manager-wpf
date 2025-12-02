@@ -374,8 +374,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- LEYENDA -->
-                <ScrollViewer Grid.Column="0"
-                              VerticalScrollBarVisibility="Auto">
+                <ScrollViewer Grid.Column="0" Margin="0 0 10 0" VerticalScrollBarVisibility="Auto">
                     <StackPanel x:Name="panelLeyendaGlobal" HorizontalAlignment="Left" Margin="10">
                         <TextBlock Text="Leyenda" FontSize="16" FontWeight="Bold" Margin="0 0 0 10"/>
                         <StackPanel Orientation="Horizontal" Margin="5 2 5 2">

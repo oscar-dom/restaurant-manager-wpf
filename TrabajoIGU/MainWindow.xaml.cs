@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -77,6 +78,7 @@ namespace TrabajoIGU
                     double x = margenX + col * celdaAncho + (celdaAncho - mesaSize) / 2;
                     double y = margenY + fila * celdaAlto + (celdaAlto - mesaSize) / 2;
 
+                    // ------------------ CELDA VACÍA ------------------
                     if (mesa == null)
                     {
                         int numeroCelda = fila * columnas + col + 1;
@@ -100,7 +102,6 @@ namespace TrabajoIGU
 
                         canvasSala.Children.Add(celdaVacia);
 
-
                         TextBlock lbl = new TextBlock
                         {
                             Text = numeroCelda.ToString(),
@@ -116,37 +117,79 @@ namespace TrabajoIGU
 
                         Canvas.SetLeft(lbl, x + (mesaSize - lbl.Width) / 2);
                         Canvas.SetTop(lbl, y + (mesaSize - lbl.Height) / 2);
-
                         canvasSala.Children.Add(lbl);
 
                         continue;
                     }
 
-                    Image imgMesa = new Image
+                    // ------------- MESA OCUPADA (RECT / CÍRCULO + IMAGEN) -------------
+                    var imageBrush = new ImageBrush
                     {
-                        Source = new BitmapImage(new Uri(GetRutaImagenPorEstado(mesa.Estado), UriKind.Relative)),
-                        Cursor = Cursors.Hand,
-                        Tag = mesa
+                        ImageSource = new BitmapImage(new Uri(GetRutaImagenPorEstado(mesa.Estado), UriKind.Relative)),
+                        Stretch = Stretch.UniformToFill
                     };
 
-                    Border borde = new Border
+                    Border bordeMesa;
+                    Shape formaContenido;
+
+                    if (mesa.Id % 2 == 1)
                     {
-                        Width = mesaSize,
-                        Height = mesaSize,
-                        BorderThickness = new Thickness(3),
-                        BorderBrush = Brushes.Black,
-                        Child = imgMesa
-                    };
+                        double interior = mesaSize - (3 * 2);
 
-                    Canvas.SetLeft(borde, x);
-                    Canvas.SetTop(borde, y);
+                        formaContenido = new Rectangle
+                        {
+                            Fill = imageBrush,
+                            Width = interior,
+                            Height = interior,
+                            HorizontalAlignment = HorizontalAlignment.Center,
+                            VerticalAlignment = VerticalAlignment.Center
+                        };
 
-                    borde.MouseLeftButtonDown += Mesa_LeftClick;
-                    borde.MouseRightButtonDown += Mesa_RightClick;
+                        bordeMesa = new Border
+                        {
+                            Width = mesaSize,
+                            Height = mesaSize,
+                            BorderThickness = new Thickness(3),
+                            BorderBrush = Brushes.Black,
+                            Child = formaContenido,
+                            Tag = mesa,
+                            Cursor = Cursors.Hand
+                        };
+                    }
+                    else
+                    {
+                        formaContenido = new Ellipse
+                        {
+                            Fill = imageBrush,
+                            Width = mesaSize - 6,
+                            Height = mesaSize - 6
+                        };
 
-                    canvasSala.Children.Add(borde);
-                    mapaMesas.Add(borde, mesa);
+                        bordeMesa = new Border
+                        {
+                            Width = mesaSize,
+                            Height = mesaSize,
+                            CornerRadius = new CornerRadius(mesaSize / 2),
+                            BorderThickness = new Thickness(3),
+                            BorderBrush = Brushes.Black,
+                            Child = formaContenido,
+                            HorizontalAlignment = HorizontalAlignment.Center,
+                            VerticalAlignment = VerticalAlignment.Center,
+                            Tag = mesa,
+                            Cursor = Cursors.Hand
+                        };
+                    }
 
+                    Canvas.SetLeft(bordeMesa, x);
+                    Canvas.SetTop(bordeMesa, y);
+
+                    bordeMesa.MouseLeftButtonDown += Mesa_LeftClick;
+                    bordeMesa.MouseRightButtonDown += Mesa_RightClick;
+
+                    canvasSala.Children.Add(bordeMesa);
+                    mapaMesas.Add(bordeMesa, mesa);
+
+                    // ------------------ ETIQUETA MESA ------------------
                     TextBlock label = new TextBlock
                     {
                         Text = mesa.Id.ToString(),
@@ -271,20 +314,34 @@ namespace TrabajoIGU
             if (anchoCanvas <= 0 || altoCanvas <= 0)
                 return;
 
+            // ---------------------------------------------------
+            // MÁRGENES
+            // ---------------------------------------------------
+            double margenIzq = 50;
+            double margenInf = 30;
+            double margenSup = 20;
+
+            double altoUtil = altoCanvas - margenInf - margenSup;
+            if (altoUtil <= 0) altoUtil = 1;
+
             double espacio = 20;
-            double anchoColumna = (anchoCanvas - espacio * (datos.Count + 1)) / datos.Count;
+            double anchoColumna = (anchoCanvas - margenIzq - espacio * (datos.Count + 1)) / datos.Count;
             if (anchoColumna < 10) anchoColumna = 10;
 
-            double altoMaxColumna = altoCanvas - 40;
+            // Línea base del eje X
+            double ejeX_Y = margenSup + altoUtil;
 
             int index = 0;
 
+            // ---------------------------------------------------
+            // DIBUJAR BARRAS
+            // ---------------------------------------------------
             foreach (var d in datos)
             {
-                double x = espacio + index * (anchoColumna + espacio);
+                double x = margenIzq + espacio + index * (anchoColumna + espacio);
 
-                double altura = (d.Total / (double)max) * altoMaxColumna;
-                double y = altoCanvas - altura - 20;
+                double altura = (d.Total / (double)max) * altoUtil;
+                double y = ejeX_Y - altura;
 
                 bool esActiva = mesasActivas.Any(m => m.Id == d.Mesa.Id);
 
@@ -292,14 +349,17 @@ namespace TrabajoIGU
                 {
                     Width = anchoColumna,
                     Height = altura,
-                    Fill = esActiva ? new SolidColorBrush(Color.FromRgb(70, 130, 180)) : new SolidColorBrush(Color.FromRgb(150, 150, 150)),
-                    ToolTip = $"Mesa {d.Mesa.Id}\nTotal platos: {d.Total}",
+                    Fill = esActiva
+                        ? new SolidColorBrush(Color.FromRgb(70, 130, 180))
+                        : new SolidColorBrush(Color.FromRgb(150, 150, 150)),
+                    ToolTip = $"Mesa {d.Mesa.Id}\nTotal platos: {d.Total}"
                 };
 
                 Canvas.SetLeft(rect, x);
                 Canvas.SetTop(rect, y);
                 canvasEstadisticasGlobales.Children.Add(rect);
 
+                // Valor encima de la barra
                 var lblValor = new TextBlock
                 {
                     Text = d.Total.ToString(),
@@ -308,23 +368,93 @@ namespace TrabajoIGU
                     Foreground = Brushes.Black
                 };
 
-                Canvas.SetLeft(lblValor, x + anchoColumna / 2 - 10 );
-                Canvas.SetTop(lblValor, y - 20);
+                lblValor.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                Size sizeValor = lblValor.DesiredSize;
+
+                Canvas.SetLeft(lblValor, x + (anchoColumna - sizeValor.Width) / 2);
+                Canvas.SetTop(lblValor, y - sizeValor.Height - 2);
                 canvasEstadisticasGlobales.Children.Add(lblValor);
 
+                // Etiqueta inferior "Mesa X"
                 var lblMesa = new TextBlock
                 {
                     Text = "Mesa " + d.Mesa.Id,
-                    FontSize = 14,
+                    FontSize = Math.Max(8, anchoColumna * 0.1),
                     TextAlignment = TextAlignment.Center,
                     Width = anchoColumna
                 };
 
                 Canvas.SetLeft(lblMesa, x);
-                Canvas.SetTop(lblMesa, altoCanvas - 20);
+                Canvas.SetTop(lblMesa, ejeX_Y);
                 canvasEstadisticasGlobales.Children.Add(lblMesa);
 
                 index++;
+            }
+
+            // ---------------------------------------------------
+            // EJES Y LÍNEAS GUÍA
+            // ---------------------------------------------------
+            int paso = ObtenerPasoGuia(max);
+
+            // EJE Y
+            var ejeY = new Line
+            {
+                X1 = margenIzq,
+                Y1 = margenSup,
+                X2 = margenIzq,
+                Y2 = ejeX_Y,
+                Stroke = Brushes.Black,
+                StrokeThickness = 2
+            };
+            canvasEstadisticasGlobales.Children.Add(ejeY);
+
+            // EJE X
+            var ejeX = new Line
+            {
+                X1 = margenIzq,
+                Y1 = ejeX_Y,
+                X2 = anchoCanvas,
+                Y2 = ejeX_Y,
+                Stroke = Brushes.Black,
+                StrokeThickness = 2
+            };
+            canvasEstadisticasGlobales.Children.Add(ejeX);
+
+            // LÍNEAS HORIZONTALES + NÚMEROS DE ESCALA
+            for (int v = 0; v <= max; v += paso)
+            {
+                double proporcion = v / (double)max;
+                double Y = ejeX_Y - proporcion * altoUtil;
+
+                // Línea guía (excepto en 0, ya es el eje)
+                if (v != 0)
+                {
+                    var lineaGuia = new Line
+                    {
+                        X1 = margenIzq,
+                        Y1 = Y,
+                        X2 = anchoCanvas,
+                        Y2 = Y,
+                        Stroke = Brushes.LightGray,
+                        StrokeThickness = 1,
+                        StrokeDashArray = new DoubleCollection { 2, 2 }
+                    };
+                    canvasEstadisticasGlobales.Children.Add(lineaGuia);
+                }
+
+                // Texto del valor del eje Y
+                TextBlock lbl = new TextBlock
+                {
+                    Text = v.ToString(),
+                    FontSize = 12
+                };
+
+                lbl.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                Size size = lbl.DesiredSize;
+
+                Canvas.SetLeft(lbl, margenIzq - size.Width - 5);
+                Canvas.SetTop(lbl, Y - size.Height / 2);
+                canvasEstadisticasGlobales.Children.Add(lbl);
             }
         }
 
@@ -350,39 +480,22 @@ namespace TrabajoIGU
             double ancho = canvasEstadisticasMesa.ActualWidth;
             double alto = canvasEstadisticasMesa.ActualHeight;
 
-
-            if (mesaSeleccionada == null)
-            {
-                var msg = new TextBlock
-                {
-                    Text = "No hay ninguna mesa seleccionada.",
-                    FontSize = 16,
-                    FontWeight = FontWeights.Bold
-                };
-                msg.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                Size size = msg.DesiredSize;
-
-                Canvas.SetLeft(msg, ((ancho - size.Width)/2));
-                Canvas.SetTop(msg, ((alto-size.Height)/2));
-                canvasEstadisticasMesa.Children.Add(msg);
-                return;
-            }
-
-
             if (ancho <= 0 || alto <= 0)
                 return;
 
+            // ============================
+            // CARGAR DATOS
+            // ============================
             var categorias = new[] { CategoriaPlato.Primero, CategoriaPlato.Segundo, CategoriaPlato.Postre };
             var nombresCategorias = new Dictionary<CategoriaPlato, string>
-            {
-                { CategoriaPlato.Primero, "Primeros" },
-                { CategoriaPlato.Segundo, "Segundos" },
-                { CategoriaPlato.Postre,  "Postres" }
-            };
+    {
+        { CategoriaPlato.Primero, "Primeros" },
+        { CategoriaPlato.Segundo, "Segundos" },
+        { CategoriaPlato.Postre, "Postres" }
+    };
 
             var datosPorCategoria = new Dictionary<CategoriaPlato, Dictionary<string, int>>();
             var sumaPorCategoria = new Dictionary<CategoriaPlato, int>();
-
             var totalesPlatoGlobal = new Dictionary<string, int>();
 
             foreach (var cat in categorias)
@@ -412,15 +525,17 @@ namespace TrabajoIGU
                     FontWeight = FontWeights.Bold
                 };
                 msg.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                Size size = msg.DesiredSize;
+                Size s = msg.DesiredSize;
 
-                Canvas.SetLeft(msg, ((ancho - size.Width) / 2));
-                Canvas.SetTop(msg, ((alto - size.Height) / 2));
-
+                Canvas.SetLeft(msg, (ancho - s.Width) / 2);
+                Canvas.SetTop(msg, (alto - s.Height) / 2);
                 canvasEstadisticasMesa.Children.Add(msg);
                 return;
             }
 
+            // ============================
+            // MÁRGENES Y ÁREAS
+            // ============================
             double margenIzq = 60;
             double margenDer = 20;
             double margenSup = 20;
@@ -428,24 +543,29 @@ namespace TrabajoIGU
 
             double anchoUtil = ancho - margenIzq - margenDer;
             double altoUtil = alto - margenSup - margenInf;
-            if (altoUtil <= 0) altoUtil = 10;
+
+            double ejeX_Y = margenSup + altoUtil;
 
             int numCols = categorias.Length;
             double separacionColumnas = anchoUtil / (numCols * 2.0);
             double anchoColumna = anchoUtil / (numCols * 1.5);
 
+            // ============================
+            // DIBUJO DE COLUMNAS APILADAS
+            // ============================
             for (int i = 0; i < numCols; i++)
             {
                 var cat = categorias[i];
                 var datosCat = datosPorCategoria[cat];
 
-                double xCol = margenIzq + i * (anchoColumna + separacionColumnas);
-                double baseY = margenSup + altoUtil;
+                double xCol = margenIzq + (i * (anchoColumna + separacionColumnas));
+                double baseY = ejeX_Y;
 
                 int totalCat = sumaPorCategoria[cat];
                 double alturaTotalColumna = (totalCat / (double)maxColumna) * altoUtil;
-                double yTopColumna = margenSup + altoUtil - alturaTotalColumna;
+                double yTopColumna = ejeX_Y - alturaTotalColumna;
 
+                // -------- SEGMENTOS APILADOS --------
                 foreach (var kvp in datosCat.OrderBy(k => k.Key))
                 {
                     string nombrePlato = kvp.Key;
@@ -459,20 +579,21 @@ namespace TrabajoIGU
 
                     double ySeg = baseY - alturaSeg;
 
-                    var rect = new System.Windows.Shapes.Rectangle
+                    var rect = new Rectangle
                     {
                         Width = anchoColumna,
                         Height = alturaSeg,
                         Fill = GetColorParaPlato(nombrePlato),
                         Stroke = Brushes.Black,
                         StrokeThickness = 0.5,
-                        ToolTip = $"Plato: {nombrePlato}\nCantidad: {cantidad}",
+                        ToolTip = $"Plato: {nombrePlato}\nCantidad: {cantidad}"
                     };
 
                     Canvas.SetLeft(rect, xCol);
                     Canvas.SetTop(rect, ySeg);
                     canvasEstadisticasMesa.Children.Add(rect);
 
+                    // ------ LABEL DENTRO DEL SEGMENTO ------
                     if (alturaSeg > 18)
                     {
                         var lblCant = new TextBlock
@@ -480,46 +601,116 @@ namespace TrabajoIGU
                             Text = cantidad.ToString(),
                             FontSize = 12,
                             FontWeight = FontWeights.Bold,
-                            Foreground = Brushes.White,
+                            Foreground = Brushes.White
                         };
 
-                        Canvas.SetLeft(lblCant, xCol + anchoColumna / 2 - 8);
-                        Canvas.SetTop(lblCant, ySeg + alturaSeg / 2 - 8);
+                        lblCant.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                        Size sCant = lblCant.DesiredSize;
+
+                        Canvas.SetLeft(lblCant, xCol + (anchoColumna - sCant.Width) / 2);
+                        Canvas.SetTop(lblCant, ySeg + (alturaSeg - sCant.Height) / 2);
                         canvasEstadisticasMesa.Children.Add(lblCant);
                     }
 
                     baseY -= alturaSeg;
                 }
 
-                if (totalCat > 0)
+                // -------- LABEL DEL TOTAL DE LA COLUMNA --------
+                var lblTotal = new TextBlock
                 {
-                    var lblTotal = new TextBlock
-                    {
-                        Text = totalCat.ToString(),
-                        FontSize = 14,
-                        FontWeight = FontWeights.Bold,
-                        Foreground = Brushes.Black
-                    };
+                    Text = totalCat.ToString(),
+                    FontSize = 14,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = Brushes.Black
+                };
 
-                    Canvas.SetLeft(lblTotal, xCol + anchoColumna / 2 - 10);
-                    Canvas.SetTop(lblTotal, yTopColumna - 20);
-                    canvasEstadisticasMesa.Children.Add(lblTotal);
-                }
+                lblTotal.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                Size sTotal = lblTotal.DesiredSize;
 
+                Canvas.SetLeft(lblTotal, xCol + (anchoColumna - sTotal.Width) / 2);
+                Canvas.SetTop(lblTotal, yTopColumna - sTotal.Height - 4);
+                canvasEstadisticasMesa.Children.Add(lblTotal);
+
+                // -------- LABEL DEL NOMBRE DE LA CATEGORÍA --------
                 var lblCat = new TextBlock
                 {
                     Text = nombresCategorias[cat],
                     FontSize = 14,
                     FontWeight = FontWeights.Bold,
-                    TextAlignment = TextAlignment.Center,
-                    Width = anchoColumna
+                    Width = anchoColumna,
+                    TextAlignment = TextAlignment.Center
                 };
 
                 Canvas.SetLeft(lblCat, xCol);
-                Canvas.SetTop(lblCat, margenSup + altoUtil + 10);
+                Canvas.SetTop(lblCat, ejeX_Y + 5);
                 canvasEstadisticasMesa.Children.Add(lblCat);
             }
 
+            // ============================
+            // GUÍAS Y EJE Y
+            // ============================
+            int paso = ObtenerPasoGuia(maxColumna);
+
+            // Eje Y
+            canvasEstadisticasMesa.Children.Add(new Line
+            {
+                X1 = margenIzq,
+                X2 = margenIzq,
+                Y1 = margenSup,
+                Y2 = ejeX_Y,
+                Stroke = Brushes.Black,
+                StrokeThickness = 2
+            });
+
+            // Eje X
+            canvasEstadisticasMesa.Children.Add(new Line
+            {
+                X1 = margenIzq,
+                X2 = ancho,
+                Y1 = ejeX_Y,
+                Y2 = ejeX_Y,
+                Stroke = Brushes.Black,
+                StrokeThickness = 2
+            });
+
+            // Líneas guía + números eje Y
+            for (int v = 0; v <= maxColumna; v += paso)
+            {
+                double proporcion = v / (double)maxColumna;
+                double y = ejeX_Y - proporcion * altoUtil;
+
+                // Guía horizontal (menos la del eje)
+                if (v != 0)
+                {
+                    canvasEstadisticasMesa.Children.Add(new Line
+                    {
+                        X1 = margenIzq,
+                        X2 = ancho,
+                        Y1 = y,
+                        Y2 = y,
+                        Stroke = Brushes.LightGray,
+                        StrokeThickness = 1,
+                        StrokeDashArray = new DoubleCollection { 2, 2 }
+                    });
+                }
+
+                // Etiqueta del eje Y
+                var lbl = new TextBlock
+                {
+                    Text = v.ToString(),
+                    FontSize = 12
+                };
+                lbl.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                Size s2 = lbl.DesiredSize;
+
+                Canvas.SetLeft(lbl, margenIzq - s2.Width - 5);
+                Canvas.SetTop(lbl, y - s2.Height / 2);
+                canvasEstadisticasMesa.Children.Add(lbl);
+            }
+
+            // ============================
+            // LEYENDA
+            // ============================
             var tituloLeyenda = new TextBlock
             {
                 Text = "Leyenda",
@@ -531,34 +722,29 @@ namespace TrabajoIGU
 
             foreach (var kvp in totalesPlatoGlobal.OrderBy(k => k.Key))
             {
-                string nombre = kvp.Key;
-                int total = kvp.Value;
-
                 var fila = new StackPanel
                 {
                     Orientation = Orientation.Horizontal,
                     Margin = new Thickness(5, 2, 5, 2)
                 };
 
-                var recColor = new System.Windows.Shapes.Rectangle
+                fila.Children.Add(new Rectangle
                 {
                     Width = 16,
                     Height = 16,
-                    Fill = GetColorParaPlato(nombre),
+                    Fill = GetColorParaPlato(kvp.Key),
                     Stroke = Brushes.Black,
                     StrokeThickness = 0.5,
                     Margin = new Thickness(0, 0, 5, 0)
-                };
+                });
 
-                var txt = new TextBlock
+                fila.Children.Add(new TextBlock
                 {
-                    Text = $"{nombre} ({total})",
+                    Text = $"{kvp.Key} ({kvp.Value})",
                     FontSize = 13,
                     VerticalAlignment = VerticalAlignment.Center
-                };
+                });
 
-                fila.Children.Add(recColor);
-                fila.Children.Add(txt);
                 panelLeyendaMesa.Children.Add(fila);
             }
         }
@@ -1384,6 +1570,15 @@ namespace TrabajoIGU
                 mesasSuscritas.Add(m);
             }
         }
+
+        private int ObtenerPasoGuia(int max)
+        {
+            if (max <= 10) return 1;
+            if (max <= 20) return 2;
+            if (max <= 50) return 5;
+            return 10;
+        }
+
         #endregion
     }
 }
