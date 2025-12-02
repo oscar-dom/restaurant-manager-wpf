@@ -28,7 +28,6 @@ namespace TrabajoIGU.Windows
 
             platoOriginal = plato;
 
-            // Rellenar campos
             txtNombre.Text = plato.Nombre;
             cbCategoria.SelectedIndex = (int)plato.Categoria;
             txtDescripcion.Text = plato.Descripcion;

@@ -328,7 +328,6 @@ namespace TrabajoIGU
             double anchoColumna = (anchoCanvas - margenIzq - espacio * (datos.Count + 1)) / datos.Count;
             if (anchoColumna < 10) anchoColumna = 10;
 
-            // Línea base del eje X
             double ejeX_Y = margenSup + altoUtil;
 
             int index = 0;
@@ -359,7 +358,6 @@ namespace TrabajoIGU
                 Canvas.SetTop(rect, y);
                 canvasEstadisticasGlobales.Children.Add(rect);
 
-                // Valor encima de la barra
                 var lblValor = new TextBlock
                 {
                     Text = d.Total.ToString(),
@@ -375,11 +373,10 @@ namespace TrabajoIGU
                 Canvas.SetTop(lblValor, y - sizeValor.Height - 2);
                 canvasEstadisticasGlobales.Children.Add(lblValor);
 
-                // Etiqueta inferior "Mesa X"
                 var lblMesa = new TextBlock
                 {
                     Text = "Mesa " + d.Mesa.Id,
-                    FontSize = Math.Max(8, anchoColumna * 0.1),
+                    FontSize = Math.Min(22, anchoColumna*0.15),
                     TextAlignment = TextAlignment.Center,
                     Width = anchoColumna
                 };
@@ -392,11 +389,10 @@ namespace TrabajoIGU
             }
 
             // ---------------------------------------------------
-            // EJES Y LÍNEAS GUÍA
+            // EJES
             // ---------------------------------------------------
             int paso = ObtenerPasoGuia(max);
 
-            // EJE Y
             var ejeY = new Line
             {
                 X1 = margenIzq,
@@ -408,7 +404,6 @@ namespace TrabajoIGU
             };
             canvasEstadisticasGlobales.Children.Add(ejeY);
 
-            // EJE X
             var ejeX = new Line
             {
                 X1 = margenIzq,
@@ -420,13 +415,11 @@ namespace TrabajoIGU
             };
             canvasEstadisticasGlobales.Children.Add(ejeX);
 
-            // LÍNEAS HORIZONTALES + NÚMEROS DE ESCALA
             for (int v = 0; v <= max; v += paso)
             {
                 double proporcion = v / (double)max;
                 double Y = ejeX_Y - proporcion * altoUtil;
 
-                // Línea guía (excepto en 0, ya es el eje)
                 if (v != 0)
                 {
                     var lineaGuia = new Line
@@ -442,7 +435,6 @@ namespace TrabajoIGU
                     canvasEstadisticasGlobales.Children.Add(lineaGuia);
                 }
 
-                // Texto del valor del eje Y
                 TextBlock lbl = new TextBlock
                 {
                     Text = v.ToString(),
@@ -483,15 +475,15 @@ namespace TrabajoIGU
             if (ancho <= 0 || alto <= 0)
                 return;
 
-            // ============================
-            // CARGAR DATOS
-            // ============================
+            // -----------------------------------------------------
+            // Cargar datos por categoría
+            // -----------------------------------------------------
             var categorias = new[] { CategoriaPlato.Primero, CategoriaPlato.Segundo, CategoriaPlato.Postre };
             var nombresCategorias = new Dictionary<CategoriaPlato, string>
     {
         { CategoriaPlato.Primero, "Primeros" },
         { CategoriaPlato.Segundo, "Segundos" },
-        { CategoriaPlato.Postre, "Postres" }
+        { CategoriaPlato.Postre,  "Postres" }
     };
 
             var datosPorCategoria = new Dictionary<CategoriaPlato, Dictionary<string, int>>();
@@ -525,47 +517,48 @@ namespace TrabajoIGU
                     FontWeight = FontWeights.Bold
                 };
                 msg.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                Size s = msg.DesiredSize;
+                Size sizeMsg = msg.DesiredSize;
 
-                Canvas.SetLeft(msg, (ancho - s.Width) / 2);
-                Canvas.SetTop(msg, (alto - s.Height) / 2);
+                Canvas.SetLeft(msg, (ancho - sizeMsg.Width) / 2);
+                Canvas.SetTop(msg, (alto - sizeMsg.Height) / 2);
                 canvasEstadisticasMesa.Children.Add(msg);
                 return;
             }
 
-            // ============================
-            // MÁRGENES Y ÁREAS
-            // ============================
+            // -----------------------------------------------------
+            // Márgenes y área útil (igual que en estadísticas globales)
+            // -----------------------------------------------------
             double margenIzq = 60;
-            double margenDer = 20;
             double margenSup = 20;
             double margenInf = 40;
 
-            double anchoUtil = ancho - margenIzq - margenDer;
+            double anchoUtil = ancho - margenIzq;
             double altoUtil = alto - margenSup - margenInf;
 
-            double ejeX_Y = margenSup + altoUtil;
+            double ejeX_Y = altoUtil + margenSup;
 
             int numCols = categorias.Length;
-            double separacionColumnas = anchoUtil / (numCols * 2.0);
-            double anchoColumna = anchoUtil / (numCols * 1.5);
 
-            // ============================
-            // DIBUJO DE COLUMNAS APILADAS
-            // ============================
+            double espacio = 20;
+
+            double anchoColumna = (anchoUtil - espacio * (numCols + 1)) / numCols;
+            if (anchoColumna < 10) anchoColumna = 10;
+
+            // -----------------------------------------------------
+            // DIBUJAR COLUMNAS APILADAS
+            // -----------------------------------------------------
             for (int i = 0; i < numCols; i++)
             {
                 var cat = categorias[i];
                 var datosCat = datosPorCategoria[cat];
 
-                double xCol = margenIzq + (i * (anchoColumna + separacionColumnas));
+                double xCol = margenIzq + espacio + i * (anchoColumna + espacio);
                 double baseY = ejeX_Y;
 
                 int totalCat = sumaPorCategoria[cat];
-                double alturaTotalColumna = (totalCat / (double)maxColumna) * altoUtil;
-                double yTopColumna = ejeX_Y - alturaTotalColumna;
+                double alturaTot = (totalCat / (double)maxColumna) * altoUtil;
+                double yTopColumna = ejeX_Y - alturaTot;
 
-                // -------- SEGMENTOS APILADOS --------
                 foreach (var kvp in datosCat.OrderBy(k => k.Key))
                 {
                     string nombrePlato = kvp.Key;
@@ -593,7 +586,6 @@ namespace TrabajoIGU
                     Canvas.SetTop(rect, ySeg);
                     canvasEstadisticasMesa.Children.Add(rect);
 
-                    // ------ LABEL DENTRO DEL SEGMENTO ------
                     if (alturaSeg > 18)
                     {
                         var lblCant = new TextBlock
@@ -615,27 +607,23 @@ namespace TrabajoIGU
                     baseY -= alturaSeg;
                 }
 
-                // -------- LABEL DEL TOTAL DE LA COLUMNA --------
                 var lblTotal = new TextBlock
                 {
                     Text = totalCat.ToString(),
                     FontSize = 14,
-                    FontWeight = FontWeights.Bold,
-                    Foreground = Brushes.Black
+                    FontWeight = FontWeights.Bold
                 };
-
                 lblTotal.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                Size sTotal = lblTotal.DesiredSize;
+                Size sTot = lblTotal.DesiredSize;
 
-                Canvas.SetLeft(lblTotal, xCol + (anchoColumna - sTotal.Width) / 2);
-                Canvas.SetTop(lblTotal, yTopColumna - sTotal.Height - 4);
+                Canvas.SetLeft(lblTotal, xCol + (anchoColumna - sTot.Width) / 2);
+                Canvas.SetTop(lblTotal, yTopColumna - sTot.Height - 4);
                 canvasEstadisticasMesa.Children.Add(lblTotal);
 
-                // -------- LABEL DEL NOMBRE DE LA CATEGORÍA --------
                 var lblCat = new TextBlock
                 {
                     Text = nombresCategorias[cat],
-                    FontSize = 14,
+                    FontSize = Math.Min(22, anchoColumna * 0.1),
                     FontWeight = FontWeights.Bold,
                     Width = anchoColumna,
                     TextAlignment = TextAlignment.Center
@@ -646,46 +634,42 @@ namespace TrabajoIGU
                 canvasEstadisticasMesa.Children.Add(lblCat);
             }
 
-            // ============================
-            // GUÍAS Y EJE Y
-            // ============================
+            // -----------------------------------------------------
+            // Ejes y guías
+            // -----------------------------------------------------
             int paso = ObtenerPasoGuia(maxColumna);
 
-            // Eje Y
             canvasEstadisticasMesa.Children.Add(new Line
             {
                 X1 = margenIzq,
-                X2 = margenIzq,
-                Y1 = margenSup,
-                Y2 = ejeX_Y,
-                Stroke = Brushes.Black,
-                StrokeThickness = 2
-            });
-
-            // Eje X
-            canvasEstadisticasMesa.Children.Add(new Line
-            {
-                X1 = margenIzq,
-                X2 = ancho,
+                X2 = margenIzq + anchoUtil,
                 Y1 = ejeX_Y,
                 Y2 = ejeX_Y,
                 Stroke = Brushes.Black,
                 StrokeThickness = 2
             });
 
-            // Líneas guía + números eje Y
+            canvasEstadisticasMesa.Children.Add(new Line
+            {
+                X1 = margenIzq,
+                X2 = margenIzq,
+                Y1 = 0,
+                Y2 = ejeX_Y,
+                Stroke = Brushes.Black,
+                StrokeThickness = 2
+            });
+
             for (int v = 0; v <= maxColumna; v += paso)
             {
-                double proporcion = v / (double)maxColumna;
-                double y = ejeX_Y - proporcion * altoUtil;
+                double prop = v / (double)maxColumna;
+                double y = ejeX_Y - prop * altoUtil;
 
-                // Guía horizontal (menos la del eje)
                 if (v != 0)
                 {
                     canvasEstadisticasMesa.Children.Add(new Line
                     {
                         X1 = margenIzq,
-                        X2 = ancho,
+                        X2 = margenIzq + anchoUtil,
                         Y1 = y,
                         Y2 = y,
                         Stroke = Brushes.LightGray,
@@ -694,23 +678,22 @@ namespace TrabajoIGU
                     });
                 }
 
-                // Etiqueta del eje Y
-                var lbl = new TextBlock
+                var lblY = new TextBlock
                 {
                     Text = v.ToString(),
                     FontSize = 12
                 };
-                lbl.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                Size s2 = lbl.DesiredSize;
+                lblY.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                Size sizeY = lblY.DesiredSize;
 
-                Canvas.SetLeft(lbl, margenIzq - s2.Width - 5);
-                Canvas.SetTop(lbl, y - s2.Height / 2);
-                canvasEstadisticasMesa.Children.Add(lbl);
+                Canvas.SetLeft(lblY, margenIzq - sizeY.Width - 5);
+                Canvas.SetTop(lblY, y - sizeY.Height / 2);
+                canvasEstadisticasMesa.Children.Add(lblY);
             }
 
-            // ============================
+            // -----------------------------------------------------
             // LEYENDA
-            // ============================
+            // -----------------------------------------------------
             var tituloLeyenda = new TextBlock
             {
                 Text = "Leyenda",

@@ -21,10 +21,8 @@ namespace TrabajoIGU.Windows
         private int capacidadMaxima;
         private EstadoMesa estadoMesa;
 
-        // Valor seleccionado por el usuario (propiedad pública para que MainWindow lo lea)
         public int NumComensales { get; private set; }
 
-        // Constructor que espera valor actual y capacidad máxima (coincide con la llamada desde MainWindow)
         public InputComensalesWindow(int valorActual, int maxima, EstadoMesa estado)
         {
             InitializeComponent();
@@ -49,7 +47,6 @@ namespace TrabajoIGU.Windows
                 return;
             }
 
-            // 🔹 Si la mesa estaba ocupada con comanda y se pone a 0 → advertencia
             if (estadoMesa == EstadoMesa.OcupadaConComanda && valor == 0)
             {
                 var respuesta = MessageBox.Show(
@@ -60,7 +57,7 @@ namespace TrabajoIGU.Windows
                     MessageBoxImage.Warning);
 
                 if (respuesta == MessageBoxResult.No)
-                    return; // el usuario cancela la acción
+                    return;
             }
 
             NumComensales = valor;
