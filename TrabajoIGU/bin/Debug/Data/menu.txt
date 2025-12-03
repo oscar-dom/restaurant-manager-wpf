@@ -1,4 +1,4 @@
-# nombre | categoría | descripción
+# nombre | categoria | descripcion
 
 Ensalada mixta|Primero|Lechuga fresca, tomate y cebolla
 Sopa de verduras|Primero|Caldo suave con verduras de temporada
@@ -7,29 +7,30 @@ Paella valenciana|Primero|Arroz tradicional con pollo, conejo y verduras
 Crema de calabaza|Primero|Suave crema de calabaza con crujiente de pan
 Pasta al pesto|Primero|Pasta fresca con salsa de albahaca y queso parmesano
 Hummus con tostadas|Primero|Crema de garbanzos con especias y pan tostado
-Revuelto de champiñones|Primero|Huevos salteados con champiñones frescos
-Ensalada César|Primero|Lechuga, pollo, queso parmesano y salsa césar
-Tortilla francesa|Primero|Clásica tortilla esponjosa de huevo
+Revuelto de champinones|Primero|Huevos salteados con champinones frescos
+Ensalada Cesar|Primero|Lechuga, pollo, queso parmesano y salsa cesar
+Tortilla francesa|Primero|Clasica tortilla esponjosa de huevo
 
 Pollo al horno|Segundo|Pollo marinado asado lentamente
-Merluza a la plancha|Segundo|Filete de merluza con aceite y limón
-Filete con patatas|Segundo|Carne de ternera con guarnición de patatas fritas
+Merluza a la plancha|Segundo|Filete de merluza con aceite y limon
+Filete con patatas|Segundo|Carne de ternera con guarnicion de patatas fritas
 Costillas BBQ|Segundo|Costillas de cerdo cocinadas a baja temperatura con salsa barbacoa
-Lasaña de carne|Segundo|Pasta en capas con carne, salsa de tomate y bechamel
+Lasana de carne|Segundo|Pasta en capas con carne, salsa de tomate y bechamel
 Hamburguesa completa|Segundo|Carne de vacuno con queso, lechuga, tomate y cebolla
-Dorada al horno|Segundo|Pescado dorado con limón y aceite de oliva
-Albóndigas caseras|Segundo|Albóndigas de carne en salsa de tomate
+Dorada al horno|Segundo|Pescado dorado con limon y aceite de oliva
+Albondigas caseras|Segundo|Albondigas de carne en salsa de tomate
 Chuleta de cerdo|Segundo|Corte jugoso a la plancha con especias
 Arroz caldoso de marisco|Segundo|Arroz suave con fumet de pescado y marisco fresco
 
 Tarta de queso|Postre|Tarta casera cremosa al horno
-Fruta del tiempo|Postre|Selección fresca de frutas de temporada
+Fruta del tiempo|Postre|Seleccion fresca de frutas de temporada
 Flan casero|Postre|Flan tradicional con caramelo
-Helado variado|Postre|Selección de helados artesanales
+Helado variado|Postre|Seleccion de helados artesanales
 Natillas caseras|Postre|Natillas con toque de canela
 Brownie con nueces|Postre|Bizcocho de chocolate con nueces
 Panna cotta|Postre|Postre italiano suave con salsa de frutos rojos
-Bizcocho de limón|Postre|Bizcocho esponjoso con glaseado de limón
+Bizcocho de limon|Postre|Bizcocho esponjoso con glaseado de limon
 Macedonia fresca|Postre|Mezcla de frutas variadas
-Tiramisú casero|Postre|Postre italiano con café y cacao
+Tiramisu casero|Postre|Postre italiano con cafe y cacao
+
 

@@ -1485,21 +1485,16 @@ namespace TrabajoIGU
         public static void GenerarFactura(Mesa mesa, Comanda comanda)
         {
             if (comanda == null || comanda.Platos.Count == 0)
-                return; // nada que facturar
+                return;
 
             string fecha = DateTime.Now.ToString("yyyy-MM-dd_HH-mm");
             string nombreArchivo = $"Factura_Mesa{mesa.Id}_{fecha}.txt";
 
-            string carpeta = "Facturas";
-            if (!Directory.Exists(carpeta))
-                Directory.CreateDirectory(carpeta);
-
-            string ruta = System.IO.Path.Combine(carpeta, nombreArchivo);
 
             var sb = new System.Text.StringBuilder();
             sb.AppendLine("RESTAURANTE LOS COMIDITAS");
             sb.AppendLine($"Factura de Mesa {mesa.Id}");
-            sb.AppendLine($"Fecha: {DateTime.Now:dd/MM/yyyy HH:mm}");
+            sb.AppendLine($"Fecha: {fecha}");
             sb.AppendLine();
             sb.AppendLine("Platos consumidos:");
             sb.AppendLine();
