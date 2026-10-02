@@ -62,7 +62,7 @@ Requisitos: Windows y Visual Studio 2022 con la carga de trabajo "Desarrollo de 
 
 1. Clona el repositorio:
    ```
-   git clone https://github.com/oscar-dom/TrabajoIGU.git
+   git clone https://github.com/oscar-dom/restaurant-manager-wpf.git
    ```
 2. Abre `TrabajoIGU/TrabajoIGU.sln` en Visual Studio.
 3. Compila y ejecuta con F5. Visual Studio restaura el paquete NuGet (Extended WPF Toolkit) en la primera compilación.
