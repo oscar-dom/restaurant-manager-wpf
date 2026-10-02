@@ -1,1 +1,29 @@
+# Visual Studio: configuración local y de usuario
 .vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Resultados de compilación
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.pdb
+*.cache
+
+# Paquetes NuGet (se restauran al compilar a partir de packages.config)
+[Pp]ackages/
+*.nupkg
+
+# Resultados de pruebas y análisis
+[Tt]est[Rr]esult*/
+*.VisualState.xml
+
+# Ficheros del sistema
+Thumbs.db
+Desktop.ini
+.DS_Store
