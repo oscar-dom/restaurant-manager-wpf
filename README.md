@@ -4,13 +4,9 @@ Aplicación de escritorio para gestionar la sala de un restaurante: los camarero
 
 Desarrollada en C# y XAML con WPF (.NET Framework 4.7.2) como práctica final de la asignatura Interfaces Gráficas de Usuario del Grado en Ingeniería Informática (Universidad de Salamanca), en noviembre de 2025.
 
-<!--
-CAPTURAS: guarda tres capturas en docs/capturas/ con estos nombres y quita este comentario.
-
 ![Sala del restaurante](docs/capturas/sala.png)
 ![Edición de una comanda](docs/capturas/comanda.png)
 ![Estadísticas de una mesa](docs/capturas/estadisticas.png)
--->
 
 ## Funcionalidades
 
